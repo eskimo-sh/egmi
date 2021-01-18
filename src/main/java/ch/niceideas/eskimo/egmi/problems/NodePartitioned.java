@@ -258,11 +258,14 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                         context.error ("      ! Attaching " + host + " to " + candidate + " failed. Trying next candidate if available.");
                         logger.error (peerProbeResult.getMessage());
                         continue;
+                    } else {
+                        context.info("        + peer probe " + host + " on " + candidate + " succeeded");
                     }
 
                     // 7. Check host is added
                     int attempt;
                     for (attempt = 0; attempt < 5; attempt++) {
+                        context.info("        + checking pool on  " + host + " - attempt " + attempt);
                         GlusterPoolList poolList = new GlusterPoolList(context.getHttpClient());
                         GlusterPoolListResult poolListResult = poolList.execute(host, context);
                         if (!peerProbeResult.isSuccess()) {
@@ -270,15 +273,17 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                             throw new ResolutionStopException("! Failed checking pool on  " + host);
                         }
                         if (poolListResult.getAllHosts().contains(candidate)) {
+                            context.info("        + found  " + candidate + " in pool on " + host);
                             return true;
                         }
                         try {
-                            Thread.sleep(1);
+                            Thread.sleep(500);
                         } catch (InterruptedException e) {
                             logger.debug (e, e);
                         }
                     }
                     if (attempt == 5){
+                        context.error ("      ! Failed to confirm peer addition in 5 attempts.");
                         throw new ResolutionStopException("! Failed to confirm peer addition in 5 attempts.");
                     }
 
