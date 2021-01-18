@@ -1,0 +1,26 @@
+[
+  {
+    "host": "192.168.10.71",
+    "volumes": "test1, test2",
+    "nbr_bricks": 2,
+    "status": "OK"
+  },
+  {
+    "host": "192.168.10.72",
+    "volumes": "test1, test2",
+    "nbr_bricks": 2,
+    "status": "OK"
+  },
+  {
+    "host": "192.168.10.73",
+    "volumes": "test1, test2",
+    "nbr_bricks": 2,
+    "status": "OK"
+  },
+  {
+    "host": "192.168.10.74",
+    "volumes": "test2",
+    "nbr_bricks": 1,
+    "status": "OK"
+  }
+]

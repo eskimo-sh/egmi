@@ -1,0 +1,31 @@
+
+Volume Name: test1
+Type: Replicate
+Volume ID: 10bb61f8-2274-4dd5-bb28-833d152760ca
+Status: Started
+Snapshot Count: 0
+Number of Bricks: 1 x 3 = 3
+Transport-type: tcp
+Bricks:
+Brick1: 192.168.10.71:/var/lib/gluster/volume_bricks/test1
+Brick2: 192.168.10.72:/var/lib/gluster/volume_bricks/test2
+Brick3: 192.168.10.73:/var/lib/gluster/volume_bricks/test3
+Options Reconfigured:
+transport.address-family: inet
+nfs.disable: on
+performance.client-io-threads: off
+
+Volume Name: test2
+Type: Replicate
+Volume ID: 355cee1c-6548-401e-9971-f372c1801d44
+Status: Started
+Snapshot Count: 0
+Number of Bricks: 1 x 2 = 2
+Transport-type: tcp
+Bricks:
+Brick1: 192.168.10.71:/var/lib/gluster/volume_bricks/test2_bis_1
+Brick2: 192.168.10.72:/var/lib/gluster/volume_bricks/test2_bis_2
+Options Reconfigured:
+transport.address-family: inet
+nfs.disable: on
+performance.client-io-threads: off

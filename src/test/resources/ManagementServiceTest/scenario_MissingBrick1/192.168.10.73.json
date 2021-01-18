@@ -1,0 +1,95 @@
+{
+    "peers": [
+        {
+            "uid": "e4c4dadd-19b1-433c-b6e3-32a31325e4a0",
+            "hostname": "192.168.10.74",
+            "state": "Connected"
+        },
+        {
+            "uid": "00d9023e-c098-411c-bd43-1e81927fc9ab",
+            "hostname": "192.168.10.72",
+            "state": "Connected"
+        },
+        {
+            "uid": "bef24025-ac9e-4ff4-8f63-d72644c5b708",
+            "hostname": "192.168.10.71",
+            "state": "Connected"
+        },
+        {
+            "uid": "08501e18-7b57-4131-bb69-523345207334",
+            "hostname": "localhost",
+            "state": "Connected"
+        }
+    ],
+    "volumes": [
+        {
+            "nb_bricks": "2",
+            "bricks": [
+                {
+                    "number": 1,
+                    "node": "192.168.10.71",
+                    "path": "/var/lib/gluster/volume_bricks/test2_1",
+                    "total": "40.0GB",
+                    "fs_type": "xfs",
+                    "free": "33.3GB",
+                    "device": "/dev/sda1",
+                    "status": "OK"
+                },
+                {
+                    "number": 2,
+                    "node": "192.168.10.72",
+                    "path": "/var/lib/gluster/volume_bricks/test2_2",
+                    "total": "40.0GB",
+                    "fs_type": "xfs",
+                    "free": "33.3GB",
+                    "device": "/dev/sda1",
+                    "status": "OK"
+                }
+            ],
+            "name": "test2",
+            "type": "Distribute",
+            "status": "OK",
+            "nb_shards": "2"
+        },
+        {
+            "nb_bricks": "3",
+            "bricks": [
+                {
+                    "number": 1,
+                    "node": "192.168.10.71",
+                    "path": "/var/lib/gluster/volume_bricks/test1",
+                    "total": "40.0GB",
+                    "fs_type": "xfs",
+                    "free": "33.3GB",
+                    "device": "/dev/sda1",
+                    "status": "OK"
+                },
+                {
+                    "number": 2,
+                    "node": "192.168.10.72",
+                    "path": "/var/lib/gluster/volume_bricks/test2",
+                    "total": "40.0GB",
+                    "fs_type": "xfs",
+                    "free": "33.3GB",
+                    "device": "/dev/sda1",
+                    "status": "OK"
+                },
+                {
+                    "number": 3,
+                    "node": "192.168.10.73",
+                    "path": "/var/lib/gluster/volume_bricks/test3",
+                    "total": "40.0GB",
+                    "fs_type": "xfs",
+                    "free": "33.3GB",
+                    "device": "/dev/sda1",
+                    "status": "OK"
+                }
+            ],
+            "nb_replicas": "3",
+            "name": "test1",
+            "type": "Replicate",
+            "status": "OK",
+            "nb_shards": "1"
+        }
+    ]
+}

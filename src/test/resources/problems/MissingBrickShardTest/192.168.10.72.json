@@ -1,0 +1,85 @@
+{
+  "peers": [
+    {
+      "uid": "c2817b28-72e8-4cf4-a37c-8af800198725",
+      "hostname": "192.168.10.71",
+      "state": "Connected"
+    },
+    {
+      "uid": "635ae97e-6287-45b0-86e4-2b890cc26a59",
+      "hostname": "192.168.10.73",
+      "state": "Connected"
+    },
+    {
+      "uid": "a4f7b4ab-f531-453e-ad81-0967ffe849a2",
+      "hostname": "192.168.10.74",
+      "state": "Disconnected"
+    },
+    {
+      "uid": "ac98d24e-2ded-4631-a68b-8ab577500f1d",
+      "hostname": "localhost",
+      "state": "Connected"
+    }
+  ],
+  "volumes": [
+    {
+      "nb_bricks": "2",
+      "bricks": [
+        {
+          "number": 1,
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/test2",
+          "total": "40.0GB",
+          "fs_type": "xfs",
+          "free": "33.1GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": 2,
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/test2",
+          "total": "40.0GB",
+          "fs_type": "xfs",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        }
+      ],
+      "name": "test2",
+      "type": "Distribute",
+      "status": "OK",
+      "nb_shards": "2"
+    },
+    {
+      "nb_bricks": "2",
+      "bricks": [
+        {
+          "number": 1,
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/test1",
+          "total": "40.0GB",
+          "fs_type": "xfs",
+          "free": "33.1GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": 2,
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/test1",
+          "total": "40.0GB",
+          "fs_type": "xfs",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        }
+      ],
+      "nb_replicas": "2",
+      "name": "test1",
+      "type": "Replicate",
+      "status": "OK",
+      "nb_shards": "1"
+    }
+  ]
+}

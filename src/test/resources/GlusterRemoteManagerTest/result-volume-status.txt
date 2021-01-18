@@ -1,0 +1,74 @@
+Status of volume: test1
+------------------------------------------------------------------------------
+Brick                : Brick 192.168.10.71:/var/lib/gluster/volume_bricks/test1
+TCP Port             : 49152
+RDMA Port            : 0
+Online               : Y
+Pid                  : 11154
+File System          : xfs
+Device               : /dev/sda1
+Mount Options        : rw,seclabel,relatime,attr2,inode64,noquota
+Inode Size           : N/A
+Disk Space Free      : 33.2GB
+Total Disk Space     : 40.0GB
+Inode Count          : 20971008
+Free Inodes          : 20896165
+------------------------------------------------------------------------------
+Brick                : Brick 192.168.10.72:/var/lib/gluster/volume_bricks/test2
+TCP Port             : 49152
+RDMA Port            : 0
+Online               : Y
+Pid                  : 11116
+File System          : xfs
+Device               : /dev/sda1
+Mount Options        : rw,seclabel,relatime,attr2,inode64,noquota
+Inode Size           : N/A
+Disk Space Free      : 33.2GB
+Total Disk Space     : 40.0GB
+Inode Count          : 20971008
+Free Inodes          : 20896186
+------------------------------------------------------------------------------
+Brick                : Brick 192.168.10.73:/var/lib/gluster/volume_bricks/test3
+TCP Port             : 49152
+RDMA Port            : 0
+Online               : Y
+Pid                  : 54
+File System          : xfs
+Device               : /dev/sda1
+Mount Options        : rw,seclabel,relatime,attr2,inode64,noquota
+Inode Size           : N/A
+Disk Space Free      : 33.3GB
+Total Disk Space     : 40.0GB
+Inode Count          : 20971008
+Free Inodes          : 20896290
+
+Status of volume: test2
+------------------------------------------------------------------------------
+Brick                : Brick 192.168.10.71:/var/lib/gluster/volume_bricks/test2_bis_1
+TCP Port             : N/A
+RDMA Port            : N/A
+Online               : N
+Pid                  : N/A
+File System          : xfs
+Device               : /dev/sda1
+Mount Options        : rw,seclabel,relatime,attr2,inode64,noquota
+Inode Size           : N/A
+Disk Space Free      : 33.2GB
+Total Disk Space     : 40.0GB
+Inode Count          : 20971008
+Free Inodes          : 20896165
+------------------------------------------------------------------------------
+Brick                : Brick 192.168.10.72:/var/lib/gluster/volume_bricks/test2_bis_2
+TCP Port             : 49153
+RDMA Port            : 0
+Online               : Y
+Pid                  : 29496
+File System          : xfs
+Device               : /dev/sda1
+Mount Options        : rw,seclabel,relatime,attr2,inode64,noquota
+Inode Size           : N/A
+Disk Space Free      : 33.2GB
+Total Disk Space     : 40.0GB
+Inode Count          : 20971008
+Free Inodes          : 20896186
+

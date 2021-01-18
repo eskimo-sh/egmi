@@ -1,0 +1,600 @@
+/*
+This file is part of the eskimo project referenced at www.eskimo.sh. The licensing information below apply just as
+well to this individual file than to the Eskimo Project as a whole.
+
+ Copyright 2019 - 2021 eskimo.sh / https://www.eskimo.sh - All rights reserved.
+Author : eskimo.sh / https://www.eskimo.sh
+
+Eskimo is available under a dual licensing model : commercial and GNU AGPL.
+If you did not acquire a commercial licence for Eskimo, you can still use it and consider it free software under the
+terms of the GNU Affero Public License. You can redistribute it and/or modify it under the terms of the GNU Affero
+Public License  as published by the Free Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+Compliance to each and every aspect of the GNU Affero Public License is mandatory for users who did no acquire a
+commercial license.
+
+Eskimo is distributed as a free software under GNU AGPL in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Affero Public License for more details.
+
+You should have received a copy of the GNU Affero Public License along with Eskimo. If not,
+see <https://www.gnu.org/licenses/> or write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+Boston, MA, 02110-1301 USA.
+
+You can be released from the requirements of the license by purchasing a commercial license. Buying such a
+commercial license is mandatory as soon as :
+- you develop activities involving Eskimo without disclosing the source code of your own product, software,
+  platform, use cases or scripts.
+- you deploy eskimo as part of a commercial product, platform or software.
+For more information, please contact eskimo.sh at https://www.eskimo.sh
+
+The above copyright notice and this licensing notice shall be included in all copies or substantial portions of the
+Software.
+*/
+
+body{
+    background-color: #FEFEFE;
+
+    /*
+    background: url('../img/bg.jpg');
+    background-size: cover;
+    */
+    height: 100vh;
+    width: 100%;
+
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #999;
+    border-radius: 6px;
+    outline: 0;
+    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    background-image: -webkit-linear-gradient(top, #858585 0%, #686868 100%);
+    background-image: -o-linear-gradient(top, #858585 0%, #686868 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#858585), to(#686868));
+    background-image: linear-gradient(to bottom, #858585 0%, #686868 100%);
+    color: white;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff858585', endColorstr='#ff686868', GradientType=0);
+    background-repeat: repeat-x;
+    font-weight: bold;
+}
+
+.panel-default > .panel-heading {
+    background-image: -webkit-linear-gradient(top, #858585 0%, #686868 100%);
+    background-image: -o-linear-gradient(top, #858585 0%, #686868 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#858585), to(#686868));
+    background-image: linear-gradient(to bottom, #858585 0%, #686868 100%);
+    color: white;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff858585', endColorstr='#ff686868', GradientType=0);
+    background-repeat: repeat-x;
+    font-weight: bold;
+}
+
+.card-box {
+    cursor: grab;
+    /*z-index: -1;*/
+    height: 400px;
+}
+
+.card{
+    box-shadow: -18px 19px 31px rgba(0, 0, 0, 0.2);
+    margin-bottom: 30px;
+    border: 1px solid #7777;
+    height: 330px;
+}
+
+
+.subtitle{
+    text-align: center;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 400;
+    max-width: 220px;
+    margin: 0 auto 10px;
+    line-height: 1.5;
+}
+
+.page-description,
+.page-description-footer{
+    text-align: center;
+    color: #EEEEEE;    
+    position: relative;
+}
+
+.page-description-footer{
+    margin-bottom: 20px;
+    clear: both;
+}
+.page-description-footer h2{
+    margin-top: 60px;
+    padding-bottom: 10px;
+}
+.page-description-footer .btn{
+    margin: 0 3px;
+}
+.page-description-footer .btn-social i{
+    margin-right: 7px;
+}
+
+.page-description-footer-buttons {
+    margin-top: 40px;
+}
+
+.page-description-header{
+    height: 350px;
+}
+
+.ct-heart{
+    color: #F74933;
+}
+.page-description-footer p{
+    text-align: center;
+    color: #eeeeee;
+    margin-top: 70px;
+}
+
+.page-description-footer .social-area{
+    margin: 0 auto;
+}
+.page-description-footer > div{
+    display: inline-block;
+}
+
+.logo-container{
+    position: absolute;
+    top: 10px;
+    z-index: 3;
+}
+.logo-container.full-screen-table-demo{
+    left: 13px;
+    top: 10px;
+}
+
+.logo-container .logo{
+    overflow: hidden;
+    /* border-radius: 50%; */
+    /* border: 1px solid #333333; */
+    width: 30px;
+    float: left;
+    position: relative;
+}
+
+.logo-container .node {
+    float: left;
+    margin-top: 2px;
+    color: #000000;
+}
+
+.logo-image {
+    width: 20px;
+}
+
+@media (max-width: 450px) {
+    .user-container .user{
+        max-width: 150px;
+        overflow-x: hidden;
+    }
+}
+@media (max-width: 979px){
+
+    .logo-container .brand {
+        font-size: 16px;
+    }
+    .logo-container{
+        left: 10px;
+    }
+}
+@media (min-width: 979px){
+
+    .logo-container .brand {
+        font-size: 18px;
+    }
+    .logo-container{
+        left: 30px;
+    }
+}
+.logo-container .brand{
+    color: #000000;
+    line-height: 20px;    
+    float: left;
+    margin-left: 00px;
+    margin-top: 1px;
+    width: 50px
+}
+
+h2.big-title{
+    font-size: 44px !important;
+    margin-top: 150px;
+}
+
+h1{
+    font-size: 38px;
+}
+
+h1 small{
+   color: #EEE;
+}
+
+
+.modal-dialog{
+    overflow-y: initial !important
+}
+.modal-body{
+    overflow-y: auto;
+}
+
+.modal-header .close {
+    margin-top: -20px;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.pagination {
+    margin: 0;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    padding: 8px;
+    padding-top: 10px;
+    padding-bottom: 0px;
+}
+
+.table-responsive ul.pagination,
+.table-responsive btn {
+    padding-top: 5px;
+}
+
+.table {
+    margin-bottom: 0px;
+}
+
+.status-table {
+    margin-bottom: 20px;
+}
+
+.container {
+    top: 30px;
+    display: block;
+    position: relative;
+    width: 100%;
+}
+
+
+
+.container-loading-overlay {
+    background: transparent;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    -webkit-transform: translate(-50%, 0);
+    -moz-transform: translate(-50%, 0);
+    z-index: 20;
+}
+
+.loading-overlay {
+    background: #ffffff;
+    color: #666666;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    z-index: 5000;
+    top: 0;
+    left: 0;
+    float: left;
+    text-align: center;
+    padding-top: 10px;
+    opacity: .80;
+}
+
+
+.spinner-small {
+    margin: 0 auto;
+    height: 12px;
+    width: 12px;
+    animation: rotate 0.8s infinite linear;
+    border: 5px solid deepskyblue;
+    border-right-color: transparent;
+    border-radius: 50%;
+}
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    margin: 0 auto;
+    height: 50px;
+    width: 50px;
+    animation: rotate 0.8s infinite linear;
+    border: 5px solid deepskyblue;
+    border-right-color: transparent;
+    border-radius: 50%;
+}
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.close {
+    float: right;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1;
+    color: #FFF;
+    text-shadow: 0 1px 0 #000;
+    filter: alpha(opacity=100);
+    opacity: 1;
+}
+
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 999px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    background: red;
+    cursor: inherit;
+    display: block;
+}
+input[readonly] {
+    background-color: white !important;
+    cursor: text !important;
+}
+
+.wrapper {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select:none;
+    user-select:none;
+    -o-user-select:none;
+    padding-top: 10px;
+}
+
+body.empty-page {
+    width: 100%;
+    flex-grow: 1;
+    background-color: #373a3c;
+}
+
+body.empty-page-white {
+    width: 100%;
+    flex-grow: 1;
+    background-color: white;
+}
+
+.eskimo-panel-heading,
+.panel-default .eskimo-panel-heading {
+    background: #384b5f;
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+.vertical-center {
+    min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+    min-height: 100vh; /* These two lines are counted as one :-)       */
+
+    display: flex;
+    align-items: center;
+}
+
+
+/** This was an attempt to have scrollable menu (vertically)
+But it breaks  the menu entry title overlay
+.left-panel-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 17px;
+    box-sizing: content-box;
+}
+#hoe-left-panel[hoe-position-type="absolute"] {
+    overflow-y: hidden;
+    overflow-x: visible;
+}
+ */
+
+.menu-scroll-button {
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    height: 25px;
+    background: inherit;
+    background: #384b5f;
+    color: #ced4d7;
+    border-right: 1px solid #455769;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.menu-scroll-button:hover {
+    color: #FFF;
+    background: #2c3e50;
+}
+.left-panel-menu-container {
+    position: absolute;
+    width: 100%;
+    top: 0px;
+    z-index: 1;
+}
+.left-panel-container {
+    height: 100%
+}
+
+#menu-scroll-up {
+    top: 0px;
+    border-bottom: 1px solid #455769;
+}
+#menu-scroll-down {
+    border-top: 1px solid #455769;
+    bottom: 50px;
+}
+
+.last-menu,
+#hoe-left-panel .last-menu {
+    padding-bottom: 40px;
+}
+
+.disabled{
+    pointer-events: none;
+    cursor: default;
+}
+.invisible {
+    visibility: hidden;
+}
+
+.blinking-status {
+    animation: blink-status 1s ease-in-out infinite;
+    opacity: 1;
+}
+
+@keyframes blink-status {
+    0% {
+        opacity: 0.2;
+    }
+    25% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 0.6;
+    }
+    100% {
+        opacity: 0.2;
+    }
+}
+
+.font-weight-bold {
+    font-weight: bold;
+}
+
+.radio + .radio, .checkbox + .checkbox {
+    margin-top: inherit;
+}
+.no-padding {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+html, body {
+    height: 100%;
+}
+li.disabled a .menu-text {
+    color: #888899;
+}
+
+.modal-dialog{
+    overflow-y: initial !important
+}
+.modal-body{
+    overflow-y: auto;
+}
+.table > thead > tr > td.status-node-cell,
+.table > thead > tr > td.status-node-cell-empty,
+.table > thead > tr > td.status-node-cell-intro,
+.table > tbody > tr > td.status-node-cell,
+.table > tbody > tr > td.status-node-cell-empty,
+.table > tbody > tr > td.status-node-cell-intro,
+.table > tfoot > tr > td.status-node-cell,
+.table > tfoot > tr > td.status-node-cell-empty,
+.table > tfoot > tr > td.status-node-cell-intro,
+.status-node-cell,
+.status-node-cell-empty,
+.status-node-cell-intro {
+    padding: 2px 5px 2px 5px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.status-node-cell-left,
+.table > thead > tr > td.status-node-cell-left,
+.table > tbody > tr > td.status-node-cell-left,
+.table > tfoot > tr > td.status-node-cell-left{
+    text-align: left;
+}
+
+.table > thead > tr > td.status-node-cell,
+.table > thead > tr > td.status-node-cell-intro,
+.table > tbody > tr > td.status-node-cell,
+.table > thead > tr > td.status-node-cell-intro,
+.table > tfoot > tr > td.status-node-cell,
+.table > thead > tr > td.status-node-cell-intro,
+.status-node-cell,
+.status-node-cell-intro {
+    cursor: pointer;
+}
+
+.table > thead > tr > td.status-node-cell,
+.table > thead > tr > td.status-node-cell-empty,
+.table > thead > tr > td.status-node-cell-intro {
+    background-color: #F2F2F2;
+    font-weight: bold;
+}
+
+.table > tbody > tr > td.status-node-cell i,
+.table > tbody > tr > td.status-node-cell-empty i,
+.table > tbody > tr > td.status-node-cell-intro i {
+    font-size: larger;
+}
+
+.table > tbody > tr > td.status-node-cell a span,
+.table > tbody > tr > td.status-node-cell-empty a span,
+.table > tbody > tr > td.status-node-cell-intro a span {
+    color: #888888;
+}
+
+.disabled-label {
+    color: #FF9999;
+}
+
+#empty-volumes,
+#empty-nodes {
+    font-style: italic;
+}
+
+.master-problem{
+    float: left;
+    margin-top: 2px;
+    color: #FF0000;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.btn-action {
+    padding: 1px 4px;
+    padding-left: 8px;
+}

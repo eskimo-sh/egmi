@@ -1,0 +1,4 @@
+{
+  "discovered-nodes": "192.168.10.71,192.168.10.72,192.168.10.73,192.168.10.74",
+  "discovered-volumes": "flink_data,logstash_data,spark_data,spark_eventlog,test"
+}

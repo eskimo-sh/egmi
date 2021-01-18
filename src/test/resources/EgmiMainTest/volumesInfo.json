@@ -1,0 +1,92 @@
+[
+  {
+    "volume": "test1",
+    "nb_bricks": "3 / 3",
+    "bricks": [
+      {
+        "number": "1",
+        "node": "192.168.10.71",
+        "path": "/var/lib/gluster/volume_bricks/test1",
+        "tot": "40.0GB",
+        "id": "192.168.10.71:/var/lib/gluster/volume_bricks/test1",
+        "free": "32.7GB",
+        "device": "/dev/sda1",
+        "status": "OK"
+      },
+      {
+        "number": "2",
+        "node": "192.168.10.72",
+        "path": "/var/lib/gluster/volume_bricks/test1",
+        "tot": "40.0GB",
+        "id": "192.168.10.72:/var/lib/gluster/volume_bricks/test1",
+        "free": "33.0GB",
+        "device": "/dev/sda1",
+        "status": "OK"
+      },
+      {
+        "number": "3",
+        "node": "192.168.10.73",
+        "path": "/var/lib/gluster/volume_bricks/test1",
+        "tot": "40.0GB",
+        "id": "192.168.10.73:/var/lib/gluster/volume_bricks/test1",
+        "free": "33.0GB",
+        "device": "/dev/sda1",
+        "status": "OK"
+      }
+    ],
+    "nb_replicas": "3 / 3",
+    "type": "Replicate",
+    "nb_shards": "1 / 1",
+    "status": "OK"
+  },
+  {
+    "volume": "test2",
+    "nb_bricks": "4 / 3",
+    "bricks": [
+      {
+        "number": "1",
+        "node": "192.168.10.71",
+        "path": "/var/lib/gluster/volume_bricks/test2",
+        "tot": "40.0GB",
+        "id": "192.168.10.71:/var/lib/gluster/volume_bricks/test2",
+        "free": "32.7GB",
+        "device": "/dev/sda1",
+        "status": "OK"
+      },
+      {
+        "number": "2",
+        "node": "192.168.10.74",
+        "path": "/var/lib/gluster/volume_bricks/test2",
+        "tot": "40.0GB",
+        "id": "192.168.10.74:/var/lib/gluster/volume_bricks/test2",
+        "free": "33.0GB",
+        "device": "/dev/sda1",
+        "status": "OK"
+      },
+      {
+        "number": "3",
+        "node": "192.168.10.72",
+        "path": "/var/lib/gluster/volume_bricks/test2",
+        "tot": "40.0GB",
+        "id": "192.168.10.72:/var/lib/gluster/volume_bricks/test2",
+        "free": "33.0GB",
+        "device": "/dev/sda1",
+        "status": "OK"
+      },
+      {
+        "number": "4",
+        "node": "192.168.10.73",
+        "path": "/var/lib/gluster/volume_bricks/test2",
+        "tot": "40.0GB",
+        "id": "192.168.10.73:/var/lib/gluster/volume_bricks/test2",
+        "free": "33.0GB",
+        "device": "/dev/sda1",
+        "status": "OK"
+      }
+    ],
+    "nb_replicas": "2 / 3",
+    "type": "Distributed-Replicate",
+    "nb_shards": "2 / 1",
+    "status": "OK"
+  }
+]

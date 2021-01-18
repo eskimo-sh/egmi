@@ -1,0 +1,90 @@
+{
+  "hostname": "badbooknew/127.0.1.1",
+  "nodes": [
+    {
+      "host": "192.168.10.71",
+      "volumes": "test1",
+      "nbr_bricks": 1,
+      "status": "OK"
+    },
+    {
+      "host": "192.168.10.72",
+      "volumes": "test1",
+      "nbr_bricks": 1,
+      "status": "OK"
+    },
+    {
+      "host": "192.168.10.73",
+      "status": "KO"
+    },
+    {
+      "host": "192.168.10.74",
+      "volumes": "",
+      "nbr_bricks": 0,
+      "status": "OK"
+    }
+  ],
+  "volumes": [
+    {
+      "volume": "flink_data",
+      "bricks": [],
+      "status": "NO VOLUME"
+    },
+    {
+      "volume": "logstash_data",
+      "bricks": [],
+      "status": "NO VOLUME"
+    },
+    {
+      "volume": "spark_data",
+      "bricks": [],
+      "status": "NO VOLUME"
+    },
+    {
+      "volume": "spark_eventlog",
+      "bricks": [],
+      "status": "NO VOLUME"
+    },
+    {
+      "volume": "test",
+      "bricks": [],
+      "status": "NO VOLUME"
+    },
+    {
+      "volume": "test1",
+      "nb_bricks": "3 / 3",
+      "bricks": [
+        {
+          "number": "1",
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/test1",
+          "tot": "40.0GB",
+          "id": "192.168.10.71:/var/lib/gluster/volume_bricks/test1",
+          "free": "33.2GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": "2",
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/test2",
+          "tot": "40.0GB",
+          "id": "192.168.10.72:/var/lib/gluster/volume_bricks/test2",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": "3",
+          "node": "192.168.10.73",
+          "path": "/var/lib/gluster/volume_bricks/test3",
+          "id": "192.168.10.73:/var/lib/gluster/volume_bricks/test3"
+        }
+      ],
+      "nb_replicas": "3 / 3",
+      "type": "Replicate",
+      "nb_shards": "1 / 1",
+      "status": "192.168.10.73 DOWN"
+    }
+  ]
+}

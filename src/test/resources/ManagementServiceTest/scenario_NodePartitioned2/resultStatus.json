@@ -1,0 +1,56 @@
+{
+    "hostname": "{HOSTNAME}",
+    "nodes": [
+        {
+            "host": "192.168.10.71",
+            "volumes": "",
+            "nbr_bricks": 0,
+            "status": "PARTITIONED"
+        },
+        {
+            "host": "192.168.10.72",
+            "volumes": "",
+            "nbr_bricks": 0,
+            "status": "PARTITIONED"
+        },
+        {
+            "host": "192.168.10.73",
+            "volumes": "",
+            "nbr_bricks": 0,
+            "status": "PARTITIONED"
+        },
+        {
+            "host": "192.168.10.74",
+            "volumes": "",
+            "nbr_bricks": 0,
+            "status": "PARTITIONED"
+        }
+    ],
+    "volumes": [
+        {
+            "volume": "flink_data",
+            "bricks": [],
+            "status": "NO VOLUME"
+        },
+        {
+            "volume": "logstash_data",
+            "bricks": [],
+            "status": "NO VOLUME"
+        },
+        {
+            "volume": "spark_data",
+            "bricks": [],
+            "status": "NO VOLUME"
+        },
+        {
+            "volume": "spark_eventlog",
+            "bricks": [],
+            "status": "NO VOLUME"
+        },
+        {
+            "volume": "test",
+            "bricks": [],
+            "status": "NO VOLUME"
+        }
+    ]
+}

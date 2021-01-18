@@ -1,0 +1,31 @@
+<html>
+<head>
+    <title>Generic Test Page</title>
+</head>
+<body>
+
+<script>
+
+    function loadScript (target) {
+        console.log ("loading script : " + target);
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.src = target;
+        document.head.appendChild(s);
+    }
+
+</script>
+
+
+    <div id="wrapper" class="wrapper">
+
+    </div> <!-- end wrapper -->
+
+    <div id="node-modal-wrapper"></div>
+
+    <div id="volume-modal-wrapper"></div>
+
+    <div id="action-modal-wrapper"></div>
+
+</body>
+</html>

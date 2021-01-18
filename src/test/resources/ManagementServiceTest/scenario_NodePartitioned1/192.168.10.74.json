@@ -1,0 +1,17 @@
+{"peers": [
+    {
+        "uid": "08501e18-7b57-4131-bb69-523345207334",
+        "hostname": "192.168.10.73",
+        "state": "Connected"
+    },
+    {
+        "uid": "00d9023e-c098-411c-bd43-1e81927fc9ab",
+        "hostname": "192.168.10.72",
+        "state": "Connected"
+    },
+    {
+        "uid": "e4c4dadd-19b1-433c-b6e3-32a31325e4a0",
+        "hostname": "localhost",
+        "state": "Connected"
+    }
+]}

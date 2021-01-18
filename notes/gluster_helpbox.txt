@@ -1,0 +1,18 @@
+
+gluster volume create test1 replica 3 \
+    192.168.10.71:/var/lib/gluster/volume_bricks/test1 \
+    192.168.10.72:/var/lib/gluster/volume_bricks/test2 \
+    192.168.10.73:/var/lib/gluster/volume_bricks/test3
+
+gluster volume create test1 replica 2 \
+    192.168.10.71:/var/lib/gluster/volume_bricks/test1 \
+    192.168.10.72:/var/lib/gluster/volume_bricks/test1
+
+gluster volume start test1
+
+
+gluster volume create test2 \
+    192.168.10.71:/var/lib/gluster/volume_bricks/test2 \
+    192.168.10.72:/var/lib/gluster/volume_bricks/test2
+
+gluster volume start test2
