@@ -98,18 +98,22 @@ public class ActionService {
 
                 // 1. Force Stop volume
                 try {
+                    managementService.info("  - Stopping Volume " + volume);
                     AbstractProblem.executeSimpleOperation(new GlusterVolumeStop(httpClient, volume, true), context, actionNode);
                 } catch (Exception e) {
                     logger.warn("Previous error is ignored.");
                 }
 
                 // 2. Force delete bricks
+                managementService.info("  - Force-removing bricks for " + volume);
                 for (String brickNode : volumeNodes) {
+                    managementService.info("    + Removing bricks for " + volume + " on " + brickNode);
                     AbstractProblem.executeSimpleOperation(new ForceRemoveBricks(httpClient, volume, brickNode), context, brickNode);
                 }
 
                 // 3. Delete Volume
                 try {
+                    managementService.info("  - Now Deleting Volume " + volume);
                     AbstractProblem.executeSimpleOperation(new GlusterVolumeDelete(httpClient, volume), context, actionNode);
                 } catch (ResolutionStopException e) {
                     managementService.error("!!! This is a big deal. The volume bricks have been deleted already and the volume is not recoverable");
