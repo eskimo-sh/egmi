@@ -119,9 +119,9 @@ public class NodePartitioned extends AbstractProblem implements Problem {
             Map<String, Integer> counters = GraphPartitionDetector.buildPeerCounters(activeNodes, nodeNetwork);
 
             final AtomicInteger highestCount = new AtomicInteger(Integer.MIN_VALUE);
-            for (String host : counters.keySet()) {
-                if (counters.get(host) > highestCount.get()) {
-                    highestCount.set (counters.get(host));
+            for (String current : counters.keySet()) {
+                if (counters.get(current) > highestCount.get()) {
+                    highestCount.set (counters.get(current));
                 }
             };
 

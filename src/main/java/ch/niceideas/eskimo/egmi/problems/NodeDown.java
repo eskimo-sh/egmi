@@ -118,7 +118,7 @@ public class NodeDown extends AbstractProblem implements Problem {
                 Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
                 // 1.1 Find all nodes in Nodes Status not being KO
-                Set<String> activeNodes = getActiveNodes(nodesStatus);
+                Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
 
                 if (activeNodes.contains(host)) {
                     context.info ("  + Node " + host + " is back up");

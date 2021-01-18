@@ -133,7 +133,7 @@ public class NoVolume extends AbstractProblem implements Problem {
     public static boolean createVolume(String volume, GlusterRemoteManager glusterRemoteManager, CommandContext context) throws GlusterRemoteException, NodeStatusException, ResolutionStopException {
         Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-        Set<String> activeNodes = getActiveNodes(nodesStatus);
+        Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
 
         if (activeNodes.size() == 0) {
             context.info ("    !! no active node. skipping");

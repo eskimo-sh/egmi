@@ -89,7 +89,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
             // 1. Get active nodes
             Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-            Set<String> activeNodes = getActiveNodes(nodesStatus);
+            Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
 
             if (activeNodes.size() == 0) {
                 context.info ("  !! no active node. skipping");
