@@ -92,7 +92,7 @@ public class CommonBusinessException extends Exception {
     public void addUnderlyingException(Throwable under) {
         if (under != null) {
             if (underlyingExceptions == null) {
-                underlyingExceptions = new ArrayList<Throwable>(1);
+                underlyingExceptions = new ArrayList<>(1);
             }
             underlyingExceptions.add(under);
         }
@@ -198,9 +198,7 @@ public class CommonBusinessException extends Exception {
             message = under.getClass().getName();
         }
         messageBuilder.append("\n");
-        for (int l = 0; l < level; l++) {
-            messageBuilder.append("  ");
-        }
+        messageBuilder.append("  ".repeat(Math.max(0, level)));
         messageBuilder.append(message);
     }
 

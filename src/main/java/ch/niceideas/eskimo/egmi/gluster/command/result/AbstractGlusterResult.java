@@ -38,7 +38,7 @@ import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
 
-public abstract class AbstractGlusterResult<T extends AbstractGlusterResult> {
+public abstract class AbstractGlusterResult<T extends AbstractGlusterResult<T>> {
 
     private String errorMessage = null;
 

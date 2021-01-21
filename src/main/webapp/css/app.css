@@ -250,13 +250,11 @@ h1 small{
 }
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    padding: 8px;
-    padding-top: 10px;
-    padding-bottom: 0px;
+    padding: 10px 8px 0px;
 }
 
 .table-responsive ul.pagination,
-.table-responsive btn {
+.table-responsive .btn {
     padding-top: 5px;
 }
 
@@ -595,6 +593,5 @@ li.disabled a .menu-text {
 }
 
 .btn-action {
-    padding: 1px 4px;
-    padding-left: 8px;
+    padding: 1px 4px 1px 8px;
 }

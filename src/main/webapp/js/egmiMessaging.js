@@ -45,10 +45,10 @@ egmi.Messaging = function(constrObj) {
 
     const that = this;
 
-    var messagingPollingHandle = null;
+    let messagingPollingHandle = null;
 
-    var lastLineMessaging = 0;
-    var messagesCounter = 0;
+    let lastLineMessaging = 0;
+    let messagesCounter = 0;
 
     this.initialize = function () {
         loadLastLine();

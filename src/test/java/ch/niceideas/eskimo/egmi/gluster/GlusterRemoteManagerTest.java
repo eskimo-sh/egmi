@@ -37,11 +37,9 @@ package ch.niceideas.eskimo.egmi.gluster;
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
-import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
-import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import org.apache.http.HttpResponse;
@@ -51,12 +49,10 @@ import org.apache.http.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,7 +63,7 @@ public class GlusterRemoteManagerTest {
     protected final AtomicReference<String> response = new AtomicReference<>();
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         grm = new GlusterRemoteManager();
     }
 

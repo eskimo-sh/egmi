@@ -34,13 +34,12 @@
 
 package ch.niceideas.eskimo.egmi.controllers;
 
-import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
+import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.utils.ReturnStatusHelper;
 import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
 import org.apache.log4j.Logger;
-import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -48,7 +47,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 public class StatusController {

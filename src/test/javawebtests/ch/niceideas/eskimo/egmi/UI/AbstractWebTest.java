@@ -125,7 +125,7 @@ public abstract class AbstractWebTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         if (isCoverageRun()) {
             js("window.jscoverFinished = false;");
             js("jscoverage_report('', function(){window.jscoverFinished=true;});");
@@ -233,7 +233,7 @@ public abstract class AbstractWebTest {
         assertEquals (tagName, page.getElementById(elementId).getTagName());
     }
 
-    protected void waitForElementIdInDOM(String elementId) throws InterruptedException {
+    protected void waitForElementIdInDOM(String elementId) {
 
         await().atMost(MAX_WAIT_RETRIES * INCREMENTAL_WAIT_MS * (isCoverageRun() ? 2 : 1) , TimeUnit.SECONDS).until(
                 () -> page.getElementById(elementId) != null);
@@ -250,7 +250,7 @@ public abstract class AbstractWebTest {
         */
     }
 
-    protected void waitForDefinition(String varName) throws InterruptedException {
+    protected void waitForDefinition(String varName) {
 
         await().atMost(INCREMENTAL_WAIT_MS * MAX_WAIT_RETRIES * (isCoverageRun() ? 2 : 1) , TimeUnit.SECONDS).until(
                 () -> !js("typeof " + varName).toString().equals ("undefined"));

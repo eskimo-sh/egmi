@@ -65,8 +65,8 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
 
     public static final Pattern BRICKS_REPR_PARSER = Pattern.compile("([0-9]+)( x [(]?([0-9]+)( \\+ ([0-9]+))?[)]? = ([0-9]+))?");
 
-    private Map<String, VolumeInformationWrapper> volumeInfos = new HashMap<>();
-    private Map<String, Map<Integer, BrickId>> volumeBricks = new HashMap<>();
+    private final Map<String, VolumeInformationWrapper> volumeInfos = new HashMap<>();
+    private final Map<String, Map<Integer, BrickId>> volumeBricks = new HashMap<>();
 
     public void overrideStatus(String volume, String status) {
         VolumeInformationWrapper generalInfo = volumeInfos.get(volume);

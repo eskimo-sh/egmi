@@ -35,7 +35,6 @@
 package ch.niceideas.eskimo.egmi.problems;
 
 import ch.niceideas.common.http.HttpClient;
-import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.common.utils.ResourceUtils;
@@ -52,16 +51,15 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractProblemTest {
 
@@ -70,7 +68,7 @@ public abstract class AbstractProblemTest {
     protected HttpClient mockClient;
     protected ManagementService ms;
     protected MessagingService messagingService;
-    protected List<String> urls = new ArrayList<>();
+    protected final List<String> urls = new ArrayList<>();
     protected SystemStatus systemStatus;
 
     protected String getTestRoot() {
@@ -139,7 +137,6 @@ public abstract class AbstractProblemTest {
                     case "target.glusterVolumes.path":
                         return "/var/lib/gluster/volume_bricks/";
                     case "problem.nodeDown.timeout":
-                        return "0";
                     case "problem.brickOffline.timeout":
                         return "0";
                 }

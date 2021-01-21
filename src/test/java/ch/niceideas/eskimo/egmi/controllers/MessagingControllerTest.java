@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MessagingControllerTest {
 
-    private MessagingController messagingController = new MessagingController();
+    private final MessagingController messagingController = new MessagingController();
 
     @Test
     public void testFetchMessages() {

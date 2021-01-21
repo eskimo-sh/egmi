@@ -37,12 +37,7 @@ package ch.niceideas.eskimo.egmi.zookeeper;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class LeaderElectionTester {
 
@@ -59,7 +54,10 @@ public class LeaderElectionTester {
         final String zkURL = args[1];
         final int zkSessionTimeout = Integer.parseInt(args[2]);
 
-        while (true) {
+        AtomicBoolean shutDown = new AtomicBoolean(false);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> shutDown.set(true)));
+
+        while (!shutDown.get()) {
             ElectionProcess electionProcess = new ElectionProcess(id, zkURL, zkSessionTimeout, new ElectionCallback() {
                 @Override
                 public void onMasterChanged(String masterHostname) {

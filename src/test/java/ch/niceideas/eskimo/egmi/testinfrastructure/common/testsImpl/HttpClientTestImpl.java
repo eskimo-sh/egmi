@@ -35,7 +35,6 @@
 package ch.niceideas.eskimo.egmi.testinfrastructure.common.testsImpl;
 
 import ch.niceideas.common.http.HttpClient;
-import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import org.apache.http.HttpEntity;
 import org.apache.http.ProtocolVersion;

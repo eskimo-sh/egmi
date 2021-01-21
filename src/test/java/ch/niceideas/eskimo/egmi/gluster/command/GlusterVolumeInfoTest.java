@@ -34,17 +34,16 @@
 
 package ch.niceideas.eskimo.egmi.gluster.command;
 
-import ch.niceideas.common.utils.Pair;
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
-import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GlusterVolumeInfoTest extends AbstractCommandTest {
 

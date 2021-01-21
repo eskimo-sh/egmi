@@ -81,7 +81,7 @@ public class BrickOffline extends AbstractProblem implements Problem {
     }
 
     @Override
-    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionSkipException, ResolutionStopException {
+    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionStopException {
 
         try {
 

@@ -95,7 +95,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
     }
 
     @Override
-    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionSkipException, ResolutionStopException {
+    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionStopException {
 
         context.info ("- Solving " + getProblemId());
 
@@ -123,7 +123,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                 if (counters.get(current) > highestCount.get()) {
                     highestCount.set (counters.get(current));
                 }
-            };
+            }
 
             Set<String> hostPeers = GraphPartitionDetector.buildPeerNetwork(nodeNetwork, host);
 

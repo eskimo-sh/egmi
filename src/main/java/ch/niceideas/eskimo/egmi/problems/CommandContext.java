@@ -35,12 +35,10 @@
 package ch.niceideas.eskimo.egmi.problems;
 
 import ch.niceideas.common.http.HttpClient;
-import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 
@@ -103,5 +101,5 @@ public class CommandContext implements ResolutionLogger, RuntimeSettingsOwner, C
     @Override
     public String getContextRoot() {
         return configOwner.getContextRoot();
-    };
+    }
 }

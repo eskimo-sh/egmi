@@ -35,7 +35,6 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
-import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;

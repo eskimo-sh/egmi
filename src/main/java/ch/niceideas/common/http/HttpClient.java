@@ -42,7 +42,6 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
-import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -148,7 +147,7 @@ public class HttpClient implements Closeable {
     private static final String DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36";
 
     private String userAgent;
-    private Map<String, String> defaultHeaders;
+    private final Map<String, String> defaultHeaders;
     private final CookieStore cookieStore = new BasicCookieStore();
 
     /** Request validation */

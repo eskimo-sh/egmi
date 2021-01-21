@@ -53,12 +53,12 @@ public class NodePartitionedTest extends AbstractProblemTest {
     }
 
     @Test
-    public void testRecognize() throws Exception {
+    public void testRecognize() {
         assertTrue (problem.recognize(systemStatus));
     }
 
     @Test
-    public void testSolve() throws Exception {
+    public void testSolve() {
 
         try {
             problem.solve(grm, new CommandContext(mockClient, 1234, ms));

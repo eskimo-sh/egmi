@@ -65,7 +65,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
     public static final String SKIP_TEMP_OP_FLAG = "SKIP_TEMP_OP";
     public static final String VOL_NOT_STARTED_FLAG = "VOL_NOT_STARTED";
 
-    private Map<String, BrickDetail> brickDetails = new HashMap<>();
+    private final Map<String, BrickDetail> brickDetails = new HashMap<>();
 
     private final GlusterVolumeInfoResult volumeInfo;
 

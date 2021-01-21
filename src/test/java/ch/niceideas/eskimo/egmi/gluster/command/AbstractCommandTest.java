@@ -35,12 +35,7 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
-import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
-import ch.niceideas.common.json.JsonWrapper;
-import ch.niceideas.common.utils.ResourceUtils;
-import ch.niceideas.common.utils.StreamUtils;
-import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 import org.apache.http.HttpResponse;
@@ -49,7 +44,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -63,7 +57,7 @@ public abstract class AbstractCommandTest {
     protected CommandContext context;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         HttpResponse respProxy = (HttpResponse) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] {HttpResponse.class}, (proxy, method, args) -> {
 

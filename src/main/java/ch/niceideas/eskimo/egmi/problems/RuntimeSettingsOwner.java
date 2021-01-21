@@ -34,7 +34,6 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
-import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 

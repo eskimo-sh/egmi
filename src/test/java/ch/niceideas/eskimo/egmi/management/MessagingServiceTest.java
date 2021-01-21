@@ -47,14 +47,14 @@ public class MessagingServiceTest {
     private MessagingService ms = null;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         ms = new MessagingService(5000);
         ms.addLines("Test");
         ms.addLines(new String[] {"Test1", "Test2"});
     }
 
     @Test
-    public void testNominal() throws Exception {
+    public void testNominal() {
 
         Pair<Integer,String> result = ms.fetchElements(0);
 
@@ -74,7 +74,7 @@ public class MessagingServiceTest {
     }
 
     @Test
-    public void testCorruptedIndex() throws Exception {
+    public void testCorruptedIndex() {
 
         Pair<Integer,String> result = ms.fetchElements(20);
 
@@ -82,15 +82,8 @@ public class MessagingServiceTest {
         assertEquals("Test\nTest1\nTest2\n", result.getValue());
     }
 
-    /*
     @Test
-    public void testFetchLastMessagesBack() throws Exception {
-        fail ("To Be Implemented");
-    }
-    */
-
-    @Test
-    public void testClear() throws Exception {
+    public void testClear() {
 
         ms.clear();
 
@@ -101,7 +94,7 @@ public class MessagingServiceTest {
     }
 
     @Test
-    public void testMultipleUsers() throws Exception {
+    public void testMultipleUsers() {
 
         ms.clear();
 
@@ -165,7 +158,7 @@ public class MessagingServiceTest {
     }
 
     @Test
-    public void testCycling() throws Exception {
+    public void testCycling() {
 
         testNominal();
 

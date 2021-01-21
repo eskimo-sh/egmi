@@ -38,10 +38,7 @@ import ch.niceideas.common.http.HttpClient;
 
 public class ForceRemoveBricks extends AbstractGlusterSimpleOperation {
 
-    private final String volume;
-
     public ForceRemoveBricks(HttpClient httpClient, String volume, String node) {
         super (httpClient, "force-remove-brick", volume, node);
-        this.volume = volume;
     }
 }

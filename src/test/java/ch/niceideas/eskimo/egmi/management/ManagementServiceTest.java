@@ -44,12 +44,12 @@ public class ManagementServiceTest {
     private ManagementService ms = null;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         ms = new ManagementService();
     }
 
     @Test
-    public void testComputeNumberBricks_LOG_DISPATCH() throws Exception {
+    public void testComputeNumberBricks_LOG_DISPATCH() {
 
         ms.targetNumberBricksString = "LOG_DISPATCH";
         ms.defaultNumberReplica = 3;
@@ -106,7 +106,7 @@ public class ManagementServiceTest {
     }
 
     @Test
-    public void testComputeNumberBricks_ALL() throws Exception {
+    public void testComputeNumberBricks_ALL() {
 
         ms.targetNumberBricksString = "ALL";
         ms.defaultNumberReplica = 3;
@@ -163,7 +163,7 @@ public class ManagementServiceTest {
     }
 
     @Test
-    public void testComputeNumberBricks_FIXED() throws Exception {
+    public void testComputeNumberBricks_FIXED() {
 
         ms.defaultNumberReplica = 5;
 

@@ -281,7 +281,7 @@ public class NodeStatus extends JsonWrapper {
 
                                             BrickInformation brickInfo = retMap.computeIfAbsent(brickId, (key) -> new BrickInformation());
 
-                                            brickInfo.setAll ((Map<? extends String, ? extends Object>) brickInformation);
+                                            brickInfo.setAll ((Map<? extends String, ?>) brickInformation);
 
                                             //noinspection unchecked
                                             //brickInfoMap.putAll((Map<? extends String, ? extends String>) brickInformation);

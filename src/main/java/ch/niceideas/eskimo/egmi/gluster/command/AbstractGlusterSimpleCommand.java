@@ -39,16 +39,10 @@ import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.AbstractGlusterResult;
-import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
-import lombok.AllArgsConstructor;
-import org.apache.zookeeper.server.admin.Command;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public abstract class AbstractGlusterSimpleCommand<T extends AbstractGlusterResult<T>> {
 

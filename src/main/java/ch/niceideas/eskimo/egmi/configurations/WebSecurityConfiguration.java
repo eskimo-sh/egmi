@@ -172,7 +172,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return userDetailsManager;
     }
 
-    public class SessionTimeoutAuthSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
+    public static class SessionTimeoutAuthSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
         public final Duration sessionTimeout;
 
         public SessionTimeoutAuthSuccessHandler(Duration sessionTimeout) {

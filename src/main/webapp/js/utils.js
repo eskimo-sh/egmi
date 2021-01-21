@@ -32,35 +32,6 @@ The above copyright notice and this licensing notice shall be included in all co
 Software.
 */
 
-const ESK_STRING_UPPER_CASE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-const ESK_STRING_LOWER_CASE = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-
-function getHyphenSeparated (string) {
-    let result = '';
-    for (let i = 0; i < string.length; i++) {
-        let strChar = string.charAt(i);
-        let idx = ESK_STRING_UPPER_CASE.indexOf(strChar);
-        if (idx >= 0) {
-            if (i > 0) {
-                result += "-";
-            }
-            result += ESK_STRING_LOWER_CASE[idx] ;
-        } else {
-            result += strChar;
-        }
-    }
-    return result;
-}
-
-function getCamelCase(string) {
-    return string.replace(/-([a-zA-Z])/g, function (m, w) {
-        return w.toUpperCase();
-    });
-}
-
-function getUcfirst(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-}
 
 function noOp() {
 
@@ -94,21 +65,21 @@ $.ajaxPut = function (reqObject) {
     $._ajaxSendContent ("PUT", reqObject);
 };
 
+let defaultSuccess = function (data, status, jqXHR) {
+    if (!data || data.error) {
+        console.error(data.error);
+        alert(data.error);
+    }
+};
+
 $._ajaxSendContent = function(verb, reqObject) {
 
-    let success = function (data, status, jqXHR) {
-        if (!data || data.error) {
-            console.error(data.error);
-            alert(data.error);
-        }
-    };
+    let success = defaultSuccess;
     if (typeof reqObject.success !== 'undefined') {
         success = reqObject.success;
     }
 
-    let error = function (jqXHR, status) {
-        errorHandler(jqXHR, status);
-    };
+    let error = errorHandler;
     if (typeof reqObject.error !== 'undefined') {
         error = reqObject.error;
     }
@@ -127,19 +98,12 @@ $._ajaxSendContent = function(verb, reqObject) {
 
 $.ajaxGet = function(reqObject) {
 
-    let success = function (data, status, jqXHR) {
-        if (!data || data.error) {
-            console.error(data.error);
-            alert(data.error);
-        }
-    };
+    let success = defaultSuccess;
     if (typeof reqObject.success !== 'undefined') {
         success = reqObject.success;
     }
 
-    let error = function (jqXHR, status) {
-        errorHandler(jqXHR, status);
-    };
+    let error = errorHandler;
     if (typeof reqObject.error !== 'undefined') {
         error = reqObject.error;
     }
@@ -209,8 +173,8 @@ function formDataToObject (data) {
     return object;
 }
 
-var getUrlParameter = function getUrlParameter(sParam) {
-    var sPageURL = window.location.search.substring(1),
+let getUrlParameter = function getUrlParameter(sParam) {
+    let sPageURL = window.location.search.substring(1),
         sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;

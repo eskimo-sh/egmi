@@ -71,7 +71,7 @@ public class JsonWrapperTest {
     }
 
     @Test
-    public void testArtificialSerializeDeserialize() throws Exception {
+    public void testArtificialSerializeDeserialize() {
 
         JsonWrapper inpWrapper = new JsonWrapper(sourceJSONInput);
 
@@ -82,7 +82,7 @@ public class JsonWrapperTest {
     }
 
     @Test
-    public void testParserWithInput() throws Exception {
+    public void testParserWithInput() {
 
         JsonWrapper parser = new JsonWrapper(sourceJSONInput);
 
@@ -93,7 +93,7 @@ public class JsonWrapperTest {
     }
 
     @Test
-    public void testParserWithOutput() throws Exception {
+    public void testParserWithOutput() {
 
         JsonWrapper parser = new JsonWrapper(sourceJSONOutput);
 
@@ -109,7 +109,7 @@ public class JsonWrapperTest {
     }
 
     @Test
-    public void testSetValue() throws Exception {
+    public void testSetValue() {
 
         JsonWrapper parser = new JsonWrapper(sourceJSONOutput);
 
@@ -129,7 +129,7 @@ public class JsonWrapperTest {
     }
 
     @Test
-    public void testSetValueWithArray() throws Exception {
+    public void testSetValueWithArray() {
 
         JsonWrapper parser = new JsonWrapper(sourceJSONInput);
 
@@ -152,7 +152,7 @@ public class JsonWrapperTest {
     }
 
     @Test
-    public void testToMap() throws Exception {
+    public void testToMap() {
 
         JsonWrapper parser = new JsonWrapper(sourceJSONSearchYahoo);
 
@@ -160,7 +160,7 @@ public class JsonWrapperTest {
     }
 
     @Test
-    public void testIsEmpty() throws Exception {
+    public void testIsEmpty() {
         assertTrue(new JsonWrapper("{}").isEmpty());
         assertFalse(new JsonWrapper("{\"abc\" : \"test\"}").isEmpty());
     }

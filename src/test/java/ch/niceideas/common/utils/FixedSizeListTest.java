@@ -49,12 +49,12 @@ public class FixedSizeListTest {
     private FixedSizeList<String> testList = null;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         testList = new FixedSizeList<>(10);
     }
 
     @Test
-    public void testNominal() throws Exception {
+    public void testNominal() {
 
         testList.add("0");
         testList.add("1");
@@ -74,7 +74,7 @@ public class FixedSizeListTest {
     }
 
     @Test
-    public void testMaxSize() throws Exception {
+    public void testMaxSize() {
 
         for (int i  = 0; i < 100; i++) {
             testList.add(""+ThreadLocalRandom.current().nextInt(100000000));
@@ -84,21 +84,21 @@ public class FixedSizeListTest {
     }
 
     @Test
-    public void testRemoveAll() throws Exception {
+    public void testRemoveAll() {
         testNominal();
         testList.removeAll(Arrays.asList("5", "6", "7", "8"));
         assertEquals ("1,2,3,4,9,10", String.join(",", testList));
     }
 
     @Test
-    public void testRetainAll() throws Exception {
+    public void testRetainAll() {
         testNominal();
         testList.retainAll(Arrays.asList("5", "6", "7", "8"));
         assertEquals ("5,6,7,8", String.join(",", Arrays.asList (testList.toArray(new String[0]))));
     }
 
     @Test
-    public void testClear() throws Exception {
+    public void testClear() {
         testNominal();
         assertEquals(10, testList.size());
         testList.clear();
@@ -106,7 +106,7 @@ public class FixedSizeListTest {
     }
 
     @Test
-    public void testEqualsHashCode() throws Exception {
+    public void testEqualsHashCode() {
         FixedSizeList<String> testList2 = new FixedSizeList<>(10);
 
         testList.add("0");

@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class HttpClientTest {
 
     @Test
-    public void testRequestValidationPattern() throws Exception {
+    public void testRequestValidationPattern() {
         
         assertEquals(
                 null,

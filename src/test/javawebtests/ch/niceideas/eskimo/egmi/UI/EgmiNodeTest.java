@@ -37,8 +37,6 @@ package ch.niceideas.eskimo.egmi.UI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 public class EgmiNodeTest extends AbstractWebTest {
 
     @BeforeEach

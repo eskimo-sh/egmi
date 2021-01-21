@@ -49,7 +49,7 @@ public class CommonBusinessExceptionTest {
      * This tests the result of getLongMessage()
      */
     @Test
-    public void testGetLongMessage () throws Exception {
+    public void testGetLongMessage () {
 
         CommonBusinessException a = new CommonBusinessException ("a");
         a.fillInStackTrace();
@@ -75,13 +75,12 @@ public class CommonBusinessExceptionTest {
         c2.fillInStackTrace();
         c.addUnderlyingException (c3);
 
-        String expectedResult = new String (
-                "a"         +"\n"+
-                "  b"       +"\n"+
-                "  c"       +"\n"+
-                "    c1"    +"\n"+
-                "    c2"    +"\n"+
-        "    c3");
+        String expectedResult = "a" + "\n" +
+                "  b" + "\n" +
+                "  c" + "\n" +
+                "    c1" + "\n" +
+                "    c2" + "\n" +
+                "    c3";
         assertEquals (a.getCompleteMessage(), expectedResult);
     }
 

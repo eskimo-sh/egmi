@@ -38,8 +38,6 @@ import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GlusterVolumeReplaceBrickTest extends AbstractCommandTest {

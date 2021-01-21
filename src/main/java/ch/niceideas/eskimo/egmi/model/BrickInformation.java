@@ -52,7 +52,7 @@ public class BrickInformation implements Comparable<BrickInformation> {
     private String free;
     private String total;
 
-    public void setAll(Map<? extends String,? extends Object> brickInformation) {
+    public void setAll(Map<? extends String, ?> brickInformation) {
 
         for (String key : brickInformation.keySet()) {
             switch (key) {

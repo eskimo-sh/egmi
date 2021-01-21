@@ -61,6 +61,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,13 +99,7 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
             FileUtils.write(configFile, DEFAULT_USER);
         }
 
-        String configContent = null;
-        try {
-            configContent = new String (FileUtils.read(configFile), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            logger.error (e, e);
-            throw new FileException(e);
-        }
+        String configContent = new String (FileUtils.read(configFile), StandardCharsets.UTF_8);
         if (StringUtils.isBlank(configContent)) {
             configContent = DEFAULT_USER;
             FileUtils.write(configFile, DEFAULT_USER);
@@ -124,7 +119,7 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
                 Boolean enabled = userObject.getBoolean("enabled");
 
                 UserDetails user = new User(username, password, enabled, true,
-                        true, true, new ArrayList<GrantedAuthority>() {{ add (new SimpleGrantedAuthority("admin"));}});
+                        true, true, new ArrayList<>() {{ add (new SimpleGrantedAuthority("admin"));}});
 
                 users.put(user.getUsername().toLowerCase(), new MutableUser(user));
             }

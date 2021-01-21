@@ -40,11 +40,6 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 
 /**
@@ -151,38 +146,6 @@ public abstract class StringUtils {
             }
         }
         return defautValue;
-    }
-
-    /**
-     * Pad the given value with the amount of spaces on the right.
-     */
-    public static String padRight(String value, int size) {
-        if (isEmpty(value)) {
-            return SPACES[size];
-        }
-        if (value.length() == size) {
-            return value;
-        }
-        if (value.length() > size) {
-            return value.substring(0, size);
-        }
-        return value + SPACES[size - value.length()];
-    }
-
-    /**
-     * Pad the given value with the amount of spaces on the left.
-     */
-    public static String padLeft(String value, int size) {
-        if (isEmpty(value)) {
-            return SPACES[size];
-        }
-        if (value.length() == size) {
-            return value;
-        }
-        if (value.length() > size) {
-            return value.substring(0, size);
-        }
-        return SPACES[size - value.length()] + value;
     }
 
     /**

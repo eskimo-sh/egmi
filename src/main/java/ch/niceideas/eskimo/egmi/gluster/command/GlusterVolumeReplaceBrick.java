@@ -37,9 +37,6 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class GlusterVolumeReplaceBrick extends AbstractGlusterVolumeOperation {
 
     public GlusterVolumeReplaceBrick(HttpClient httpClient, String volume, BrickId formerBrick, BrickId newBrick) {

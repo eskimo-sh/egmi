@@ -51,7 +51,7 @@ import java.net.URI;
 public class LaxRedirectStrategy extends DefaultRedirectStrategy implements RedirectStrategy {
 
     @Override
-    public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
+    public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context)  {
         Args.notNull(request, "HTTP request");
         Args.notNull(response, "HTTP response");
         int statusCode = response.getStatusLine().getStatusCode();

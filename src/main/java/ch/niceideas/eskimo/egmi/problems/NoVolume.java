@@ -86,7 +86,7 @@ public class NoVolume extends AbstractProblem implements Problem {
     }
 
     @Override
-    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionSkipException, ResolutionStopException {
+    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionStopException {
 
         context.info ("- Solving " + getProblemId());
 

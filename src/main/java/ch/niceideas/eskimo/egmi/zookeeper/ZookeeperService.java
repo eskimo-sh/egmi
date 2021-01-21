@@ -54,9 +54,9 @@ public class ZookeeperService {
 
     private static final Logger logger = Logger.getLogger(ZookeeperService.class);
 
-    private AtomicBoolean master = new AtomicBoolean(false);
+    private final AtomicBoolean master = new AtomicBoolean(false);
 
-    private AtomicReference<String> masterTracker = new AtomicReference<>();
+    private final AtomicReference<String> masterTracker = new AtomicReference<>();
 
     private boolean stopping = false;
 
@@ -68,7 +68,16 @@ public class ZookeeperService {
     public ZookeeperService(
             @Value("${hostname:#{null}}") String hostname,
             @Value("${zookeeper.urls:#{null}}") String zookeeperUrls,
-            @Value("${zookeeper.sessionTimeout:#{5000}}") int zookeeperSessionTimeout) {
+            @Value("${zookeeper.sessionTimeout:#{5000}}") int zookeeperSessionTimeout,
+            @Value("${master}") String forceMasterFlag) {
+
+        if (StringUtils.isNotBlank(forceMasterFlag)) {
+            boolean masterFlag = Boolean.parseBoolean(forceMasterFlag);
+            logger.warn ("Forcing master=" + masterFlag);
+            masterTracker.set("[UNNNOWN]");
+            master.set(masterFlag);
+            return;
+        }
 
         if (StringUtils.isBlank(hostname)) {
             try {

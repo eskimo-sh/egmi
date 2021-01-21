@@ -34,14 +34,11 @@
 
 package ch.niceideas.common.utils;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StringUtilsTest  {
 
@@ -81,22 +78,6 @@ public class StringUtilsTest  {
         assertEquals(new BigDecimal("100"), StringUtils.toBigDecimal("100", new BigDecimal("0")));
         assertEquals(new BigDecimal("200"), StringUtils.toBigDecimal("  200", new BigDecimal("0")));
         assertEquals(new BigDecimal("300"), StringUtils.toBigDecimal("300  ", new BigDecimal("0")));
-    }
-
-    @Test
-    public void testPadRight() {
-        assertEquals("a  ", StringUtils.padRight("a", 3));
-        assertEquals("a    ", StringUtils.padRight("a", 5));
-        assertEquals("a         ", StringUtils.padRight("a", 10));
-        assertEquals("          ", StringUtils.padRight(null, 10));
-    }
-
-    @Test
-    public void testPadLeft() {
-        assertEquals("  a", StringUtils.padLeft("a", 3));
-        assertEquals("    a", StringUtils.padLeft("a", 5));
-        assertEquals("         a", StringUtils.padLeft("a", 10));
-        assertEquals("          ", StringUtils.padLeft(null, 10));
     }
 
     @Test

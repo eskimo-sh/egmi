@@ -34,15 +34,12 @@
 
 package ch.niceideas.eskimo.egmi.gluster.command;
 
-import ch.niceideas.common.utils.Pair;
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import org.junit.jupiter.api.Test;
-
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -34,11 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.gluster.command;
 
-import ch.niceideas.common.utils.ResourceUtils;
-import ch.niceideas.common.utils.StreamUtils;
-import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.PingResult;
-import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Matcher;
@@ -48,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PingTest extends AbstractCommandTest {
 
     @Test
-    public void testRegex() throws Exception {
+    public void testRegex() {
         String pingIp =
                 "PING 192.168.10.71 (192.168.10.71) 56(84) bytes of data.\n" +
                 "64 bytes from 192.168.10.71: icmp_seq=1 ttl=64 time=1.33 ms\n" +

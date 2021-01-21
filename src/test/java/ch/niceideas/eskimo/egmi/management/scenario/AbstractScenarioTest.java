@@ -56,14 +56,13 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 public abstract class AbstractScenarioTest {
 
     protected MessagingService messagingService = null;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         messagingService = new MessagingService(5000);
     }
 
@@ -127,7 +126,7 @@ public abstract class AbstractScenarioTest {
             }
         });
 
-        ms.setZoopeeerService(new ZookeeperService(null, null, 0) {
+        ms.setZoopeeerService(new ZookeeperService(null, null, 0, null) {
 
             @Override
             public boolean isMaster() {

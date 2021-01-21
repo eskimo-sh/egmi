@@ -67,6 +67,11 @@ public class ProblemManager {
     @Autowired
     private HttpClient httpClient;
 
+    /** For tests */
+    void setManagementService (ManagementService managementService) {
+        this.managementService = managementService;
+    }
+
     private final Map<String, Problem> problems = new HashMap<>();
 
     public void addProblem(Problem problem) {

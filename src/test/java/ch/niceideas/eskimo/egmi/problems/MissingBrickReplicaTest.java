@@ -53,7 +53,7 @@ public class MissingBrickReplicaTest extends AbstractProblemTest {
     }
 
     @Test
-    public void testRecognize() throws Exception {
+    public void testRecognize() {
         assertTrue (problem.recognize(systemStatus));
     }
 

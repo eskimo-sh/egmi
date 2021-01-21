@@ -108,37 +108,36 @@ egmi.Main = function() {
             "</tr>")
     }
 
+    let feedInTableCell = function (value, leftFlag) {
+        return "<td class=\"status-node-cell " + (leftFlag ? "status-node-cell-left" : "") + " \">"
+                + value
+                + "</td>";
+    }
+
     let renderBrick = function (volRow, brick) {
 
-        volRow += "<td class=\"status-node-cell\">"
-            + (brick.number && brick.number !== "" ? brick.number : "-")
-            + "</td>";
+        volRow += feedInTableCell(brick.number && brick.number !== "" ? brick.number : "-");
 
-        volRow += "<td class=\"status-node-cell\">"
-            + (brick.node && brick.node !== "" ? brick.node : "-")
-            + "</td>";
+        volRow += feedInTableCell(brick.node && brick.node !== "" ? brick.node : "-");
 
-        volRow += "<td class=\"status-node-cell status-node-cell-left\">"
-            + (brick.path && brick.path !== "" ? brick.path : "-")
-            + "</td>";
+        volRow += feedInTableCell(brick.path && brick.path !== "" ? brick.path : "-", true);
 
-        volRow += "<td class=\"status-node-cell\">"
-            + (brick.status && brick.status !== "" ? brick.status : "-")
-            + "</td>";
+        volRow += feedInTableCell(brick.status && brick.status !== "" ? brick.status : "-");
 
-        volRow += "<td class=\"status-node-cell\">"
-            + (brick.device && brick.device !== "" ? brick.device : "-")
-            + "</td>";
+        volRow += feedInTableCell(brick.device && brick.device !== "" ? brick.device : "-");
 
-        volRow += "<td class=\"status-node-cell\">"
-            + (brick.free && brick.free !== "" ? brick.free : "-")
-            + "</td>";
+        volRow += feedInTableCell(brick.free && brick.free !== "" ? brick.free : "-");
 
-        volRow += "<td class=\"status-node-cell\">"
-            + (brick.tot && brick.tot !== "" ? brick.tot : "-")
-            + "</td>";
+        volRow += feedInTableCell(brick.tot && brick.tot !== "" ? brick.tot : "-");
+
         return volRow;
     };
+
+    let feedInTableCellRowSpan = function (value, brickCount) {
+        return "<td class=\"status-node-cell\" "+ (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
+            + value
+            + "</td>";
+    }
 
     let renderVolumeStatus = function (volumesData) {
         if (volumesData == null || volumesData.length <= 0) {
@@ -156,29 +155,17 @@ egmi.Main = function() {
 
                 let volRow = "<tr>";
 
-                volRow += "<td class=\"status-node-cell\" "+ (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
-                    + (volume.volume && volume.volume !== "" ? volume.volume : "-")
-                    + "</td>";
+                volRow += feedInTableCellRowSpan(volume.volume && volume.volume !== "" ? volume.volume : "-", brickCount);
 
-                volRow += "<td class=\"status-node-cell\" "+ (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
-                    + (volume.type && volume.type !== "" ? volume.type : "-")
-                    + "</td>";
+                volRow += feedInTableCellRowSpan(volume.type && volume.type !== "" ? volume.type : "-", brickCount);
 
-                volRow += "<td class=\"status-node-cell\" "+ (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
-                    + (volume.status && volume.status !== "" ? volume.status : "-")
-                    + "</td>";
+                volRow += feedInTableCellRowSpan(volume.status && volume.status !== "" ? volume.status : "-", brickCount);
 
-                volRow += "<td class=\"status-node-cell\" "+ (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
-                    + (volume.nb_shards && volume.nb_shards !== "" ? volume.nb_shards : "-")
-                    + "</td>";
+                volRow += feedInTableCellRowSpan(volume.nb_shards && volume.nb_shards !== "" ? volume.nb_shards : "-", brickCount);
 
-                volRow += "<td class=\"status-node-cell\" "+ (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
-                    + (volume.nb_replicas && volume.nb_replicas !== "" ? volume.nb_replicas : "-")
-                    + "</td>";
+                volRow += feedInTableCellRowSpan(volume.nb_replicas && volume.nb_replicas !== "" ? volume.nb_replicas : "-", brickCount);
 
-                volRow += "<td class=\"status-node-cell\" "+ (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
-                    + (volume.nb_bricks && volume.nb_bricks !== "" ? volume.nb_bricks : "-")
-                    + "</td>";
+                volRow += feedInTableCellRowSpan(volume.nb_bricks && volume.nb_bricks !== "" ? volume.nb_bricks : "-", brickCount);
 
                 if (brickCount > 0) {
                     let brick = volume.bricks[0];

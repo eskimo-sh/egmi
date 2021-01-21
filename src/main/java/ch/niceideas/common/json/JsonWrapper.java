@@ -40,12 +40,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This is a wrapper around a JSON string which enables one to get the value at a specific node, change it, test if
@@ -65,7 +63,7 @@ public class JsonWrapper implements Serializable {
     public static final String PATH_NOT_INTEGER = " contains an array but the concerned path is not an integer";
 
 
-    private transient JSONObject json;
+    private final transient JSONObject json;
 
     public static JsonWrapper empty() {
         return new JsonWrapper("{}");

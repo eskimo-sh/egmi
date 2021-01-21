@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @Controller
 public class CommandServer {
@@ -72,14 +71,19 @@ public class CommandServer {
         }
 
         String commandLine;
-        if (command.equals("force-remove-peer")) {
-            commandLine = String.format("/usr/local/sbin/__force-remove-peer.sh %s", options);
-        } else if (command.equals ("force-remove-brick")) {
-            commandLine = String.format("/usr/local/sbin/__force-remove-brick.sh %s %s", subcommand, options);
-        } else if (command.equals ("ping")) {
-            commandLine = String.format("/bin/ping %s %s", options, subcommand);
-        } else {
-            commandLine = String.format("/usr/sbin/gluster %s %s %s", command, subcommand, options);
+        switch (command) {
+            case "force-remove-peer":
+                commandLine = String.format("/usr/local/sbin/__force-remove-peer.sh %s", options);
+                break;
+            case "force-remove-brick":
+                commandLine = String.format("/usr/local/sbin/__force-remove-brick.sh %s %s", subcommand, options);
+                break;
+            case "ping":
+                commandLine = String.format("/bin/ping %s %s", options, subcommand);
+                break;
+            default:
+                commandLine = String.format("/usr/sbin/gluster %s %s %s", command, subcommand, options);
+                break;
         }
 
         String[] processCommand = commandLine.split(" ");

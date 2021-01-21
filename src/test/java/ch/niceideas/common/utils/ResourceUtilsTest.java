@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ResourceUtilsTest {
 
     @Test
-    public void testIsUrl() throws Exception {
+    public void testIsUrl() {
         assertTrue(ResourceUtils.isUrl("http://www.pemarks.com"));
         assertTrue(ResourceUtils.isUrl("https://www.pemarks.com"));
         assertTrue(ResourceUtils.isUrl("file:///etc/passwd"));

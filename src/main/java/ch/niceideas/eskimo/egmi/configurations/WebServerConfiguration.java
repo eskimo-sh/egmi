@@ -34,10 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.configurations;
 
-import org.apache.catalina.connector.Connector;
-import org.apache.coyote.ajp.AbstractAjpProtocol;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

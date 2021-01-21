@@ -43,8 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ProcessHelperTest {
 
-
-    private ProcessHelper processHelper = new ProcessHelper();
+    private final ProcessHelper processHelper = new ProcessHelper();
 
     /** Run Test on Linux only */
     @BeforeEach
@@ -53,7 +52,7 @@ public class ProcessHelperTest {
     }
 
     @Test
-    public void testExecSimple() throws Exception {
+    public void testExecSimple() {
 
         String result = processHelper.exec("ls /etc");
         assertTrue(result.contains("passwd"));
