@@ -1,0 +1,199 @@
+{
+  "hostname": "badbooknew/127.0.1.1",
+  "nodes": [
+    {
+      "host": "192.168.10.71",
+      "volumes": "logstash_data, spark_data, spark_eventlog, test",
+      "nbr_bricks": 4,
+      "status": "OK"
+    },
+    {
+      "host": "192.168.10.72",
+      "status": "INCONSISTENT"
+    },
+    {
+      "host": "192.168.10.73",
+      "volumes": "flink_data, logstash_data, spark_data, spark_eventlog",
+      "nbr_bricks": 4,
+      "status": "OK"
+    }
+  ],
+  "volumes": [
+    {
+      "volume": "flink_data",
+      "nb_bricks": "3 / 3",
+      "bricks": [
+        {
+          "number": "1",
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/flink_data",
+          "id": "192.168.10.72:/var/lib/gluster/volume_bricks/flink_data"
+        },
+        {
+          "number": "2",
+          "node": "192.168.10.73",
+          "path": "/var/lib/gluster/volume_bricks/flink_data",
+          "tot": "40.0GB",
+          "id": "192.168.10.73:/var/lib/gluster/volume_bricks/flink_data",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": "3",
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/flink_data",
+          "tot": "40.0GB",
+          "id": "192.168.10.74:/var/lib/gluster/volume_bricks/flink_data",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        }
+      ],
+      "nb_replicas": "3 / 3",
+      "type": "Replicate",
+      "nb_shards": "1 / 1",
+      "status": "192.168.10.72 DOWN"
+    },
+    {
+      "volume": "logstash_data",
+      "nb_bricks": "3 / 3",
+      "bricks": [
+        {
+          "number": "1",
+          "node": "192.168.10.73",
+          "path": "/var/lib/gluster/volume_bricks/logstash_data",
+          "tot": "40.0GB",
+          "id": "192.168.10.73:/var/lib/gluster/volume_bricks/logstash_data",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": "2",
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/logstash_data",
+          "id": "192.168.10.74:/var/lib/gluster/volume_bricks/logstash_data"
+        },
+        {
+          "number": "3",
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/logstash_data",
+          "tot": "40.0GB",
+          "id": "192.168.10.71:/var/lib/gluster/volume_bricks/logstash_data",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        }
+      ],
+      "nb_replicas": "3 / 3",
+      "type": "Replicate",
+      "nb_shards": "1 / 1",
+      "status": "OK"
+    },
+    {
+      "volume": "spark_data",
+      "nb_bricks": "3 / 3",
+      "bricks": [
+        {
+          "number": "1",
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/spark_data",
+          "tot": "40.0GB",
+          "id": "192.168.10.71:/var/lib/gluster/volume_bricks/spark_data",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": "2",
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/spark_data",
+          "id": "192.168.10.72:/var/lib/gluster/volume_bricks/spark_data"
+        },
+        {
+          "number": "3",
+          "node": "192.168.10.73",
+          "path": "/var/lib/gluster/volume_bricks/spark_data",
+          "tot": "40.0GB",
+          "id": "192.168.10.73:/var/lib/gluster/volume_bricks/spark_data",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        }
+      ],
+      "nb_replicas": "3 / 3",
+      "type": "Replicate",
+      "nb_shards": "1 / 1",
+      "status": "192.168.10.72 DOWN"
+    },
+    {
+      "volume": "spark_eventlog",
+      "nb_bricks": "3 / 3",
+      "bricks": [
+        {
+          "number": "1",
+          "node": "192.168.10.73",
+          "path": "/var/lib/gluster/volume_bricks/spark_eventlog",
+          "tot": "40.0GB",
+          "id": "192.168.10.73:/var/lib/gluster/volume_bricks/spark_eventlog",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": "2",
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/spark_eventlog",
+          "id": "192.168.10.74:/var/lib/gluster/volume_bricks/spark_eventlog"
+        },
+        {
+          "number": "3",
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/spark_eventlog",
+          "tot": "40.0GB",
+          "id": "192.168.10.71:/var/lib/gluster/volume_bricks/spark_eventlog",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        }
+      ],
+      "nb_replicas": "3 / 3",
+      "type": "Replicate",
+      "nb_shards": "1 / 1",
+      "status": "OK"
+    },
+    {
+      "volume": "test",
+      "nb_bricks": "3 / 3",
+      "bricks": [
+        {
+          "number": "1",
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/test",
+          "id": "192.168.10.74:/var/lib/gluster/volume_bricks/test"
+        },
+        {
+          "number": "2",
+          "node": "192.168.10.71",
+          "path": "/var/lib/gluster/volume_bricks/test",
+          "tot": "40.0GB",
+          "id": "192.168.10.71:/var/lib/gluster/volume_bricks/test",
+          "free": "33.3GB",
+          "device": "/dev/sda1",
+          "status": "OK"
+        },
+        {
+          "number": "3",
+          "node": "192.168.10.72",
+          "path": "/var/lib/gluster/volume_bricks/test",
+          "id": "192.168.10.72:/var/lib/gluster/volume_bricks/test"
+        }
+      ],
+      "nb_replicas": "3 / 3",
+      "type": "Replicate",
+      "nb_shards": "1 / 1",
+      "status": "192.168.10.72 DOWN"
+    }
+  ]
+}

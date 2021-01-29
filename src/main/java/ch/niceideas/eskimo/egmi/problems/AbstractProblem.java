@@ -2,6 +2,8 @@ package ch.niceideas.eskimo.egmi.problems;
 
 import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.eskimo.egmi.gluster.command.AbstractGlusterSimpleOperation;
+import ch.niceideas.eskimo.egmi.gluster.command.GlusterPoolList;
+import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
@@ -21,6 +23,33 @@ import java.util.stream.Collectors;
 public abstract class AbstractProblem implements Problem{
 
     private static final Logger logger = Logger.getLogger(AbstractProblem.class);
+
+    public static boolean checkHostInPeerPool(CommandContext context, String host, String peer) throws HttpClientException, IOException, ResolutionStopException {
+        int attempt;
+        for (attempt = 0; attempt < 5; attempt++) {
+            context.info("        + checking pool on  " + peer + " - attempt " + attempt);
+            GlusterPoolList poolList = new GlusterPoolList(context.getHttpClient());
+            GlusterPoolListResult poolListResult = poolList.execute(peer, context);
+            if (!poolListResult.isSuccess()) {
+                context.error("      ! Failed checking pool on  " + peer + " - " + poolListResult.getError());
+                throw new ResolutionStopException("! Failed checking pool on  " + peer + " - " + poolListResult.getError());
+            }
+            if (poolListResult.getAllHosts().contains(host)) {
+                context.info("        + found  " + host + " in pool on " + peer);
+                return true;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                logger.debug (e, e);
+            }
+        }
+        if (attempt == 5){
+            context.error ("      ! Failed to confirm peer addition in 5 attempts.");
+            throw new ResolutionStopException("! Failed to confirm peer addition in 5 attempts.");
+        }
+        return false;
+    }
 
     protected static Set<String> getActiveNodes(Map<String, NodeStatus> nodesStatus) {
         return nodesStatus.keySet().stream()

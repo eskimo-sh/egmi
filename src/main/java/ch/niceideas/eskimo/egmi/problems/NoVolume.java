@@ -82,7 +82,7 @@ public class NoVolume extends AbstractProblem implements Problem {
 
     @Override
     public final int getPriority() {
-        return 5;
+        return 6;
     }
 
     @Override

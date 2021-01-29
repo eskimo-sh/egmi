@@ -43,6 +43,52 @@ import java.util.stream.Collectors;
 
 public class BrickAllocationHelper {
 
+    public static List<BrickId> buildReplicaUnallocation (Map<BrickId, BrickInformation> brickInformations, String vanishedNode, int currentNbReplicas, int currentNbShards ) {
+
+        // Sort BrickIds to have replicas collocated, removing
+        List<BrickId> sortedBrickIds = new ArrayList<>(brickInformations.keySet());
+        sortedBrickIds.sort(new BrickIdNumberComparator(brickInformations));
+
+        if (sortedBrickIds.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        List<BrickId> retBrickIds = new ArrayList<>();
+
+        if (currentNbShards == 1 || currentNbReplicas == 1) {
+
+            // in this case it's easy whatever happens I can remove only one brick
+
+            // find vanished node brick
+            for (BrickId brickId : sortedBrickIds) {
+                if (brickId.getNode().equals(vanishedNode)) {
+                    retBrickIds.add(brickId);
+                }
+            }
+
+        } else {
+
+            // need to find the replica number for vanished node
+            int replicaNumber = -1;
+            for (BrickId brickId : sortedBrickIds) {
+                if (brickId.getNode().equals(vanishedNode)) {
+                    BrickInformation brickInfo = brickInformations.get(brickId);
+                    replicaNumber = brickInfo.getNumber() % currentNbReplicas;
+                }
+            }
+
+            // need to remove the corresponding replica number for every shard
+            for (BrickId brickId : sortedBrickIds) {
+                BrickInformation brickInfo = brickInformations.get(brickId);
+                if (brickInfo.getNumber() % currentNbReplicas == replicaNumber) {
+                    retBrickIds.add(brickId);
+                }
+            }
+        }
+
+        return retBrickIds;
+    }
+
     public static List<BrickId> buildNewShardBrickAllocation(
             String volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, String volumePath, List<String> sortedNodes) {
 

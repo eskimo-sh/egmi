@@ -263,29 +263,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                     }
 
                     // 7. Check host is added
-                    int attempt;
-                    for (attempt = 0; attempt < 5; attempt++) {
-                        context.info("        + checking pool on  " + host + " - attempt " + attempt);
-                        GlusterPoolList poolList = new GlusterPoolList(context.getHttpClient());
-                        GlusterPoolListResult poolListResult = poolList.execute(host, context);
-                        if (!peerProbeResult.isSuccess()) {
-                            context.error("      ! Failed checking pool on  " + host);
-                            throw new ResolutionStopException("! Failed checking pool on  " + host);
-                        }
-                        if (poolListResult.getAllHosts().contains(candidate)) {
-                            context.info("        + found  " + candidate + " in pool on " + host);
-                            return true;
-                        }
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            logger.debug (e, e);
-                        }
-                    }
-                    if (attempt == 5){
-                        context.error ("      ! Failed to confirm peer addition in 5 attempts.");
-                        throw new ResolutionStopException("! Failed to confirm peer addition in 5 attempts.");
-                    }
+                    checkHostInPeerPool(context, candidate, host);
 
                     return true;
 

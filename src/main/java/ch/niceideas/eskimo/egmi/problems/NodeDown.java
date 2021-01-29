@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.problems;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
+import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeRemoveBrick;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeReplaceBrick;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.model.*;
@@ -94,7 +95,7 @@ public class NodeDown extends AbstractProblem implements Problem {
 
     @Override
     public final int getPriority() {
-        return 2;
+        return 3;
     }
 
     @Override
@@ -152,102 +153,8 @@ public class NodeDown extends AbstractProblem implements Problem {
                 // for every of them
                 else {
 
-                    for (BrickId brickId : nodeBricks.keySet()) {
-
-                        String brickVolume = nodeBricks.get(brickId);
-
-                        // only fixing the volume for which I was reported
-                        if (brickVolume.equals(volume) && brickId.getNode().equals(host)) {
-
-                            context.info ("  + Handling Brick " + brickId);
-
-                            VolumeInformation volumeInformation = nodesStatus.get(activeNodes.stream().findFirst().get()).getVolumeInformation(brickVolume);
-
-                            // 3.1 if the volume is replicated, there should be a replica of this brick,
-                            if (volumeInformation.isReplicated()) {
-
-                                context.info ("    - Brick " + brickId + " is replicated. Can proceed further");
-
-                                Map<BrickId, BrickInformation> brickInformations =
-                                        nodesStatus.get(activeNodes.stream().findFirst().get()).getVolumeBricksInformation(volume);
-
-                                // 3.1.1 If there is enough space to create this replica elsewhere remove it and create a brick elsewhere
-                                // use "replace-brick" command
-                                // e.g. gluster volume replace-brick r2 Server1:/home/gfs/r2_0 Server1:/home/gfs/r2_5 commit force
-
-                                Set<String> brickNodes = brickInformations.keySet().stream().map(BrickId::getNode).collect(Collectors.toSet());
-                                Set<String> candidateNodes = new HashSet<>(activeNodes);
-                                candidateNodes.removeAll(brickNodes);
-
-                                Set<String> replicaNodes = listBrickReplicaNodes(brickId, volumeInformation, brickInformations, context);
-
-                                // gluster commands need to be run on a node running a brick
-                                String executionNode = findExecutionNode(brickId, brickInformations, replicaNodes, activeNodes);
-
-                                if (candidateNodes.size() > 0) {
-
-                                    // find node where there is no brick yet
-                                    String targetNode = findFreeTargetNode(activeNodes, brickInformations);
-
-                                    String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
-                                    String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
-                                    BrickId newBrickId = new BrickId(targetNode, path);
-
-                                    context.info ("      + Replacing Brick on FREE node " + brickId + " with " + newBrickId);
-                                    executeSimpleOperation(new GlusterVolumeReplaceBrick(context.getHttpClient(), volume, brickId, newBrickId), context, executionNode);
-
-                                    //if this commands fails, I might need to force restart and not stop execution
-                                }
-
-                                else {
-
-                                    // 3.1.2 If there is not enough space to recreate the replica elsewhere, see if I can add a replica on a
-                                    // node running a shard already
-
-                                    // 3.1.2.2 Find if a node NOT running a replicate is active
-
-                                    candidateNodes = new HashSet<>(activeNodes);
-                                    candidateNodes.removeAll(replicaNodes);
-
-                                    // 3.1.2.3 if such a node is found, replace the brick there
-                                    if (candidateNodes.size() > 0 ) {
-
-                                        String targetNode = candidateNodes.stream().findAny().get();
-
-                                        // count how many bricks this node is already running for this volume
-                                        int counter = (int) (brickInformations.keySet().stream()
-                                                .filter(otherBrickId -> otherBrickId.getNode().equals(targetNode))
-                                                .count() + 1);
-
-                                        String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
-                                        String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume + "_" + counter;
-                                        BrickId newBrickId = new BrickId(targetNode, path);
-
-                                        context.info ("      + Replacing Brick on BUSY node " + brickId + " with " + newBrickId);
-                                        executeSimpleOperation(new GlusterVolumeReplaceBrick(context.getHttpClient(), volume, brickId, newBrickId), context, executionNode);
-                                    }
-
-                                    else {
-
-                                        // 3.1.3 If there is no way to add a new brick anywhere, reduce replication and remove all required bricks
-                                        // TODO DON'T DO IT FOR NOW. THIS NEEDS TO BE CHALLENGED. Not Sure I should actually handle this
-                                        context.info ("    - " + brickId + " is not replaceable. Skipping for now");
-                                        context.info ("    - " + brickId + " PROBLEM WON'T BE SOLVED!");
-                                        return false;
-                                    }
-                                }
-                            }
-
-                            // 3.2 if the volume was not replicated, see what is possible
-                            // (worst case, recreate whole volume - LOG HUGE WARNING FOR DATA LOSS)
-                            // TODO DON'T DO IT FOR NOW. THIS NEEDS TO BE CHALLENGED. Not Sure I should actually handle this
-                            else {
-
-                                context.info ("    - " + brickId + " is NOT replicated. Skipping for now");
-                                context.info ("    - " + brickId + " PROBLEM WON'T BE SOLVED!");
-                                return false;
-                            }
-                        }
+                    if (!handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {
+                        return false;
                     }
                 }
 
@@ -261,6 +168,110 @@ public class NodeDown extends AbstractProblem implements Problem {
             logger.error (e, e);
             return false;
         }
+    }
+
+    public static boolean handleNodeDownBricks(String volume, String host, CommandContext context, Map<String, NodeStatus> nodesStatus, Set<String> activeNodes, Map<BrickId, String> nodeBricks) throws NodeStatusException, ResolutionStopException, ResolutionSkipException {
+        for (BrickId brickId : nodeBricks.keySet()) {
+
+            String brickVolume = nodeBricks.get(brickId);
+
+            // only fixing the volume for which I was reported
+            if (brickVolume.equals(volume) && brickId.getNode().equals(host)) {
+
+                context.info ("  + Handling Brick " + brickId);
+
+                VolumeInformation volumeInformation = nodesStatus.get(activeNodes.stream().findFirst().get()).getVolumeInformation(brickVolume);
+
+                // 3.1 if the volume is replicated, there should be a replica of this brick,
+                if (volumeInformation.isReplicated()) {
+
+                    context.info ("    - Brick " + brickId + " is replicated. Can proceed further");
+
+                    Map<BrickId, BrickInformation> brickInformations =
+                            nodesStatus.get(activeNodes.stream().findFirst().get()).getVolumeBricksInformation(volume);
+
+                    // 3.1.1 If there is enough space to create this replica elsewhere remove it and create a brick elsewhere
+                    // use "replace-brick" command
+                    // e.g. gluster volume replace-brick r2 Server1:/home/gfs/r2_0 Server1:/home/gfs/r2_5 commit force
+
+                    Set<String> brickNodes = brickInformations.keySet().stream().map(BrickId::getNode).collect(Collectors.toSet());
+                    Set<String> candidateNodes = new HashSet<>(activeNodes);
+                    candidateNodes.removeAll(brickNodes);
+
+                    Set<String> replicaNodes = listBrickReplicaNodes(volume, brickId, volumeInformation, brickInformations, context);
+
+                    // gluster commands need to be run on a node running a brick
+                    String executionNode = findExecutionNode(brickId, brickInformations, replicaNodes, activeNodes);
+
+                    if (candidateNodes.size() > 0) {
+
+                        // find node where there is no brick yet
+                        String targetNode = findFreeTargetNode(activeNodes, brickInformations);
+
+                        String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
+                        String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
+                        BrickId newBrickId = new BrickId(targetNode, path);
+
+                        context.info ("      + Replacing Brick on FREE node " + brickId + " with " + newBrickId);
+                        executeSimpleOperation(new GlusterVolumeReplaceBrick(context.getHttpClient(), volume, brickId, newBrickId), context, executionNode);
+
+                        //if this commands fails, I might need to force restart and not stop execution
+                    }
+
+                    else {
+
+                        // 3.1.2 If there is not enough space to recreate the replica elsewhere, see if I can add a replica on a
+                        // node running a shard already
+
+                        // 3.1.2.2 Find if a node NOT running a replicate is active
+
+                        candidateNodes = new HashSet<>(activeNodes);
+                        candidateNodes.removeAll(replicaNodes);
+
+                        // 3.1.2.3 if such a node is found, replace the brick there
+                        if (candidateNodes.size() > 0 ) {
+
+                            String targetNode = candidateNodes.stream().findAny().get();
+
+                            // count how many bricks this node is already running for this volume
+                            int counter = (int) (brickInformations.keySet().stream()
+                                    .filter(otherBrickId -> otherBrickId.getNode().equals(targetNode))
+                                    .count() + 1);
+
+                            String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
+                            String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume + "_" + counter;
+                            BrickId newBrickId = new BrickId(targetNode, path);
+
+                            context.info ("      + Replacing Brick on BUSY node " + brickId + " with " + newBrickId);
+                            executeSimpleOperation(new GlusterVolumeReplaceBrick(context.getHttpClient(), volume, brickId, newBrickId), context, executionNode);
+                        }
+
+                        else {
+
+                            // 3.1.3 If there is no way to add a new brick anywhere, reduce replication and remove all required bricks
+                            int currentNbReplicas = Integer.parseInt(StringUtils.isBlank(volumeInformation.getNbReplicas()) ? "1" : volumeInformation.getNbReplicas());
+                            int currentNbShards = Integer.parseInt(volumeInformation.getNbShards());
+
+                            List<BrickId> removedBrickIds = BrickAllocationHelper.buildReplicaUnallocation (brickInformations, host, currentNbReplicas, currentNbShards);
+
+                            context.info ("      !!! Removing Bricks " + removedBrickIds);
+                            executeSimpleOperation(new GlusterVolumeRemoveBrick(context.getHttpClient(), volume, currentNbReplicas - 1, removedBrickIds), context, executionNode);
+                        }
+                    }
+                }
+
+                // 3.2 if the volume was not replicated, see what is possible
+                // (worst case, recreate whole volume - LOG HUGE WARNING FOR DATA LOSS)
+                // TODO DON'T DO IT FOR NOW. THIS NEEDS TO BE CHALLENGED. Not Sure I should actually handle this
+                else {
+
+                    context.info ("    - " + brickId + " is NOT replicated. Skipping for now");
+                    context.info ("    - " + brickId + " PROBLEM WON'T BE SOLVED!");
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void removefromRuntimeNodes(CommandContext context) throws ResolutionStopException {
@@ -282,7 +293,7 @@ public class NodeDown extends AbstractProblem implements Problem {
         }
     }
 
-    private String findFreeTargetNode(Set<String> activeNodes, Map<BrickId, BrickInformation> brickInformations) throws ResolutionSkipException {
+    private static String findFreeTargetNode(Set<String> activeNodes, Map<BrickId, BrickInformation> brickInformations) throws ResolutionSkipException {
         String targetNode = null;
         for (String candidateNode : activeNodes) {
             boolean found = false;
@@ -303,7 +314,7 @@ public class NodeDown extends AbstractProblem implements Problem {
         return targetNode;
     }
 
-    private String findExecutionNode(BrickId brickId, Map<BrickId, BrickInformation> brickInformations, Set<String> replicaNodes, Set<String> activeNodes) throws ResolutionSkipException {
+    public static String findExecutionNode(BrickId brickId, Map<BrickId, BrickInformation> brickInformations, Set<String> replicaNodes, Set<String> activeNodes) throws ResolutionSkipException {
         String executionNode = brickInformations.keySet().stream()
                 .map(BrickId::getNode)
                 .filter(replicaNodes::contains)
@@ -315,7 +326,7 @@ public class NodeDown extends AbstractProblem implements Problem {
         return executionNode;
     }
 
-    public Set<String> listBrickReplicaNodes (BrickId brickId, VolumeInformation volumeInformation, Map<BrickId, BrickInformation> brickInformations, CommandContext context)
+    private static Set<String> listBrickReplicaNodes (String volume, BrickId brickId, VolumeInformation volumeInformation, Map<BrickId, BrickInformation> brickInformations, CommandContext context)
             throws ResolutionStopException, ResolutionSkipException{
         if (StringUtils.isBlank(volumeInformation.getNbReplicas())) {
             throw new ResolutionStopException("Cannot get volume " + volume + " number of replicas");

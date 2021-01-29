@@ -218,22 +218,25 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             newStatus.getJSONObject().put("nodes", new JSONArray(nodeInfos));
 
             // 2. Detection connection graph partitioning
-            GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
+            List<String> partitionedNodes = GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
 
-            // 3. Build Volume status
+            // 3. Detect peer connection inconsistencies
+            detectConnectionInconsistencies (problemManager, allNodes, partitionedNodes, nodesStatus, nodeInfos);
+
+            // 4. Build Volume status
             newStatus.getJSONObject().put("volumes", new JSONArray(
                     buildVolumeInfo(nodesStatus, allNodes, allVolumes, nodeInfos)));
 
-            // 4. Update problems
+            // 5. Update problems
             problemManager.recognize (newStatus);
 
-            // 5. Store status for UI
+            // 6. Store status for UI
             info("Status fetching completed. " + problemManager.getProblemSummary());
 
             lastStatus.set (newStatus);
             lastStatusException.set (null);
 
-            // 6. Problem resolution iteration
+            // 7. Problem resolution iteration
             try {
                 problemManager.resolutionIteration(newStatus);
             } catch (Exception e) {
@@ -258,6 +261,58 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 statusRefreshScheduler.schedule(this::updateSystemStatus, statusUpdatePeriodSeconds, TimeUnit.SECONDS);
             }
         }
+    }
+
+    private void detectConnectionInconsistencies(ProblemManager problemManager, Set<String> allNodes, List<String> partitionedNodes, Map<String, NodeStatus> nodesStatus, List<JSONObject> nodeInfos) {
+
+        try {
+            // 1. Build all nodes neighbours
+            Map<String, Set<String>> nodesPeeers = new HashMap<>();
+            for (String node : allNodes) {
+
+                NodeStatus nodeStatus = nodesStatus.get(node);
+                if (nodeStatus != null) { // don't act on node down
+                    nodesPeeers.put (node, nodeStatus.getAllPeers());
+                }
+            }
+
+            // 2. Find inconsistencies
+            for (String node : allNodes) {
+                Set<String> nodePeers = nodesPeeers.get(node);
+                if (nodePeers != null) {
+                    for (String other : allNodes) {
+                        Set<String> otherPeers = nodesPeeers.get(other);
+                        if (otherPeers != null) {
+
+                            if (otherPeers.contains(node) && !nodePeers.contains(other)) {
+                                if (flagNodeInconsistent(problemManager, nodeInfos, node, other)) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        } catch (NodeStatusException e) {
+            logger.error (e, e);
+        }
+
+    }
+
+    private boolean flagNodeInconsistent(ProblemManager problemManager, List<JSONObject> nodeInfos, String node, String other) {
+        // flag node inconsistent
+        for (JSONObject nodeInfo : nodeInfos) {
+            if (nodeInfo.getString("host").equals(node)) {
+                String prevStatus = nodeInfo.getString("status");
+                if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
+                    nodeInfo.put("status", "INCONSISTENT");
+                    problemManager.addProblem(new NodeInconsistent(new Date(), node, other));
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private List<JSONObject> buildVolumeInfo(Map<String, NodeStatus> nodesStatus,

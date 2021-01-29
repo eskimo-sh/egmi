@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.gluster.command.result;
 
 import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
+import ch.niceideas.common.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -109,6 +110,10 @@ public class GlusterPoolListResult extends AbstractGlusterResult<GlusterPoolList
         }
 
         return this;
+    }
+
+    public boolean isSuccess() {
+        return StringUtils.isBlank(getError());
     }
 
     @Data

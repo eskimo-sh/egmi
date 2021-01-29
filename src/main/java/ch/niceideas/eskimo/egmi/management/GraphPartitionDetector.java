@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 
 public class GraphPartitionDetector {
 
-    public static void detectGraphPartitioning(ProblemManager problemManager, Set<String> allNodes, List<JSONObject> nodeInfos, Map<String, NodeStatus> nodesStatus) throws NodeStatusException  {
+    public static List<String> detectGraphPartitioning(ProblemManager problemManager, Set<String> allNodes, List<JSONObject> nodeInfos, Map<String, NodeStatus> nodesStatus) throws NodeStatusException  {
 
         // 0. Build data structure
         Map<String, Node> nodes = buildNodeGraph(allNodes, nodesStatus);
@@ -67,10 +67,11 @@ public class GraphPartitionDetector {
             }
         }
         if (allGood) {
-            return;
+            return Collections.emptyList();
         }
 
         // 3. If some node have different counts, flag the all nodes having a lesser count as disconnected
+        List<String> partitionedNodes = new ArrayList<String>();
 
         // find highest and smallest count
         int smallest = Integer.MAX_VALUE, highest = Integer.MIN_VALUE;
@@ -87,7 +88,9 @@ public class GraphPartitionDetector {
         // if highest == smallest, then flag all nodes as PARTITIONED
         if (highest == smallest) {
             for (String host : allNodes) {
-                flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host);
+                if (flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host)) {
+                    partitionedNodes.add(host);
+                }
             }
 
         }
@@ -97,11 +100,14 @@ public class GraphPartitionDetector {
             for (String host : allNodes) {
                 int counter = counters.get(host);
                 if (counter != highest) {
-                    flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host);
+                    if (flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host)) {
+                        partitionedNodes.add(host);
+                    }
                 }
             }
         }
 
+        return partitionedNodes;
     }
 
     public static Map<String, Integer> buildPeerCounters(Set<String> allNodes, Map<String, Node> nodes) {
@@ -153,16 +159,18 @@ public class GraphPartitionDetector {
         return nodes;
     }
 
-    private static void flagNodePartitioned(ProblemManager problemManager, List<JSONObject> nodeInfos, Map<String, NodeStatus> nodesStatus, String host) {
+    private static boolean flagNodePartitioned(ProblemManager problemManager, List<JSONObject> nodeInfos, Map<String, NodeStatus> nodesStatus, String host) {
         for (JSONObject nodeInfo : nodeInfos) {
             if (nodeInfo.getString("host").equals(host)) {
                 String prevStatus = nodeInfo.getString("status");
                 if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
                     nodeInfo.put("status", "PARTITIONED");
                     problemManager.addProblem(new NodePartitioned(new Date(), host));
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     @RequiredArgsConstructor

@@ -71,12 +71,12 @@ public class MissingBrick extends AbstractProblem implements Problem{
     @Override
     public boolean recognize(SystemStatus newStatus) {
         JSONArray brickArray = newStatus.getBrickArray(volume);
-        return brickArray!= null && brickArray.length() <= targetNbrBricks;
+        return brickArray!= null && brickArray.length() < targetNbrBricks;
     }
 
     @Override
     public final int getPriority() {
-        return 6;
+        return 7;
     }
 
     @Override

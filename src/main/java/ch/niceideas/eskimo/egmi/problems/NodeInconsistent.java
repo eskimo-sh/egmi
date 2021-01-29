@@ -34,89 +34,112 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
+import ch.niceideas.common.http.HttpClientException;
+import ch.niceideas.common.utils.Pair;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
-import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeStart;
-import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
-import ch.niceideas.eskimo.egmi.model.NodeStatus;
-import ch.niceideas.eskimo.egmi.model.NodeStatusException;
-import ch.niceideas.eskimo.egmi.model.SystemStatus;
-import ch.niceideas.eskimo.egmi.model.VolumeInformation;
+import ch.niceideas.eskimo.egmi.gluster.command.*;
+import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
+import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
+import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
+import ch.niceideas.eskimo.egmi.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
-public class VolumeNotStarted extends AbstractProblem implements Problem {
+public class NodeInconsistent extends AbstractProblem implements Problem {
 
-    private static final Logger logger = Logger.getLogger(VolumeNotStarted.class);
+    private static final Logger logger = Logger.getLogger(NodeInconsistent.class);
 
     private Date date;
-    private final String volume;
+    private final String host;
+    private final String other;
+
 
     @Override
     public String getProblemId() {
-        return "VOLUME_DOWN-" + volume;
+        return "NODE_INCONSISTENT-" + host + "-" + other;
     }
 
     @Override
     public String getProblemType() {
-        return "Volume Down";
+        return "Node Inconsistent";
     }
 
     @Override
     public boolean recognize(SystemStatus newStatus) {
-
-        JSONObject volumeInfo = newStatus.getVolumeInfo(volume);
-        if (volumeInfo == null) {
-            return false;
+        JSONObject nodeInfo = newStatus.getNodeInfo(host);
+        if (nodeInfo == null) {
+            return true;
         }
-        return StringUtils.isNotBlank(volumeInfo.getString("status"))
-                && volumeInfo.getString("status").trim().contains("NOT STARTED");
+
+        String status = nodeInfo.getString("status");
+
+        return StringUtils.isBlank(status) || status.equals("INCONSISTENT");
     }
 
     @Override
     public final int getPriority() {
-        return 4;
+        return 1;
     }
 
     @Override
-    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionStopException {
+    public final boolean solve(GlusterRemoteManager glusterRemoteManager, CommandContext context) throws ResolutionStopException, ResolutionSkipException {
 
         context.info ("- Solving " + getProblemId());
 
         try {
 
-            // 1. Confirm volume is not started
-            String host = null;
-
+            // 1. find out if node can be added to a larger cluster
             Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
-            for (String node : nodesStatus.keySet()) {
 
-                NodeStatus nodeStatus = nodesStatus.get(node);
-                if (nodeStatus != null) {
+            // 1.1 Find all nodes in Nodes Status not being KO
+            Set<String> activeNodes = getActiveNodes(nodesStatus);
 
-                    VolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
-                    String volStatus = nodeVolumeInfo.getStatus();
+            if (!activeNodes.contains(host)) {
+                context.info ("  !! Node " + host + " is not active");
+                return false;
+            }
 
-                    if (StringUtils.isNotBlank(volStatus) && volStatus.equals(GlusterVolumeStatusResult.VOL_NOT_STARTED_FLAG)) {
-                        host = node;
-                        break;
-                    }
+            // 2. Remove all node bricks
+            Set<String> nodeVolumes = nodesStatus.get(activeNodes.stream().findFirst().get()).getAllVolumes();
+            for (String volume : nodeVolumes) {
+
+                Map<BrickId, String> nodeBricks = nodesStatus.get(activeNodes.stream().findFirst().get()).getNodeBricksAndVolumes(host);
+
+                if (!NodeDown.handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {
+                    return false;
                 }
             }
 
-            if (host != null) {
+            // 3. Force remove host from peer reporting it
+            context.info ("  + Force detaching " + host + " from " + other + " peer pool.");
+            executeSimpleOperation(new GlusterPeerDetach(context.getHttpClient(), host), context, other);
 
-                // 2. Start volume
-                context.info ("  + Starting volume " + volume);
-                executeSimpleOperation(new GlusterVolumeStart(context.getHttpClient(), volume), context, host);
+            // 4. Add it again
+            context.info ("  + Re-adding " + host + " to " + other + " peer pool.");
+            executeSimpleOperation(new GlusterPeerProbe(context.getHttpClient(), host), context, other);
+
+            try {
+                // 7. Ensure it is properly available
+                checkHostInPeerPool(context, other, host);
+
+            } catch (HttpClientException | IOException e) {
+                logger.debug (e, e);
+                logger.error (e.getMessage());
+                throw new ResolutionStopException(e);
             }
 
             return true;
@@ -126,4 +149,5 @@ public class VolumeNotStarted extends AbstractProblem implements Problem {
             return false;
         }
     }
+
 }

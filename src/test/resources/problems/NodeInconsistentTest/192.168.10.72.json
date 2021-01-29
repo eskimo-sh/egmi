@@ -1,0 +1,10 @@
+{
+  "peers": [
+    {
+      "uid": "9120f067-77d9-4a1f-a9ef-c95033123f26",
+      "hostname": "localhost",
+      "state": "Connected"
+    }
+  ],
+  "volumes": []
+}

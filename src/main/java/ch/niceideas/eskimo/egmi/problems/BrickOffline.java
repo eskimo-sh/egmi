@@ -108,20 +108,24 @@ public class BrickOffline extends AbstractProblem implements Problem {
                     if (nodeStatus != null) {
 
                         VolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
+                        if (nodeVolumeInfo == null) {
+                            context.info ("  + Couldn't find volume information for " + volume + " in node status for " + node);
+                        } else {
 
-                        String volStatus = nodeVolumeInfo.getStatus();
+                            String volStatus = nodeVolumeInfo.getStatus();
 
-                        Map<BrickId, BrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
-                        for (BrickId brickId : nodeBricksInfo.keySet()) {
+                            Map<BrickId, BrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
+                            for (BrickId brickId : nodeBricksInfo.keySet()) {
 
-                            BrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
+                                BrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
 
-                            if (StringUtils.isBlank(volStatus) || !volStatus.contains("TEMP")) {
+                                if (StringUtils.isBlank(volStatus) || !volStatus.contains("TEMP")) {
 
-                                String effStatus = nodeBrickInfo.getStatus();
-                                if (effStatus != null && effStatus.equals("OFFLINE")) {
-                                    host = node;
-                                    break;
+                                    String effStatus = nodeBrickInfo.getStatus();
+                                    if (effStatus != null && effStatus.equals("OFFLINE")) {
+                                        host = node;
+                                        break;
+                                    }
                                 }
                             }
                         }

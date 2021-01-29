@@ -228,4 +228,11 @@ public class ManagementServiceTest {
         assertEquals (5, ms.getTargetNumberOfReplicas());
     }
 
+    /*
+    @Test
+    public void testDetectConnectionInconsistencies() {
+        fail ("To Be Implemented");
+    }
+    */
+
 }

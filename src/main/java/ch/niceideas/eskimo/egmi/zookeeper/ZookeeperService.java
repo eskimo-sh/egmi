@@ -74,7 +74,7 @@ public class ZookeeperService {
         if (StringUtils.isNotBlank(forceMasterFlag)) {
             boolean masterFlag = Boolean.parseBoolean(forceMasterFlag);
             logger.warn ("Forcing master=" + masterFlag);
-            masterTracker.set("[UNNNOWN]");
+            masterTracker.set("[UNKNOWN]");
             master.set(masterFlag);
             return;
         }
