@@ -92,8 +92,12 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     @Autowired
     private ZookeeperService zookeeperService;
 
+    /* FIXME remove it
     @Value("${target.ip-addresses}")
     protected String configuredNodes = "";
+    */
+    protected String testConfiguredNodes = "";
+    protected String zkConfiguredNodes = "";
 
     @Value("${target.volumes}")
     private String configuredVolumes = "";
@@ -135,7 +139,8 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         this.zookeeperService = zookeeperService;
     }
     public void setTestConfig(String configuredNodes, String configuredVolumes) {
-        this.configuredNodes = configuredNodes;
+        this.zkConfiguredNodes = null;
+        this.testConfiguredNodes = configuredNodes;
         this.configuredVolumes = configuredVolumes;
     }
     public void setTargetNumberBricksString(String targetNbrBricks) {
@@ -172,6 +177,17 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
+    public String getRTConfiguredNodes() {
+        if (StringUtils.isBlank(zkConfiguredNodes)) {
+            if (StringUtils.isNotBlank(testConfiguredNodes)) {
+                zkConfiguredNodes = testConfiguredNodes;
+            } else {
+                zkConfiguredNodes = zookeeperService.getConfiguredNodes();
+            }
+        }
+        return zkConfiguredNodes;
+    }
+
     public boolean isMaster() {
         return zookeeperService.isMaster();
     }
@@ -203,6 +219,12 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             statusUpdateLock.lock();
 
             logger.info ("- Updating System Status");
+
+            if (StringUtils.isNotBlank(testConfiguredNodes)) {
+                zkConfiguredNodes = testConfiguredNodes;
+            } else {
+                zkConfiguredNodes = zookeeperService.getConfiguredNodes();
+            }
 
             SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + InetAddress.getLocalHost() + "\"}");
 
@@ -537,7 +559,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     }
 
     private int getTheoreticalNumberOfBricks() {
-        int configuredNumberOfNodes = configuredNodes.split(",").length;
+        int configuredNumberOfNodes = getRTConfiguredNodes().split(",").length;
 
         int theoreticalNbrBricks = 0;
 
@@ -650,7 +672,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         Set<String> nodes = new HashSet<>();
 
         // 1. Add all configured nodes
-        String[] confNodes = configuredNodes.split(",");
+        String[] confNodes = getRTConfiguredNodes().split(",");
         Arrays.stream(confNodes, 0, confNodes.length)
                 .filter(StringUtils::isNotBlank)
                 .forEach(nodes::add);

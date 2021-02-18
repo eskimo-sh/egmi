@@ -69,7 +69,8 @@ public class ZookeeperService {
             @Value("${hostname:#{null}}") String hostname,
             @Value("${zookeeper.urls:#{null}}") String zookeeperUrls,
             @Value("${zookeeper.sessionTimeout:#{5000}}") int zookeeperSessionTimeout,
-            @Value("${master}") String forceMasterFlag) {
+            @Value("${master}") String forceMasterFlag,
+            @Value("${data}") boolean dataNode) {
 
         if (StringUtils.isNotBlank(forceMasterFlag)) {
             boolean masterFlag = Boolean.parseBoolean(forceMasterFlag);
@@ -112,7 +113,7 @@ public class ZookeeperService {
             while (!stopping) {
 
                 try {
-                    ElectionProcess electionProcess = new ElectionProcess(effHostname, zookeeperUrls, timeout, new ElectionCallback() {
+                    ElectionProcess electionProcess = new ElectionProcess(effHostname, dataNode, zookeeperUrls, timeout, new ElectionCallback() {
                         @Override
                         public void onMasterChanged(String masterHostname) {
                             masterTracker.set(masterHostname);
@@ -149,4 +150,13 @@ public class ZookeeperService {
         return masterTracker.get();
     }
 
+    public String getConfiguredNodes() {
+        // FIXME
+
+        // 1. Query zookeeper for all data nodes
+
+        // 2. register listener to be notified of changes in data nodes
+
+        return null;
+    }
 }

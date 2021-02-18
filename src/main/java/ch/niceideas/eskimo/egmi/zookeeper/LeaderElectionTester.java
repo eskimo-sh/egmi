@@ -58,7 +58,7 @@ public class LeaderElectionTester {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> shutDown.set(true)));
 
         while (!shutDown.get()) {
-            ElectionProcess electionProcess = new ElectionProcess(id, zkURL, zkSessionTimeout, new ElectionCallback() {
+            ElectionProcess electionProcess = new ElectionProcess(id, true, zkURL, zkSessionTimeout, new ElectionCallback() {
                 @Override
                 public void onMasterChanged(String masterHostname) {
                     // ignored

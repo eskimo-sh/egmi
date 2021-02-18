@@ -55,52 +55,52 @@ public class ManagementServiceTest {
         ms.defaultNumberReplica = 3;
 
         // Testing 1 node
-        ms.configuredNodes = String.join (",", "a ".repeat(1).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(1).trim().split (" ")), null);
         assertEquals (1, ms.getTargetNumberOfBricks());
         assertEquals (1, ms.getTargetNumberOfReplicas());
 
         // Testing 2 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(2).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(2).trim().split (" ")), null);
         assertEquals (2, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 3 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(3).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(3).trim().split (" ")), null);
         assertEquals (3, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 4 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(4).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(4).trim().split (" ")), null);
         assertEquals (3, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 5 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(5).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(5).trim().split (" ")), null);
         assertEquals (4, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 6 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(6).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(6).trim().split (" ")), null);
         assertEquals (4, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 10 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(10).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(10).trim().split (" ")), null);
         assertEquals (4, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 20 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(20).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(20).trim().split (" ")), null);
         assertEquals (4, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 50 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(50).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(50).trim().split (" ")), null);
         assertEquals (6, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 100 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(100).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(100).trim().split (" ")), null);
         assertEquals (6, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
     }
@@ -112,52 +112,52 @@ public class ManagementServiceTest {
         ms.defaultNumberReplica = 3;
 
         // Testing 1 node
-        ms.configuredNodes = String.join (",", "a ".repeat(1).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(1).trim().split (" ")), null);
         assertEquals (1, ms.getTargetNumberOfBricks());
         assertEquals (1, ms.getTargetNumberOfReplicas());
 
         // Testing 2 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(2).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(2).trim().split (" ")), null);
         assertEquals (2, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 3 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(3).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(3).trim().split (" ")), null);
         assertEquals (3, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 4 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(4).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(4).trim().split (" ")), null);
         assertEquals (4, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 5 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(5).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(5).trim().split (" ")), null);
         assertEquals (4, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 6 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(6).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(6).trim().split (" ")), null);
         assertEquals (6, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 10 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(10).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(10).trim().split (" ")), null);
         assertEquals (9, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 20 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(20).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(20).trim().split (" ")), null);
         assertEquals (18, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 50 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(50).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(50).trim().split (" ")), null);
         assertEquals (48, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 100 nodes
-        ms.configuredNodes = String.join (",", "a ".repeat(100).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(100).trim().split (" ")), null);
         assertEquals (99, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
     }
@@ -169,61 +169,61 @@ public class ManagementServiceTest {
 
         // Testing 1 node
         ms.targetNumberBricksString = "3";
-        ms.configuredNodes = String.join (",", "a ".repeat(1).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(1).trim().split (" ")), null);
         assertEquals (1, ms.getTargetNumberOfBricks());
         assertEquals (1, ms.getTargetNumberOfReplicas());
 
         // Testing 2 nodes
         ms.targetNumberBricksString = "3";
-        ms.configuredNodes = String.join (",", "a ".repeat(2).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(2).trim().split (" ")), null);
         assertEquals (2, ms.getTargetNumberOfBricks());
         assertEquals (2, ms.getTargetNumberOfReplicas());
 
         // Testing 3 nodes
         ms.targetNumberBricksString = "3";
-        ms.configuredNodes = String.join (",", "a ".repeat(3).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(3).trim().split (" ")), null);
         assertEquals (3, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 4 nodes
         ms.targetNumberBricksString = "3";
-        ms.configuredNodes = String.join (",", "a ".repeat(4).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(4).trim().split (" ")), null);
         assertEquals (3, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 5 nodes
         ms.targetNumberBricksString = "3";
-        ms.configuredNodes = String.join (",", "a ".repeat(5).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(5).trim().split (" ")), null);
         assertEquals (3, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 6 nodes
         ms.targetNumberBricksString = "3";
-        ms.configuredNodes = String.join (",", "a ".repeat(6).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(6).trim().split (" ")), null);
         assertEquals (3, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
 
         // Testing 10 nodes
         ms.targetNumberBricksString = "10";
-        ms.configuredNodes = String.join (",", "a ".repeat(10).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(10).trim().split (" ")), null);
         assertEquals (10, ms.getTargetNumberOfBricks());
         assertEquals (5, ms.getTargetNumberOfReplicas());
 
         // Testing 20 nodes
         ms.targetNumberBricksString = "10";
-        ms.configuredNodes = String.join (",", "a ".repeat(20).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(20).trim().split (" ")), null);
         assertEquals (10, ms.getTargetNumberOfBricks());
         assertEquals (5, ms.getTargetNumberOfReplicas());
 
         // Testing 50 nodes
         ms.targetNumberBricksString = "10";
-        ms.configuredNodes = String.join (",", "a ".repeat(50).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(50).trim().split (" ")), null);
         assertEquals (10, ms.getTargetNumberOfBricks());
         assertEquals (5, ms.getTargetNumberOfReplicas());
 
         // Testing 100 nodes
         ms.targetNumberBricksString = "10";
-        ms.configuredNodes = String.join (",", "a ".repeat(100).trim().split (" "));
+        ms.setTestConfig(String.join (",", "a ".repeat(100).trim().split (" ")), null);
         assertEquals (10, ms.getTargetNumberOfBricks());
         assertEquals (5, ms.getTargetNumberOfReplicas());
     }

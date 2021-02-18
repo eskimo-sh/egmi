@@ -126,7 +126,7 @@ public abstract class AbstractScenarioTest {
             }
         });
 
-        ms.setZoopeeerService(new ZookeeperService(null, null, 0, null) {
+        ms.setZoopeeerService(new ZookeeperService(null, null, 0, null, true) {
 
             @Override
             public boolean isMaster() {
