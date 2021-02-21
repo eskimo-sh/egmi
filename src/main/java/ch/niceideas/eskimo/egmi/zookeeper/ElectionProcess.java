@@ -34,6 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.zookeeper;
 
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ElectionProcess implements Runnable, Closeable {
 
@@ -52,14 +54,16 @@ public class ElectionProcess implements Runnable, Closeable {
     private static final String LEADER_ELECTION_ROOT_NODE = "/egmi_election";
     private static final String PROCESS_NODE_PREFIX = "/p_";
     private static final String MASTER_TRACKER_NODE = "/master_id";
-    private static final String DATA_NODE_FOLDER = "/data_nodes/";
-    private static final String DATA_NODE = "/data";
+    private static final String DATA_NODE_FOLDER = "/data_nodes";
 
     private final Object sessionMonitor = new Object();
 
     private final String id;
     private final boolean dataNode;
-    private final ZookeeperManager zookeeperManager;
+    private final boolean masterElection;
+
+    @Getter
+    private final ZookeeperManager zooKeeperManager;
 
     private final ElectionCallback callback;
 
@@ -69,16 +73,17 @@ public class ElectionProcess implements Runnable, Closeable {
     private final ProcessNodeWatcher watcher = new ProcessNodeWatcher();
 
 
-    public ElectionProcess(final String id, final boolean dataNode, final String zkURL, final int zkSessionTimeout, final ElectionCallback callback) throws IOException {
+    public ElectionProcess(final String id, final boolean dataNode, final boolean masterElection, final String zkURL, final int zkSessionTimeout, final ElectionCallback callback) throws IOException {
         this.dataNode = dataNode;
+        this.masterElection = masterElection;
         this.id = id;
         this.callback = callback;
-        zookeeperManager = new ZookeeperManager(zkURL, zkSessionTimeout, watcher);
+        zooKeeperManager = new ZookeeperManager(zkURL, zkSessionTimeout, watcher);
     }
 
     private void attemptForLeaderPosition() {
 
-        final List<String> childNodePaths = zookeeperManager.getChildren(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE, false);
+        final List<String> childNodePaths = zooKeeperManager.getChildren(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE, false);
 
         Collections.sort(childNodePaths);
 
@@ -86,14 +91,14 @@ public class ElectionProcess implements Runnable, Closeable {
         if (index == 0) {
             logger.info("[Process: " + id + "] I am the new leader!");
             callback.onMasterGained();
-            zookeeperManager.setData(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, id.getBytes(StandardCharsets.UTF_8));
+            zooKeeperManager.setData(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, id.getBytes(StandardCharsets.UTF_8));
         } else {
             final String watchedNodeShortPath = childNodePaths.get(index - 1);
 
             leaderNodeWatch = EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE + "/" + watchedNodeShortPath;
 
             logger.info("[Process: " + id + "] - Setting watch on node with path: " + leaderNodeWatch);
-            zookeeperManager.watchNode(leaderNodeWatch, true);
+            zooKeeperManager.watchNode(leaderNodeWatch, true);
         }
     }
 
@@ -102,35 +107,43 @@ public class ElectionProcess implements Runnable, Closeable {
 
         logger.info("Process with id: " + id + " has started!");
 
-        zookeeperManager.getOrCreateNode(EGMI_ROOT_NODE, false, false);
+        zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE, false, false);
 
-        final String electionRootNodePath = zookeeperManager.getOrCreateNode(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE, false, false);
+        final String electionRootNodePath = zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE, false, false);
         if(electionRootNodePath == null) {
             throw new IllegalStateException("Unable to create/access leader election root node with path: " + EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
         }
 
-        logger.info("[Process: " + id + "] Creating data node " + EGMI_ROOT_NODE + DATA_NODE_FOLDER + DATA_NODE);
-        zookeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER + MASTER_TRACKER_NODE, false, true);
-
-        logger.info("[Process: " + id + "] Registering watches on data nodes folder " + EGMI_ROOT_NODE + DATA_NODE_FOLDER);
-        zookeeperManager.watchNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER, true);
-
-        logger.info("[Process: " + id + "] Ensuring master tracker node exists on " + EGMI_ROOT_NODE + MASTER_TRACKER_NODE);
-        zookeeperManager.getOrCreateNode(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, true, false);
-
-        logger.debug("[Process: " + id + "] Creating Process node");
-        processNodePath = zookeeperManager.getOrCreateNode(electionRootNodePath + PROCESS_NODE_PREFIX, false, true);
-        if(processNodePath == null) {
-            throw new IllegalStateException("Unable to create/access process node with path: " + EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
+        if (dataNode) {
+            logger.info("[Process: " + id + "] Creating data node " + EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id);
+            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER, false, false);
+            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id, false, true);
         }
 
-        logger.debug("[Process: " + id + "] Process node created with path: " + processNodePath);
+        /*
+        logger.info("[Process: " + id + "] Registering watches on data nodes folder " + EGMI_ROOT_NODE + DATA_NODE_FOLDER);
+        zooKeeperManager.watchNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER, true);
+        */
 
-        String master = new String  (zookeeperManager.getData(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, true), StandardCharsets.UTF_8);
-        logger.info("[Process: " + id + "] Current master is : " + master);
-        callback.onMasterChanged(master);
+        if (masterElection) {
 
-        attemptForLeaderPosition();
+            logger.info("[Process: " + id + "] Ensuring master tracker node exists on " + EGMI_ROOT_NODE + MASTER_TRACKER_NODE);
+            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, true, false);
+
+            logger.debug("[Process: " + id + "] Creating Process node");
+            processNodePath = zooKeeperManager.getOrCreateNode(electionRootNodePath + PROCESS_NODE_PREFIX, false, true);
+            if (processNodePath == null) {
+                throw new IllegalStateException("Unable to create/access process node with path: " + EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
+            }
+
+            logger.debug("[Process: " + id + "] Process node created with path: " + processNodePath);
+
+            String master = new String(zooKeeperManager.getData(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, true), StandardCharsets.UTF_8);
+            logger.info("[Process: " + id + "] Current master is : " + master);
+            callback.onMasterChanged(master);
+
+            attemptForLeaderPosition();
+        }
 
         synchronized (sessionMonitor) {
             try {
@@ -139,7 +152,7 @@ public class ElectionProcess implements Runnable, Closeable {
                 logger.error (e, e);
             } finally {
                 try {
-                    zookeeperManager.close();
+                    zooKeeperManager.close();
                 } catch (IOException e) {
                     logger.error (e, e);
                 }
@@ -154,6 +167,10 @@ public class ElectionProcess implements Runnable, Closeable {
         }
     }
 
+    public List<String> getDataNodes() {
+        return zooKeeperManager.getChildren(EGMI_ROOT_NODE + DATA_NODE_FOLDER, false);
+    }
+
     public class ProcessNodeWatcher implements Watcher {
 
         @Override
@@ -163,14 +180,13 @@ public class ElectionProcess implements Runnable, Closeable {
             final Event.EventType eventType = event.getType();
 
             if (Event.EventType.NodeDeleted.equals(eventType)) {
-
                 if (event.getPath().equalsIgnoreCase(leaderNodeWatch)) {
                     attemptForLeaderPosition();
                 }
 
             } else if (Event.EventType.NodeDataChanged.equals(eventType)
                     && event.getPath().toLowerCase().contains(MASTER_TRACKER_NODE)) {
-                String newMaster = new String (zookeeperManager.getData(event.getPath(), true), StandardCharsets.UTF_8);
+                String newMaster = new String (zooKeeperManager.getData(event.getPath(), true), StandardCharsets.UTF_8);
                 logger.info("[Process: " + id + "] Master changed: " + newMaster);
                 callback.onMasterChanged(newMaster);
 

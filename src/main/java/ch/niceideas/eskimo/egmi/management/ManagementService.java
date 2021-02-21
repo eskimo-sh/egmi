@@ -92,11 +92,9 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     @Autowired
     private ZookeeperService zookeeperService;
 
-    /* FIXME remove it
-    @Value("${target.ip-addresses}")
-    protected String configuredNodes = "";
-    */
     protected String testConfiguredNodes = "";
+
+    @Value("${target.predefined-ip-addresses:#{null}}")
     protected String zkConfiguredNodes = "";
 
     @Value("${target.volumes}")
@@ -220,6 +218,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
             logger.info ("- Updating System Status");
 
+            // refresh available data nodes from zookeeper
             if (StringUtils.isNotBlank(testConfiguredNodes)) {
                 zkConfiguredNodes = testConfiguredNodes;
             } else {

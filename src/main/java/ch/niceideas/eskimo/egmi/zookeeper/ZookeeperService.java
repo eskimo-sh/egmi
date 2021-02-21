@@ -44,6 +44,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -60,86 +61,111 @@ public class ZookeeperService {
 
     private boolean stopping = false;
 
+    private ElectionProcess electionProcess;
+
     @PreDestroy
     public void destroy() {
         stopping = true;
     }
 
     public ZookeeperService(
-            @Value("${hostname:#{null}}") String hostname,
+            @Value("${zookeeper.myId:#{null}}") String myId,
             @Value("${zookeeper.urls:#{null}}") String zookeeperUrls,
             @Value("${zookeeper.sessionTimeout:#{5000}}") int zookeeperSessionTimeout,
             @Value("${master}") String forceMasterFlag,
-            @Value("${data}") boolean dataNode) {
+            @Value("${data}") boolean dataNode,
+            @Value("${target.predefined-ip-addresses:#{null}}") String preconfiguredNodes) {
 
         if (StringUtils.isNotBlank(forceMasterFlag)) {
             boolean masterFlag = Boolean.parseBoolean(forceMasterFlag);
             logger.warn ("Forcing master=" + masterFlag);
             masterTracker.set("[UNKNOWN]");
             master.set(masterFlag);
-            return;
         }
 
-        if (StringUtils.isBlank(hostname)) {
+        if (StringUtils.isBlank(myId)) {
             try {
-                hostname = InetAddress.getLocalHost().getHostName();
-                logger.warn ("No hostname configured. Assuming " + hostname);
+                myId = InetAddress.getLocalHost().getHostName();
+                logger.warn ("No hostname configured. Assuming " + myId);
             } catch (UnknownHostException e) {
                 logger.error (e, e);
                 throw new IllegalStateException(e);
             }
         }
-        final String effHostname = hostname;
+        final String effId = myId;
 
         if (StringUtils.isBlank(zookeeperUrls)) {
             logger.warn ("Running in STANDALONE mode. Assuming master !");
-            masterTracker.set(hostname);
+            masterTracker.set(effId);
             master.set(true);
+
+            if (StringUtils.isBlank(preconfiguredNodes)
+                && (StringUtils.isBlank(forceMasterFlag) || Boolean.parseBoolean(forceMasterFlag))) {
+                logger.warn ("When running in standalone mode, need to defined preconfigured nodes as 'target.predefined-ip-addresses'");
+                throw new IllegalStateException("When running in standalone mode, need to defined preconfigured nodes as 'target.predefined-ip-addresses'");
+            }
+
             return;
         }
 
-        if (zookeeperSessionTimeout <= 0) {
-            zookeeperSessionTimeout = 5000;
-        }
-        final int timeout = zookeeperSessionTimeout;
+        if (StringUtils.isBlank(forceMasterFlag) || StringUtils.isBlank(preconfiguredNodes)) {
 
-        Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r);
-            t.setDaemon(true);
-            return t;
+            // I need zookeeper
 
-        }).submit( () -> {
-
-            while (!stopping) {
-
-                try {
-                    ElectionProcess electionProcess = new ElectionProcess(effHostname, dataNode, zookeeperUrls, timeout, new ElectionCallback() {
-                        @Override
-                        public void onMasterChanged(String masterHostname) {
-                            masterTracker.set(masterHostname);
-                        }
-
-                        @Override
-                        public void onMasterGained() {
-                            master.set(true);
-                        }
-                    });
-                    electionProcess.run();
-
-                } catch (Exception e) {
-                    logger.error (e, e);
-                    logger.warn ("Waiting 10 seconds and retrying");
-                    try {
-                        //noinspection BusyWait
-                        Thread.sleep(10000);
-                    } catch (InterruptedException interruptedException) {
-                        logger.debug (e, e);
-                    }
-                } finally {
-                    master.set(false);
+            if (StringUtils.isBlank(zookeeperUrls)) {
+                if (StringUtils.isBlank(preconfiguredNodes)) {
+                    logger.warn ("If master is not forced (either direction) or no pre-configured nodes are passed or node is data node, then zookeeper is required.");
+                    throw new IllegalStateException("If master is not forced (either direction) or no pre-configured nodes are passed or node is data node, then zookeeper is required.");
                 }
             }
-        });
+
+            if (zookeeperSessionTimeout <= 0) {
+                zookeeperSessionTimeout = 5000;
+            }
+            final int timeout = zookeeperSessionTimeout;
+
+            Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r);
+                t.setDaemon(true);
+                return t;
+
+            }).submit( () -> {
+
+                while (!stopping) {
+
+                    try {
+
+                        electionProcess = new ElectionProcess(effId, dataNode, StringUtils.isBlank(forceMasterFlag), zookeeperUrls, timeout, new ElectionCallback() {
+                            @Override
+                            public void onMasterChanged(String masterHostname) {
+                                masterTracker.set(masterHostname);
+                            }
+
+                            @Override
+                            public void onMasterGained() {
+                                master.set(true);
+                            }
+                        });
+
+                        electionProcess.run();
+
+                    } catch (Exception e) {
+                        logger.error (e, e);
+                        logger.warn ("Waiting 10 seconds and retrying");
+                        try {
+                            //noinspection BusyWait
+                            Thread.sleep(10000);
+                        } catch (InterruptedException interruptedException) {
+                            logger.debug (e, e);
+                        }
+                    } finally {
+                        master.set(false);
+                    }
+                }
+            });
+
+        }
+
     }
 
     public boolean isMaster() {
@@ -153,10 +179,14 @@ public class ZookeeperService {
     public String getConfiguredNodes() {
         // FIXME
 
+        if (electionProcess == null || electionProcess.getZooKeeperManager() == null) {
+            throw new IllegalStateException("No zookeeper connection !");
+        }
+
         // 1. Query zookeeper for all data nodes
+        List<String> dataNodes = electionProcess.getDataNodes();
 
-        // 2. register listener to be notified of changes in data nodes
+        return String.join(",", dataNodes);
 
-        return null;
     }
 }
