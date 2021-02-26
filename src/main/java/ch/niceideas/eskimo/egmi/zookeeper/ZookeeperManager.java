@@ -76,7 +76,11 @@ public class ZookeeperManager implements Closeable {
         }
     }
 
-    public String getOrCreateNode(final String node, final boolean watch, final boolean ephimeral) {
+    public String getOrCreateNode(final String node) {
+        return getOrCreateNode(node, false, false, false);
+    }
+
+    public String getOrCreateNode(final String node, final boolean watch, final boolean ephemeral, final boolean sequential) {
         String createdNodePath;
         try {
 
@@ -85,7 +89,7 @@ public class ZookeeperManager implements Closeable {
             if(nodeStat == null) {
                 createdNodePath = zooKeeper.create(
                         node, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                        (ephimeral ?  CreateMode.EPHEMERAL_SEQUENTIAL : CreateMode.PERSISTENT));
+                        (ephemeral ? (sequential ? CreateMode.EPHEMERAL_SEQUENTIAL: CreateMode.EPHEMERAL) : CreateMode.PERSISTENT));
                 if (watch) {
                     zooKeeper.exists(createdNodePath, watch);
                 }

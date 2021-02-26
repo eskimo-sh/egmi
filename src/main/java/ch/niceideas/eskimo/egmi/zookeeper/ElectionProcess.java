@@ -107,17 +107,17 @@ public class ElectionProcess implements Runnable, Closeable {
 
         logger.info("Process with id: " + id + " has started!");
 
-        zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE, false, false);
+        zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE);
 
-        final String electionRootNodePath = zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE, false, false);
+        final String electionRootNodePath = zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
         if(electionRootNodePath == null) {
             throw new IllegalStateException("Unable to create/access leader election root node with path: " + EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
         }
 
         if (dataNode) {
             logger.info("[Process: " + id + "] Creating data node " + EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id);
-            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER, false, false);
-            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id, false, true);
+            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER);
+            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id, false, true, false);
         }
 
         /*
@@ -128,10 +128,10 @@ public class ElectionProcess implements Runnable, Closeable {
         if (masterElection) {
 
             logger.info("[Process: " + id + "] Ensuring master tracker node exists on " + EGMI_ROOT_NODE + MASTER_TRACKER_NODE);
-            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, true, false);
+            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + MASTER_TRACKER_NODE, true, false, false);
 
             logger.debug("[Process: " + id + "] Creating Process node");
-            processNodePath = zooKeeperManager.getOrCreateNode(electionRootNodePath + PROCESS_NODE_PREFIX, false, true);
+            processNodePath = zooKeeperManager.getOrCreateNode(electionRootNodePath + PROCESS_NODE_PREFIX, false, true, true);
             if (processNodePath == null) {
                 throw new IllegalStateException("Unable to create/access process node with path: " + EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
             }
