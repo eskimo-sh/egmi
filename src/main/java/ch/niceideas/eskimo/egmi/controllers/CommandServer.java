@@ -75,7 +75,7 @@ public class CommandServer {
 
             // specific commands
             case "fix-start-brick":
-                commandLine = String.format("/usr/local/sbin/__fix-start-brick.sh %s", subcommand, options);
+                commandLine = String.format("/usr/local/sbin/__fix-start-brick.sh %s %s", subcommand, options);
                 break;
             case "force-remove-brick":
                 commandLine = String.format("/usr/local/sbin/__force-remove-brick.sh %s %s", subcommand, options);
