@@ -32,36 +32,13 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.problems;
+package ch.niceideas.eskimo.egmi.gluster.command;
 
-import ch.niceideas.eskimo.egmi.model.BrickId;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import ch.niceideas.common.http.HttpClient;
 
-import java.util.Date;
+public class FixStartBrick extends AbstractGlusterSimpleOperation {
 
-import static org.junit.jupiter.api.Assertions.*;
-
-public class BrickOfflineTest  extends AbstractProblemTest {
-
-    private BrickOffline problem;
-
-    @Override
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        problem = new BrickOffline(new Date(), "test2", new BrickId("192.168.10.71", "/var/lib/gluster/volume_bricks/test2_bis_1"));
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
-    }
-
-    @Test
-    public void testSolve() throws Exception {
-        problem.solve(grm, new CommandContext(mockClient, 1234, ms));
-
-        assertEquals("192.168.10.72:1234/command?command=fix-start-brick&subcommand=test2&options=192.168.10.72", String.join("\n", urls));
+    public FixStartBrick(HttpClient httpClient, String volume, String node) {
+        super (httpClient, "fix-start-brick", volume, node);
     }
 }

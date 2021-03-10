@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.problems;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
+import ch.niceideas.eskimo.egmi.gluster.command.FixStartBrick;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeStart;
 import ch.niceideas.eskimo.egmi.model.*;
 import lombok.AllArgsConstructor;
@@ -138,7 +139,7 @@ public class BrickOffline extends AbstractProblem implements Problem {
                     context.info("  + Force Starting volume " + volume);
 
                     // Start volume
-                    executeSimpleOperation(new GlusterVolumeStart(context.getHttpClient(), volume, true), context, host);
+                    executeSimpleOperation(new FixStartBrick(context.getHttpClient(), volume, host), context, host);
                 }
 
                 return true;

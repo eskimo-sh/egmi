@@ -68,11 +68,11 @@ public class NodeInconsistentTest extends AbstractProblemTest {
         }
 
         assertEquals("" +
-                "192.168.10.71:1234/command?command=volume&subcommand=remove-brick&options=flink_data%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/flink_data%20force%20--mode=script\n" +
-                "192.168.10.72:1234/command?command=volume&subcommand=remove-brick&options=test%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/test%20force%20--mode=script\n" +
+                "192.168.10.73:1234/command?command=volume&subcommand=remove-brick&options=test%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/test%20force%20--mode=script\n" +
                 "192.168.10.73:1234/command?command=volume&subcommand=remove-brick&options=logstash_data%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/logstash_data%20force%20--mode=script\n" +
-                "192.168.10.73:1234/command?command=volume&subcommand=remove-brick&options=spark_data%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/spark_data%20force%20--mode=script\n" +
                 "192.168.10.73:1234/command?command=volume&subcommand=remove-brick&options=spark_eventlog%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/spark_eventlog%20force%20--mode=script\n" +
+                "192.168.10.73:1234/command?command=volume&subcommand=remove-brick&options=spark_data%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/spark_data%20force%20--mode=script\n" +
+                "192.168.10.71:1234/command?command=volume&subcommand=remove-brick&options=flink_data%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/flink_data%20force%20--mode=script\n" +
                 "192.168.10.71:1234/command?command=peer&subcommand=detach&options=192.168.10.72\n" +
                 "192.168.10.71:1234/command?command=peer&subcommand=probe&options=192.168.10.72\n" +
                 "192.168.10.72:1234/command?command=pool&subcommand=list&options=\n" +

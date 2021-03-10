@@ -177,7 +177,6 @@ public class ZookeeperService {
     }
 
     public String getConfiguredNodes() {
-        // FIXME
 
         if (electionProcess == null || electionProcess.getZooKeeperManager() == null) {
             throw new IllegalStateException("No zookeeper connection !");

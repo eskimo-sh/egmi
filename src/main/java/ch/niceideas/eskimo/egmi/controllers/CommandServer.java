@@ -72,8 +72,10 @@ public class CommandServer {
 
         String commandLine;
         switch (command) {
-            case "force-remove-peer":
-                commandLine = String.format("/usr/local/sbin/__force-remove-peer.sh %s", options);
+
+            // specific commands
+            case "fix-start-brick":
+                commandLine = String.format("/usr/local/sbin/__fix-start-brick.sh %s", subcommand, options);
                 break;
             case "force-remove-brick":
                 commandLine = String.format("/usr/local/sbin/__force-remove-brick.sh %s %s", subcommand, options);
@@ -81,6 +83,8 @@ public class CommandServer {
             case "ping":
                 commandLine = String.format("/bin/ping %s %s", options, subcommand);
                 break;
+
+            // default leads to gluster command
             default:
                 commandLine = String.format("/usr/sbin/gluster %s %s %s", command, subcommand, options);
                 break;

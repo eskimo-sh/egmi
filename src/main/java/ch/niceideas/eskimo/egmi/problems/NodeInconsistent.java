@@ -113,12 +113,14 @@ public class NodeInconsistent extends AbstractProblem implements Problem {
                 return false;
             }
 
+            // removing inconsistent host
+            activeNodes.remove(host);
+
             // 2. Remove all node bricks
-            Set<String> nodeVolumes = nodesStatus.get(activeNodes.stream().findFirst().get()).getAllVolumes();
-            for (String volume : nodeVolumes) {
-
-                Map<BrickId, String> nodeBricks = nodesStatus.get(activeNodes.stream().findFirst().get()).getNodeBricksAndVolumes(host);
-
+            String activeNode = activeNodes.stream().findFirst().get();
+            //Set<String> nodeVolumes = nodesStatus.get(activeNode).getAllVolumes();
+            Map<BrickId, String> nodeBricks = nodesStatus.get(activeNode).getNodeBricksAndVolumes(host);
+            for (String volume : nodeBricks.values()) {
                 if (!NodeDown.handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {
                     return false;
                 }
