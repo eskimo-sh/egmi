@@ -47,6 +47,8 @@ import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -101,48 +103,49 @@ public class BrickOffline extends AbstractProblem implements Problem {
                 // 1. Confirm a brick is offline
                 Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-                String host = null;
+                String node = brickId.getNode();
 
-                for (String node : nodesStatus.keySet()) {
+                Set<String> activeNodes = getActiveNodes(nodesStatus);
 
-                    NodeStatus nodeStatus = nodesStatus.get(node);
-                    if (nodeStatus != null) {
+                if (!activeNodes.contains(node)) {
+                    context.info ("  !! Node " + node + " is not active");
+                    return false;
+                }
 
-                        VolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
-                        if (nodeVolumeInfo == null) {
-                            context.info ("  + Couldn't find volume information for " + volume + " in node status for " + node);
+                NodeStatus nodeStatus = nodesStatus.get(node);
+                if (nodeStatus != null) {
+
+                    VolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
+                    if (nodeVolumeInfo == null) {
+                        context.info ("  + Couldn't find volume information for " + volume + " in node status for " + node);
+                    } else {
+
+                        String volStatus = nodeVolumeInfo.getStatus();
+                        if (StringUtils.isNotBlank(volStatus) && volStatus.contains("TEMP")) {
+                            context.info ("  + " + volume + " in has sttaus TEMP");
+
                         } else {
 
-                            String volStatus = nodeVolumeInfo.getStatus();
-
                             Map<BrickId, BrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
-                            for (BrickId brickId : nodeBricksInfo.keySet()) {
+                            BrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
 
-                                BrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
 
-                                if (StringUtils.isBlank(volStatus) || !volStatus.contains("TEMP")) {
+                            String effStatus = nodeBrickInfo.getStatus();
+                            if (effStatus == null || !effStatus.equals("OFFLINE")) {
+                                context.info ("  + Brick is not reported offline anymore");
 
-                                    String effStatus = nodeBrickInfo.getStatus();
-                                    if (effStatus != null && effStatus.equals("OFFLINE")) {
-                                        host = node;
-                                        break;
-                                    }
-                                }
+                            } else {
+
+                                context.info("  + Force Starting volume " + volume);
+
+                                // Start volume
+                                executeSimpleOperation(new FixStartBrick(context.getHttpClient(), volume, node), context, node);
+
+                                return true;
                             }
                         }
                     }
                 }
-
-                // 2. Force start volume to fix brick offline
-                if (host != null) {
-
-                    context.info("  + Force Starting volume " + volume);
-
-                    // Start volume
-                    executeSimpleOperation(new FixStartBrick(context.getHttpClient(), volume, host), context, host);
-                }
-
-                return true;
             }
 
             return false;

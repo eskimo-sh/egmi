@@ -62,6 +62,6 @@ public class BrickOfflineTest  extends AbstractProblemTest {
     public void testSolve() throws Exception {
         problem.solve(grm, new CommandContext(mockClient, 1234, ms));
 
-        assertEquals("192.168.10.72:1234/command?command=fix-start-brick&subcommand=test2&options=192.168.10.72", String.join("\n", urls));
+        assertEquals("192.168.10.71:1234/command?command=fix-start-brick&subcommand=test2&options=192.168.10.71", String.join("\n", urls));
     }
 }
