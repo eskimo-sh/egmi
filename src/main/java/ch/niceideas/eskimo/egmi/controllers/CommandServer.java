@@ -80,6 +80,9 @@ public class CommandServer {
             case "force-remove-brick":
                 commandLine = String.format("/usr/local/sbin/__force-remove-brick.sh %s %s", subcommand, options);
                 break;
+            case "force-remove-volume-bricks":
+                commandLine = String.format("/usr/local/sbin/__force-remove-volume-bricks.sh %s %s", subcommand, options);
+                break;
             case "ping":
                 commandLine = String.format("/bin/ping %s %s", options, subcommand);
                 break;

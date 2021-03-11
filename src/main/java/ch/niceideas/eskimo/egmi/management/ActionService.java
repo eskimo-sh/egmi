@@ -108,7 +108,7 @@ public class ActionService {
                 managementService.info("  - Force-removing bricks for " + volume);
                 for (String brickNode : volumeNodes) {
                     managementService.info("    + Removing bricks for " + volume + " on " + brickNode);
-                    AbstractProblem.executeSimpleOperation(new ForceRemoveBricks(httpClient, volume, brickNode), context, brickNode);
+                    AbstractProblem.executeSimpleOperation(new ForceRemoveVolumeBricks(httpClient, volume, brickNode), context, brickNode);
                 }
 
                 // 3. Delete Volume

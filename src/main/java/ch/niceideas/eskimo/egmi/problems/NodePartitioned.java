@@ -40,7 +40,6 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.*;
-import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
 import ch.niceideas.eskimo.egmi.model.*;
@@ -190,7 +189,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
 
                     // 4.2.2 Force delete bricks
                     for (String brickNode : volumeNodes) {
-                        executeSimpleOperation(new ForceRemoveBricks(context.getHttpClient(), volume, brickNode), context, brickNode);
+                        executeSimpleOperation(new ForceRemoveVolumeBricks(context.getHttpClient(), volume, brickNode), context, brickNode);
                     }
 
                     // 4.2.3 Delete Volume

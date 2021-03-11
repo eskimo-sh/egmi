@@ -77,13 +77,23 @@ public class CommandServerTest {
     }
 
     @Test
-    public void testForceRemoveBricks() {
+    public void testForceRemoveVolumeBricks() {
         MockHttpServletResponse httpResp = new MockHttpServletResponse();
-        String result = commandServer.execute(httpResp, "force-remove-brick", "test_volume", "127.0.0.1");
+        String result = commandServer.execute(httpResp, "force-remove-volume-bricks", "test_volume", "127.0.0.1");
 
         assertEquals ("OK", result);
 
-        assertEquals("/usr/local/sbin/__force-remove-brick.sh test_volume 127.0.0.1", String.join ("\n", commandList));
+        assertEquals("/usr/local/sbin/__force-remove-volume-bricks.sh test_volume 127.0.0.1", String.join ("\n", commandList));
+    }
+
+    @Test
+    public void testForceRemoveBrick() {
+        MockHttpServletResponse httpResp = new MockHttpServletResponse();
+        String result = commandServer.execute(httpResp, "force-remove-brick", "/tmp/test", "127.0.0.1");
+
+        assertEquals ("OK", result);
+
+        assertEquals("/usr/local/sbin/__force-remove-brick.sh /tmp/test 127.0.0.1", String.join ("\n", commandList));
     }
 
     @Test

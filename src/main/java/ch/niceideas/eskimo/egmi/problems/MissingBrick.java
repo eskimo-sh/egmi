@@ -37,6 +37,8 @@ package ch.niceideas.eskimo.egmi.problems;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
+import ch.niceideas.eskimo.egmi.gluster.command.ForceRemoveBrick;
+import ch.niceideas.eskimo.egmi.gluster.command.ForceRemoveVolumeBricks;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeAddBrick;
 import ch.niceideas.eskimo.egmi.model.*;
 import lombok.AllArgsConstructor;
@@ -156,7 +158,12 @@ public class MissingBrick extends AbstractProblem implements Problem{
 
                 context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
 
-                // 3.1.3 Call Add Brick command
+                // 3.1.1 Force clean brick paths on their nodes
+                for (BrickId brickId : brickIds) {
+                    executeSimpleOperation(new ForceRemoveBrick(context.getHttpClient(), brickId.getPath(), brickId.getNode()), context, brickId.getNode());
+                }
+
+                // 3.1.2 Call Add Brick command without any messing on server bricks
                 executeSimpleOperation(new GlusterVolumeAddBrick(context.getHttpClient(), volume, currentNbReplicas + 1, brickIds), context, lastNode);
 
                 return true;
@@ -181,6 +188,12 @@ public class MissingBrick extends AbstractProblem implements Problem{
 
                 context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
 
+                // 3.2.1 Force clean brick paths on their nodes
+                for (BrickId brickId : brickIds) {
+                    executeSimpleOperation(new ForceRemoveBrick(context.getHttpClient(), brickId.getPath(), brickId.getNode()), context, brickId.getNode());
+                }
+
+                // 3.2.2 Add shards
                 executeSimpleOperation(new GlusterVolumeAddBrick(context.getHttpClient(), volume, currentNbReplicas, brickIds), context, lastNode);
 
                 return true;

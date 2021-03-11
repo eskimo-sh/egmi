@@ -121,6 +121,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     public ManagementService() {
         this (true);
     }
+    // constructor for tests
     public ManagementService(boolean createUpdateScheduler) {
         if (createUpdateScheduler) {
 
@@ -176,8 +177,10 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
     public void updateSystemStatus() {
 
+        logger.info ("- Updating System Status");
+
         if (!zookeeperService.isMaster()) {
-            logger.debug ("Not updating status since I am no master");
+            logger.info ("  + Not updating status since I am no master");
             if (statusRefreshScheduler != null) {
                 statusRefreshScheduler.schedule(this::updateSystemStatus, statusUpdatePeriodSeconds, TimeUnit.SECONDS);
             }
@@ -186,8 +189,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
         try {
             statusUpdateLock.lock();
-
-            logger.info ("- Updating System Status");
+            logger.info ("  + Got lock - proceeding ...");
 
             // refresh available data nodes from zookeeper
             if (StringUtils.isNotBlank(testConfiguredNodes)) {

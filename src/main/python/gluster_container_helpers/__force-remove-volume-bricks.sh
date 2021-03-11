@@ -38,9 +38,9 @@
 # Inject topology
 . /etc/eskimo_topology.sh
 
-BRICK_PATH=$1
-if [[ $BRICK_PATH == "" ]]; then
-   echo "Expecting Gluster BRICK PATH as first argument"
+VOLUME=$1
+if [[ $VOLUME == "" ]]; then
+   echo "Expecting Gluster VOLUME as first argument"
    exit 1
 fi
 
@@ -51,8 +51,8 @@ if [[ $NODE == "" ]]; then
 fi
 
 # Remove all bricks I believe the shadow has and then force remove the shadow from my peers
-echo "-> __force-remove-brick.sh"
-echo " - Forcing removal of brick at $BRICK_PATH"
+echo "-> __force-remove-volume-brick.sh"
+echo " - Forcing removal of all bricks of volume $VOLUME"
 
 # confirm node is current node
 if [[ `/sbin/ifconfig | grep $NODE` == "" ]]; then
@@ -60,9 +60,24 @@ if [[ `/sbin/ifconfig | grep $NODE` == "" ]]; then
     exit 1
 fi
 
-# Just delete the bloody path
-rm -Rf $BRICK_PATH
+gluster volume info $VOLUME > /tmp/volume_info_$VOLUME.log 2>&1
+if [[ $? != 0 ]]; then
+    cat /tmp/volume_info_$VOLUME.log
+    exit 2
+fi
+if [[ `cat /tmp/volume_info_$VOLUME.log | grep "does not exist"` != "" ]]; then
+    cat /tmp/volume_info_$VOLUME.log
+    exit 3
+fi
 
+for i in `cat /tmp/volume_info_$VOLUME.log | grep $NODE | grep ":/" | cut -d ':' -f 3`; do
+    echo "   + removing $i"
+    rm -Rf $i
+    if [[ $? != 0 ]]; then
+        echo "failed"
+        exit 1
+    fi
+done
 
 
 echo "success"

@@ -76,6 +76,12 @@ public class ZookeeperService {
             @Value("${data}") boolean dataNode,
             @Value("${target.predefined-ip-addresses:#{null}}") String preconfiguredNodes) {
 
+        logger.info ("Initializing Zookeeperservice with myId=" + myId
+                + " - zookeeperUrls=" + zookeeperUrls
+                + " - forceMasterFlag=" + forceMasterFlag
+                + " - dataNode=" + dataNode
+                + " - preconfiguredNodes=" + preconfiguredNodes);
+
         if (StringUtils.isNotBlank(forceMasterFlag)) {
             boolean masterFlag = Boolean.parseBoolean(forceMasterFlag);
             logger.warn ("Forcing master=" + masterFlag);
@@ -138,11 +144,13 @@ public class ZookeeperService {
                         electionProcess = new ElectionProcess(effId, dataNode, StringUtils.isBlank(forceMasterFlag), zookeeperUrls, timeout, new ElectionCallback() {
                             @Override
                             public void onMasterChanged(String masterHostname) {
+                                logger.info ("Master set to " + masterHostname);
                                 masterTracker.set(masterHostname);
                             }
 
                             @Override
                             public void onMasterGained() {
+                                logger.info ("Master gained.");
                                 master.set(true);
                             }
                         });

@@ -34,25 +34,11 @@
 
 package ch.niceideas.eskimo.egmi.gluster.command;
 
-import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
-import org.junit.jupiter.api.Test;
+import ch.niceideas.common.http.HttpClient;
 
-import static org.junit.jupiter.api.Assertions.*;
+public class ForceRemoveVolumeBricks extends AbstractGlusterSimpleOperation {
 
-public class ForceRemoveBricksTest extends AbstractCommandTest {
-
-    @Test
-    public void testCommand() throws Exception {
-
-        response.set("success");
-
-        ForceRemoveBricks command = new ForceRemoveBricks(mockClient, "test_volume", "127.0.0.1");
-        SimpleOperationResult result = command.execute("127.0.0.1", context);
-        assertNotNull (result);
-        assertTrue(result.isSuccess());
-
-        assertEquals("127.0.0.1:12345/command?command=force-remove-brick&subcommand=test_volume&options=127.0.0.1", url.get());
+    public ForceRemoveVolumeBricks(HttpClient httpClient, String volume, String node) {
+        super (httpClient, "force-remove-volume-bricks", volume, node);
     }
-
-
 }

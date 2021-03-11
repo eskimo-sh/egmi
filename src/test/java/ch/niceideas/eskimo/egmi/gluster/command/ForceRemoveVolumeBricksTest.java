@@ -32,38 +32,27 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.problems;
+package ch.niceideas.eskimo.egmi.gluster.command;
 
-import org.junit.jupiter.api.BeforeEach;
+import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import org.junit.jupiter.api.Test;
-
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MissingBrickReplicaTest extends AbstractProblemTest {
-
-    private MissingBrick problem;
-
-    @Override
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        problem = new MissingBrick(new Date(), "test2", 4, 2);
-    }
+public class ForceRemoveVolumeBricksTest extends AbstractCommandTest {
 
     @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
+    public void testCommand() throws Exception {
+
+        response.set("success");
+
+        ForceRemoveVolumeBricks command = new ForceRemoveVolumeBricks(mockClient, "test_volume", "127.0.0.1");
+        SimpleOperationResult result = command.execute("127.0.0.1", context);
+        assertNotNull (result);
+        assertTrue(result.isSuccess());
+
+        assertEquals("127.0.0.1:12345/command?command=force-remove-volume-bricks&subcommand=test_volume&options=127.0.0.1", url.get());
     }
 
-    @Test
-    public void testSolve() throws Exception {
-        problem.solve(grm, new CommandContext(mockClient, 1234, ms));
-
-        assertEquals("192.168.10.74:1234/command?command=force-remove-brick&subcommand=/var/lib/gluster/volume_bricks/test2&options=192.168.10.74\n" +
-                "192.168.10.73:1234/command?command=force-remove-brick&subcommand=/var/lib/gluster/volume_bricks/test2&options=192.168.10.73\n" +
-                "192.168.10.74:1234/command?command=volume&subcommand=add-brick&options=test2%20replica%202%20192.168.10.74:/var/lib/gluster/volume_bricks/test2%20192.168.10.73:/var/lib/gluster/volume_bricks/test2%20--mode=script", String.join("\n", urls));
-    }
 
 }
