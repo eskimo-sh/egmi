@@ -65,7 +65,8 @@ public abstract class AbstractGlusterSimpleCommand<T extends AbstractGlusterResu
         sb.append (StringUtils.isNotBlank(subCommand) ? subCommand: "");
         sb.append ("&options=");
         String[] effOptions = Arrays.stream(options)
-                .map(HttpClient::ensureEscaping).toArray(String[]::new);
+                .map(HttpClient::ensureEscaping)
+                .toArray(String[]::new);
         sb.append (String.join("%20", effOptions));
         return sb.toString();
     }

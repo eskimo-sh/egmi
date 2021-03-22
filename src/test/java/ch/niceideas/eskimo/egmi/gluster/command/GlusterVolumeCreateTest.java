@@ -70,5 +70,22 @@ public class GlusterVolumeCreateTest extends AbstractCommandTest {
                 "--mode=script", url.get());
     }
 
+    @Test
+    public void testCommandSingleReplica() throws Exception {
+
+        response.set("success");
+
+        GlusterVolumeCreate command = new GlusterVolumeCreate(mockClient, "test_volume", 1,
+                Arrays.asList(new BrickId("192.168.10.71", "/var/lib/gluster/bricks/test1_1"),
+                        new BrickId("192.168.10.72", "/var/lib/gluster/bricks/test1_1")));
+        SimpleOperationResult result = command.execute("127.0.0.1", context);
+        assertNotNull (result);
+        assertTrue(result.isSuccess());
+
+        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=create&options=test_volume%20%20transport%20tcp%20" +
+                "192.168.10.71:/var/lib/gluster/bricks/test1_1%20192.168.10.72:/var/lib/gluster/bricks/test1_1%20" +
+                "--mode=script", url.get());
+    }
+
 
 }

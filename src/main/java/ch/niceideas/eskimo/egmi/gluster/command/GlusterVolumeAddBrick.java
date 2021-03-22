@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 public class GlusterVolumeAddBrick extends AbstractGlusterVolumeOperation {
 
     public GlusterVolumeAddBrick(HttpClient httpClient, String volume, int replicaCount, List<BrickId> bricks) {
-        super (httpClient, "add-brick", volume, "replica " + replicaCount,
+        super (httpClient, "add-brick", volume, (replicaCount > 1 ? "replica " + replicaCount: ""),
                 bricks.stream().map(BrickId::toString).collect(Collectors.joining(" ")));
     }
 }

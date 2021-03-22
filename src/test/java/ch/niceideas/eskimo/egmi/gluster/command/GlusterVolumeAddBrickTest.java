@@ -49,7 +49,7 @@ public class GlusterVolumeAddBrickTest extends AbstractCommandTest {
 
         response.set("success");
 
-        GlusterVolumeAddBrick command = new GlusterVolumeAddBrick(mockClient, "test_volume", 3,
+        GlusterVolumeAddBrick command = new GlusterVolumeAddBrick(mockClient, "test_volume", 2,
                 Arrays.asList(
                         new BrickId("192.168.10.72", "/var/lib/gluster/bricks/test1_2"),
                         new BrickId("192.168.10.73", "/var/lib/gluster/bricks/test1_2")));
@@ -57,9 +57,26 @@ public class GlusterVolumeAddBrickTest extends AbstractCommandTest {
         assertNotNull (result);
         assertTrue(result.isSuccess());
 
-        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=add-brick&options=test_volume%20replica%203%20" +
+        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=add-brick&options=test_volume%20replica%202%20" +
                 "192.168.10.72:/var/lib/gluster/bricks/test1_2%20" +
                 "192.168.10.73:/var/lib/gluster/bricks/test1_2%20" +
+                "--mode=script", url.get());
+    }
+
+    @Test
+    public void testCommandSingleReplica() throws Exception {
+
+        response.set("success");
+
+        GlusterVolumeAddBrick command = new GlusterVolumeAddBrick(mockClient, "test_volume", 1,
+                Arrays.asList(
+                        new BrickId("192.168.10.72", "/var/lib/gluster/bricks/test1_2")));
+        SimpleOperationResult result = command.execute("127.0.0.1", context);
+        assertNotNull (result);
+        assertTrue(result.isSuccess());
+
+        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=add-brick&options=test_volume%20%20" +
+                "192.168.10.72:/var/lib/gluster/bricks/test1_2%20" +
                 "--mode=script", url.get());
     }
 

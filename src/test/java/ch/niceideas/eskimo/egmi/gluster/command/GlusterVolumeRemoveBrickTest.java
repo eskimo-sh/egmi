@@ -63,5 +63,22 @@ public class GlusterVolumeRemoveBrickTest extends AbstractCommandTest {
                 "%20force%20--mode=script", url.get());
     }
 
+    @Test
+    public void testCommandSingleReplica() throws Exception {
+
+        response.set("success");
+
+        GlusterVolumeRemoveBrick command = new GlusterVolumeRemoveBrick(mockClient, "test_volume", 1,
+                Arrays.asList(
+                        new BrickId("192.168.10.73", "/var/lib/gluster/bricks/test1_2")));
+        SimpleOperationResult result = command.execute("127.0.0.1", context);
+        assertNotNull (result);
+        assertTrue(result.isSuccess());
+
+        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=remove-brick&options=test_volume%20%20" +
+                "192.168.10.73:/var/lib/gluster/bricks/test1_2%20force%20" +
+                "--mode=script", url.get());
+    }
+
 
 }
