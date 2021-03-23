@@ -75,7 +75,7 @@ public class GlusterVolumeRemoveBrickTest extends AbstractCommandTest {
         assertNotNull (result);
         assertTrue(result.isSuccess());
 
-        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=remove-brick&options=test_volume%20%20" +
+        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=remove-brick&options=test_volume%20" +
                 "192.168.10.73:/var/lib/gluster/bricks/test1_2%20force%20" +
                 "--mode=script", url.get());
     }

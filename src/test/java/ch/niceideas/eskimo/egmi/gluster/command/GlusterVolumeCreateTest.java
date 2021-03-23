@@ -82,7 +82,7 @@ public class GlusterVolumeCreateTest extends AbstractCommandTest {
         assertNotNull (result);
         assertTrue(result.isSuccess());
 
-        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=create&options=test_volume%20%20transport%20tcp%20" +
+        assertEquals("127.0.0.1:12345/command?command=volume&subcommand=create&options=test_volume%20transport%20tcp%20" +
                 "192.168.10.71:/var/lib/gluster/bricks/test1_1%20192.168.10.72:/var/lib/gluster/bricks/test1_1%20" +
                 "--mode=script", url.get());
     }

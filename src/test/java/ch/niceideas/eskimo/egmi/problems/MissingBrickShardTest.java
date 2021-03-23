@@ -64,7 +64,7 @@ public class MissingBrickShardTest extends AbstractProblemTest {
         problem.solve(grm, new CommandContext(mockClient, 1234, ms));
 
         assertEquals("192.168.10.73:1234/command?command=force-remove-brick&subcommand=/var/lib/gluster/volume_bricks/test2&options=192.168.10.73\n" +
-                "192.168.10.73:1234/command?command=volume&subcommand=add-brick&options=test2%20%20192.168.10.73:/var/lib/gluster/volume_bricks/test2%20" +
+                "192.168.10.73:1234/command?command=volume&subcommand=add-brick&options=test2%20192.168.10.73:/var/lib/gluster/volume_bricks/test2%20" +
                 "--mode=script", String.join("\n", urls));
     }
 
