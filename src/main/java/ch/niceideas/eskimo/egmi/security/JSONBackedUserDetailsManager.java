@@ -43,6 +43,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -88,7 +89,7 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
         this ("/tmp/test");
     }
 
-    public JSONBackedUserDetailsManager(String jsonFilePath) throws FileException {
+    public JSONBackedUserDetailsManager(@Value("${conf.userFilePath:/tmp/test}")  String jsonFilePath) throws FileException {
 
         this.jsonFilePath = jsonFilePath;
 
