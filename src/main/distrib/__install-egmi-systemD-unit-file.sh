@@ -96,11 +96,11 @@ if [[ $SKIP_SYSTEM_D != "skip" ]]; then
     fi
 
     cp $SYSTEM_D_FILE /tmp/egmi.service
-fi
 
-# REPLACE EGMI_PATH
-escaped_path=$(echo "$SCRIPT_DIR/../.." | sed 's/\//\\\//g')
-sed -i -E "s/\{EGMI_PATH\}/$escaped_path/g" /tmp/egmi.service
+    # REPLACE EGMI_PATH
+    escaped_path=$(echo "$SCRIPT_DIR/../.." | sed 's/\//\\\//g')
+    sed -i -E "s/\{EGMI_PATH\}/$escaped_path/g" /tmp/egmi.service
+fi
 
 
 echo " - Installing EGMI management scripts to /usr/local/sbin/"
