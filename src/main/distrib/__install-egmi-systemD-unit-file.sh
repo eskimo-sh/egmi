@@ -40,11 +40,12 @@
 function usage() {
     echo "Usage:"
     echo "    -h  Display this help message."
+    echo "    -s  Skip everything related to SystemD"
     echo "    -f  assume 'y' answer to all questions'"
 }
 
 # Parse options to the install script
-while getopts ":hf" opt; do
+while getopts ":hfs" opt; do
     case ${opt} in
         h )
             usage
@@ -52,7 +53,9 @@ while getopts ":hf" opt; do
         ;;
         f )
             export FORCE=force
-            break
+        ;;
+        s )
+            export SKIP_SYSTEM_D=skip
         ;;
         : )
             break
@@ -81,25 +84,33 @@ if [[ ! -f $SYSTEM_D_FILE ]]; then
     exit 2
 fi
 
-# Locate SystemD units configuration folder
-if [[ -d /lib/systemd/system/ ]]; then
-    export systemd_units_dir=/lib/systemd/system/
-elif [[ -d /usr/lib/systemd/system/ ]]; then
-    export systemd_units_dir=/usr/lib/systemd/system/
-else
-    echo "Couldn't find systemd unit files directory"
-    exit 3
-fi
+if [[ $SKIP_SYSTEM_D != "skip" ]]; then
+    # Locate SystemD units configuration folder
+    if [[ -d /lib/systemd/system/ ]]; then
+        export systemd_units_dir=/lib/systemd/system/
+    elif [[ -d /usr/lib/systemd/system/ ]]; then
+        export systemd_units_dir=/usr/lib/systemd/system/
+    else
+        echo "Couldn't find systemd unit files directory"
+        exit 3
+    fi
 
-cp $SYSTEM_D_FILE /tmp/egmi.service
+    cp $SYSTEM_D_FILE /tmp/egmi.service
+fi
 
 # REPLACE EGMI_PATH
 escaped_path=$(echo "$SCRIPT_DIR/../.." | sed 's/\//\\\//g')
 sed -i -E "s/\{EGMI_PATH\}/$escaped_path/g" /tmp/egmi.service
 
+
+echo " - Installing EGMI management scripts to /usr/local/sbin/"
+cp $SCRIPT_DIR/../../utils/gluster_container_helpers/* /usr/local/sbin/
+
+
 # Sanity checks:
 
 # Ensure Java 11 in path (check java version)
+echo " - Ensuring Java is in path"
 set +e
 export PATH=$JAVA_HOME/bin:$PATH
 java_version=`java -version`
@@ -171,41 +182,43 @@ install_capsh(){
     rm -Rf /tmp/build_capsh
 }
 
-if [[ ! -f $SCRIPT_DIR/capsh ]]; then
-    # Find out about capsh possibilities
-    if [[ `which capsh 2>/dev/null` == "" ]]; then
-        export CAPSH_NOT_FOUND=1
-    else
-        export CAPSH_NOT_FOUND=0
-
-        if [[ `capsh --help | grep 'addamb'` == "" ]]; then
-            export CAPSH_OLD=1
+if [[ $SKIP_SYSTEM_D != "skip" ]]; then
+    if [[ ! -f $SCRIPT_DIR/capsh ]]; then
+        # Find out about capsh possibilities
+        if [[ `which capsh 2>/dev/null` == "" ]]; then
+            export CAPSH_NOT_FOUND=1
         else
-            export CAPSH_OLD=0
+            export CAPSH_NOT_FOUND=0
+
+            if [[ `capsh --help | grep 'addamb'` == "" ]]; then
+                export CAPSH_OLD=1
+            else
+                export CAPSH_OLD=0
+            fi
         fi
-    fi
 
-    if [[ $CAPSH_NOT_FOUND == 1 || $CAPSH_OLD == 1 ]]; then
-        echo "capsh is either not available in path or an old version"
-        echo "EGMI needs capsh from package libcap2-bin version 1:2.22-1.2 or greater"
-        echo "EGMI can attempt to download and build its own version of capsh"
-        echo "(git, make and gcc are required on your system for this to succeed))"
+        if [[ $CAPSH_NOT_FOUND == 1 || $CAPSH_OLD == 1 ]]; then
+            echo "capsh is either not available in path or an old version"
+            echo "EGMI needs capsh from package libcap2-bin version 1:2.22-1.2 or greater"
+            echo "EGMI can attempt to download and build its own version of capsh"
+            echo "(git, make and gcc are required on your system for this to succeed))"
 
-        if [[ $FORCE == "force" ]]; then
-            install_capsh
+            if [[ $FORCE == "force" ]]; then
+                install_capsh
+            else
+                while true; do
+                    read -p "Do you want to attempt this ? (y/n)" yn
+                    case $yn in
+                        [Yy]* ) install_capsh; break;;
+                        [Nn]* ) exit;;
+                        * ) echo "Please answer y or n.";;
+                    esac
+                done
+            fi
         else
-            while true; do
-                read -p "Do you want to attempt this ? (y/n)" yn
-                case $yn in
-                    [Yy]* ) install_capsh; break;;
-                    [Nn]* ) exit;;
-                    * ) echo "Please answer y or n.";;
-                esac
-            done
+            # link system capsh to local capsh
+            ln -s `which capsh` $SCRIPT_DIR/capsh
         fi
-    else
-        # link system capsh to local capsh
-        ln -s `which capsh` $SCRIPT_DIR/capsh
     fi
 fi
 
@@ -261,59 +274,61 @@ chown -R egmi /var/lib/egmi
 mkdir -p /var/log/egmi
 chown -R egmi /var/log/egmi
 
-if [[ ! -L /usr/local/lib/egmi/logs || ! -d /usr/local/lib/egmi/logs ]]; then
-    rm -Rf /usr/local/lib/egmi/logs
-    ln -s /var/log/egmi /usr/local/lib/egmi/logs
-    chown egmi /usr/local/lib/egmi/logs
+if [[ ! -L $SCRIPT_DIR/../../logs || ! -d $SCRIPT_DIR/../../logs ]]; then
+    rm -Rf $SCRIPT_DIR/../..//logs
+    ln -s /var/log/egmi $SCRIPT_DIR/../../logs
+    chown egmi $SCRIPT_DIR/../..//logs
 fi
 
 
-# Move it to SystemD units configuration folder
-mv /tmp/egmi.service $systemd_units_dir
-chmod 755 $systemd_units_dir
+if [[ $SKIP_SYSTEM_D != "skip" ]]; then
+    # Move it to SystemD units configuration folder
+    mv /tmp/egmi.service $systemd_units_dir
+    chmod 755 $systemd_units_dir
 
-# Try Service startup
-try_egmi_startup(){
+    # Try Service startup
+    try_egmi_startup(){
 
-    echo " - Starting EGMI"
-    systemctl start egmi
-}
+        echo " - Starting EGMI"
+        systemctl start egmi
+    }
 
-if [[ `systemctl status egmi | grep 'dead'` != "" ]]; then
+    if [[ `systemctl status egmi | grep 'dead'` != "" ]]; then
 
-    if [[ $FORCE == "force" ]]; then
-        try_egmi_startup
-    else
-        while true; do
-            read -p "Do you want to try to start EGMI as SystemD service now ? (y/n)" yn
-            case $yn in
-                [Yy]* ) try_egmi_startup; break;;
-                [Nn]* ) break;;
-                * ) echo "Please answer y or n.";;
-            esac
-        done
+        if [[ $FORCE == "force" ]]; then
+            try_egmi_startup
+        else
+            while true; do
+                read -p "Do you want to try to start EGMI as SystemD service now ? (y/n)" yn
+                case $yn in
+                    [Yy]* ) try_egmi_startup; break;;
+                    [Nn]* ) break;;
+                    * ) echo "Please answer y or n.";;
+                esac
+            done
+        fi
     fi
-fi
 
-# Enable Service egmi
-enable_egmi(){
+    # Enable Service egmi
+    enable_egmi(){
 
-    echo " - Enabling EGMI"
-    systemctl enable egmi
-}
+        echo " - Enabling EGMI"
+        systemctl enable egmi
+    }
 
-if [[ `systemctl status egmi | grep 'disabled;'` != "" ]]; then
+    if [[ `systemctl status egmi | grep 'disabled;'` != "" ]]; then
 
-    if [[ $FORCE == "force" ]]; then
-        enable_egmi
-    else
-        while true; do
-            read -p "Do you want to try to Enable EGMI to start as SystemD service on machine startup ? (y/n)" yn
-            case $yn in
-                [Yy]* ) enable_egmi; break;;
-                [Nn]* ) break;;
-                * ) echo "Please answer y or n.";;
-            esac
-        done
+        if [[ $FORCE == "force" ]]; then
+            enable_egmi
+        else
+            while true; do
+                read -p "Do you want to try to Enable EGMI to start as SystemD service on machine startup ? (y/n)" yn
+                case $yn in
+                    [Yy]* ) enable_egmi; break;;
+                    [Nn]* ) break;;
+                    * ) echo "Please answer y or n.";;
+                esac
+            done
+        fi
     fi
 fi
