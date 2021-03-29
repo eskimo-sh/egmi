@@ -39,7 +39,7 @@ Software.
 
     <artifactId>egmi</artifactId>
     <packaging>war</packaging>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1</version>
     <name>Eskimo Gluster Management Infrastructure</name>
     <url>http://www.eskimo.sh</url>
 
