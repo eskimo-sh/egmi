@@ -67,7 +67,7 @@ public abstract class AbstractProblem implements Problem{
 
         Map<String, GraphPartitionDetector.Node> nodeNetwork = GraphPartitionDetector.buildNodeGraph(activeNodes, nodesStatus);
 
-        Map<String, Integer> counters = GraphPartitionDetector.buildPeerCounters(activeNodes, nodeNetwork);
+        Map<String, Integer> counters = GraphPartitionDetector.buildPeerTimesVolumeCounters(activeNodes, nodeNetwork, nodesStatus);
 
         AtomicInteger currentCount = new AtomicInteger(Integer.MIN_VALUE);
         AtomicReference<String> host = new AtomicReference<>();

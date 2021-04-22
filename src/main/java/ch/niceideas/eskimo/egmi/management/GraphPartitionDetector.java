@@ -42,6 +42,7 @@ import ch.niceideas.eskimo.egmi.problems.ProblemManager;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -49,19 +50,34 @@ import java.util.stream.Collectors;
 
 public class GraphPartitionDetector {
 
+    private static final Logger logger = Logger.getLogger(GraphPartitionDetector.class);
+
     public static List<String> detectGraphPartitioning(ProblemManager problemManager, Set<String> allNodes, List<JSONObject> nodeInfos, Map<String, NodeStatus> nodesStatus) throws NodeStatusException  {
 
         // 0. Build data structure
         Map<String, Node> nodes = buildNodeGraph(allNodes, nodesStatus);
 
+        // Find total number of volumes
+        int totalVolumesCounter = nodesStatus.values().stream()
+                .map(ns -> {
+                    try {
+                        return ns.getAllVolumes().size();
+                    } catch (NodeStatusException e) {
+                        logger.debug (e, e);
+                        return 0;
+                    }
+                })
+                .max(Comparator.naturalOrder())
+                .orElse(1);
+
         // 1. For every node, count number of nodes reachable on the connection graph from the node
-        Map<String, Integer> counters = buildPeerCounters(allNodes, nodes);
+        Map<String, Integer> counters = buildPeerTimesVolumeCounters(allNodes, nodes, nodesStatus);
 
         // 2. If every node, has same count as total number of nodes, there is no partitioning, we're good
         boolean allGood = true;
         for (String host : allNodes) {
             int counter = counters.get(host);
-            if (counter != allNodes.size()) {
+            if (counter != allNodes.size() * totalVolumesCounter) {
                 allGood = false;
                 break;
             }
@@ -110,12 +126,40 @@ public class GraphPartitionDetector {
         return partitionedNodes;
     }
 
-    public static Map<String, Integer> buildPeerCounters(Set<String> allNodes, Map<String, Node> nodes) {
+    public static Map<String, Integer> buildPeerTimesVolumeCounters(Set<String> allNodes, Map<String, Node> nodes, Map<String, NodeStatus> nodesStatus) {
+
+        // if at least one node has volumes configured, then I need to account volumes as well
+        boolean alsoAccountVolumes = nodesStatus.values().stream()
+                .anyMatch (nodeStatus -> {
+                    try {
+                        return nodeStatus.getAllVolumes().size() > 0;
+                    } catch (NodeStatusException e) {
+                        return false;
+                    }
+                });
+
         Map<String, Integer> counters = new HashMap<>();
         for (String host : allNodes) {
             Set<String> visited = buildPeerNetwork(nodes, host);
 
-            counters.put(host, visited.size());
+            int peerCounter = visited.size();
+            int targetCounter = peerCounter;
+
+            if (alsoAccountVolumes) {
+                int nodeVolumesCounter = 0;
+                NodeStatus nodeStatus = nodesStatus.get(host);
+                if (nodeStatus != null) {
+                    try {
+                        nodeVolumesCounter = nodeStatus.getAllVolumes().size();
+                    } catch (NodeStatusException e) {
+                        // ignored here
+                    }
+                }
+
+                targetCounter = nodeVolumesCounter * peerCounter;
+            }
+
+            counters.put(host, targetCounter);
         }
         return counters;
     }

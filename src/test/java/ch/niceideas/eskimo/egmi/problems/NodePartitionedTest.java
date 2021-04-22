@@ -49,7 +49,7 @@ public class NodePartitionedTest extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new NodePartitioned(new Date(), "192.168.10.71");
+        problem = new NodePartitioned(new Date(), "192.168.10.73");
     }
 
     @Test
@@ -67,19 +67,15 @@ public class NodePartitionedTest extends AbstractProblemTest {
             assertEquals("! Failed to confirm peer addition in 5 attempts.", e.getMessage());
         }
 
-        assertEquals("192.168.10.71:1234/command?command=volume&subcommand=stop&options=test2%20--mode=script\n" +
-                "192.168.10.71:1234/command?command=force-remove-volume-bricks&subcommand=test2&options=192.168.10.71\n" +
-                "192.168.10.72:1234/command?command=force-remove-volume-bricks&subcommand=test2&options=192.168.10.72\n" +
-                "192.168.10.71:1234/command?command=volume&subcommand=delete&options=test2%20--mode=script\n" +
-                "192.168.10.71:1234/command?command=volume&subcommand=stop&options=test1%20--mode=script\n" +
-                "192.168.10.71:1234/command?command=force-remove-volume-bricks&subcommand=test1&options=192.168.10.71\n" +
-                "192.168.10.71:1234/command?command=volume&subcommand=delete&options=test1%20--mode=script\n" +
-                "192.168.10.72:1234/command?command=peer&subcommand=detach&options=192.168.10.71\n" +
-                "192.168.10.73:1234/command?command=peer&subcommand=probe&options=192.168.10.71\n" +
-                "192.168.10.71:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.71:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.71:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.71:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.71:1234/command?command=pool&subcommand=list&options=", String.join("\n", urls));
+        assertEquals("192.168.10.73:1234/command?command=volume&subcommand=stop&options=test1%20--mode=script\n" +
+                "192.168.10.73:1234/command?command=force-remove-volume-bricks&subcommand=test1&options=192.168.10.73\n" +
+                "192.168.10.73:1234/command?command=volume&subcommand=delete&options=test1%20--mode=script\n" +
+                "192.168.10.74:1234/command?command=peer&subcommand=detach&options=192.168.10.73\n" +
+                "192.168.10.71:1234/command?command=peer&subcommand=probe&options=192.168.10.73\n" +
+                "192.168.10.73:1234/command?command=pool&subcommand=list&options=\n" +
+                "192.168.10.73:1234/command?command=pool&subcommand=list&options=\n" +
+                "192.168.10.73:1234/command?command=pool&subcommand=list&options=\n" +
+                "192.168.10.73:1234/command?command=pool&subcommand=list&options=\n" +
+                "192.168.10.73:1234/command?command=pool&subcommand=list&options=", String.join("\n", urls));
     }
 }
