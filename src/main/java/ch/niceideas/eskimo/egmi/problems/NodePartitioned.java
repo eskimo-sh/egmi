@@ -115,7 +115,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
             // 1.3 if none, find those that have the highest connection count => candidates
             Map<String, GraphPartitionDetector.Node> nodeNetwork = GraphPartitionDetector.buildNodeGraph(activeNodes, nodesStatus);
 
-            Map<String, Integer> counters = GraphPartitionDetector.buildPeerCounters(activeNodes, nodeNetwork);
+            Map<String, Integer> counters = GraphPartitionDetector.buildPeerTimesVolumeCounters(activeNodes, nodeNetwork, nodesStatus);
 
             final AtomicInteger highestCount = new AtomicInteger(Integer.MIN_VALUE);
             for (String current : counters.keySet()) {

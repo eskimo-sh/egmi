@@ -9,4 +9,25 @@
         "hostname": "localhost",
         "state": "Connected"
     }
-]}
+],
+    "volumes": [{
+        "nb_bricks": "1",
+        "bricks": [
+            {
+                "number": 1,
+                "node": "192.168.10.73",
+                "path": "/var/lib/gluster/volume_bricks/test1",
+                "total": "40.0GB",
+                "fs_type": "xfs",
+                "free": "33.2GB",
+                "device": "/dev/sda1",
+                "status": "OK"
+            }
+        ],
+        "nb_replicas": "1",
+        "name": "test1",
+        "type": "Distribute",
+        "status": "OK",
+        "nb_shards": "1"
+    }]
+}
