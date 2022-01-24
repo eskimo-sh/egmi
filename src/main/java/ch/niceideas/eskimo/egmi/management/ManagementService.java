@@ -125,7 +125,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     public ManagementService(boolean createUpdateScheduler) {
         if (createUpdateScheduler) {
 
-            // I shouldn't use a timer here since scheduling at fixed inteval may lead to flooding the system and ending
+            // I shouldn't use a timer here since scheduling at fixed interval may lead to flooding the system and ending
             // up in doing only this on large clusters
 
             statusRefreshScheduler = Executors.newSingleThreadScheduledExecutor();
