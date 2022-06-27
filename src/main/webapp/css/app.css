@@ -42,9 +42,23 @@ body{
     height: 100vh;
     width: 100%;
 
+    font-size: 14px;
+
     background-attachment: fixed;
     background-size: 100% 100%;
     
+}
+
+.h5, h5 {
+    font-size: 16px;
+}
+
+.btn {
+    font-size: 14px;
+}
+
+.table-responsive {
+    display: table;
 }
 
 .modal-content {
@@ -273,6 +287,7 @@ h1 small{
     display: block;
     position: relative;
     width: 100%;
+    max-width: 100%;
 }
 
 
@@ -575,6 +590,22 @@ li.disabled a .menu-text {
 .table > tbody > tr > td.status-node-cell-empty a span,
 .table > tbody > tr > td.status-node-cell-intro a span {
     color: #888888;
+}
+
+.status-node-cell-host{
+    min-width: 100px;
+}
+
+.status-node-cell-status{
+    min-width: 60px;
+}
+
+.status-node-cell-volumes{
+    width: 100%;
+}
+
+.status-node-cell-bricks{
+    min-width: 100px;
 }
 
 .disabled-label {
