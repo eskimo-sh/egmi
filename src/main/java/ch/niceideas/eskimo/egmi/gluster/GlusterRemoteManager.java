@@ -189,12 +189,7 @@ public class GlusterRemoteManager {
                 counter++;
             }
 
-        } catch (HttpClientException e) {
-            logger.warn (e.getCompleteMessage());
-            logger.debug (e, e);
-            throw new GlusterRemoteException(e);
-
-        } catch (IOException e) {
+        } catch (HttpClientException | IOException e) {
             logger.warn (e.getMessage());
             logger.debug (e, e);
             throw new GlusterRemoteException(e);

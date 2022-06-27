@@ -72,7 +72,7 @@ body{
     font-weight: bold;
 }
 
-.panel-default > .panel-heading {
+.card > .card-header {
     background-image: -webkit-linear-gradient(top, #858585 0%, #686868 100%);
     background-image: -o-linear-gradient(top, #858585 0%, #686868 100%);
     background-image: -webkit-gradient(linear, left top, left bottom, from(#858585), to(#686868));
@@ -93,7 +93,7 @@ body{
     box-shadow: -18px 19px 31px rgba(0, 0, 0, 0.2);
     margin-bottom: 30px;
     border: 1px solid #7777;
-    height: 330px;
+    /*height: 330px;*/
 }
 
 
@@ -264,6 +264,8 @@ h1 small{
 
 .status-table {
     margin-bottom: 20px;
+    overflow: auto;
+    max-height: 300px;
 }
 
 .container {
@@ -394,7 +396,7 @@ body.empty-page-white {
 }
 
 .eskimo-panel-heading,
-.panel-default .eskimo-panel-heading {
+.card .eskimo-panel-heading {
     background: #384b5f;
     color: #FFFFFF;
     font-weight: bold;

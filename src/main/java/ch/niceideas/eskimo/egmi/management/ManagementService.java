@@ -40,7 +40,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
     private static final Logger logger = Logger.getLogger(ManagementService.class);
 
-    public static final String RUNTIME_CONFIG_JSON_PATH = "/runtime-config.json";
+    public static final String RUNTIME_CONFIG_JSON_PATH = "/egmi-runtime-config.json";
 
     private final ReentrantLock runtimeConfigLock = new ReentrantLock();
 

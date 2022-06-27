@@ -8,6 +8,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.NodeStatusException;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
 
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
+@EqualsAndHashCode
 public abstract class AbstractProblem implements Problem{
 
     private static final Logger logger = Logger.getLogger(AbstractProblem.class);
@@ -44,7 +46,7 @@ public abstract class AbstractProblem implements Problem{
                 logger.debug (e, e);
             }
         }
-        if (attempt == 5){
+        if (attempt == 5) {
             context.error ("      ! Failed to confirm peer addition in 5 attempts.");
             throw new ResolutionStopException("! Failed to confirm peer addition in 5 attempts.");
         }

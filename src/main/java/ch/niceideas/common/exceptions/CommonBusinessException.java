@@ -42,9 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * FIXME Document me
- * <p />
- * 
  * <b>
  * The design of this class as well as in general the ideas expressed here and the original implementation of these
  * ideas are the work of Mr. Thomas Beck. <br />
