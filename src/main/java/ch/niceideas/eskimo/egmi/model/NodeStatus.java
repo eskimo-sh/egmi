@@ -240,7 +240,7 @@ public class NodeStatus extends JsonWrapper {
                 .map(map -> ((Map<?, ?>)map).entrySet())
                 .forEach(
                         entries -> entries.stream()
-                                .filter( entry -> !entry.getKey().equals("bricks"))
+                                .filter( entry -> !entry.getKey().equals("bricks") && !entry.getKey().equals("options"))
                                 .forEach(entry -> retInfo.set ((String)entry.getKey(), (String)entry.getValue()) )
                 );
 

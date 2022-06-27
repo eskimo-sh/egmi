@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PreDestroy;
 import java.io.File;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -109,6 +110,9 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         this.runtimeConfiguredNodes = null;
         this.testConfiguredNodes = configuredNodes;
         this.configuredVolumes = configuredVolumes;
+    }
+    public void setTestConfigStoragePath (String configStoragePath) {
+        this.configStoragePath = configStoragePath;
     }
     public void setTargetNumberBricksString(String targetNbrBricks) {
         this.targetNumberBricksString = targetNbrBricks;
@@ -200,8 +204,6 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 runtimeConfiguredNodes = zookeeperService.getConfiguredNodes();
             }
 
-            SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + InetAddress.getLocalHost() + "\"}");
-
             Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
             // 1. Build complete set of nodes and volumes
@@ -209,19 +211,15 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
             Set<String> allVolumes = getRuntimeVolumes (nodesStatus);
 
-            // 1. Build Node status
             List<JSONObject> nodeInfos = buildNodeInfo(nodesStatus, allNodes);
-            newStatus.getJSONObject().put("nodes", new JSONArray(nodeInfos));
 
-            // 2. Detection connection graph partitioning
+            SystemStatus newStatus = getSystemStatus(InetAddress.getLocalHost().toString(), nodesStatus, allNodes, allVolumes, nodeInfos);
+
+            // 3. Detection connection graph partitioning
             List<String> partitionedNodes = GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
 
-            // 3. Detect peer connection inconsistencies
+            // 4. Detect peer connection inconsistencies
             detectConnectionInconsistencies (problemManager, allNodes, partitionedNodes, nodesStatus, nodeInfos);
-
-            // 4. Build Volume status
-            newStatus.getJSONObject().put("volumes", new JSONArray(
-                    buildVolumeInfo(nodesStatus, allNodes, allVolumes, nodeInfos)));
 
             // 5. Update problems
             problemManager.recognize (newStatus);
@@ -257,6 +255,18 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 statusRefreshScheduler.schedule(this::updateSystemStatus, statusUpdatePeriodSeconds, TimeUnit.SECONDS);
             }
         }
+    }
+
+    SystemStatus getSystemStatus(String hostName, Map<String, NodeStatus> nodesStatus, Set<String> allNodes, Set<String> allVolumes, List<JSONObject> nodeInfos) throws UnknownHostException, NodeStatusException {
+        SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + hostName + "\"}");
+
+        // 1. Build Node status
+        newStatus.getJSONObject().put("nodes", new JSONArray(nodeInfos));
+
+        // 2. Build Volume status
+        newStatus.getJSONObject().put("volumes", new JSONArray(
+                buildVolumeInfo(nodesStatus, allNodes, allVolumes, nodeInfos)));
+        return newStatus;
     }
 
     private void detectConnectionInconsistencies(ProblemManager problemManager, Set<String> allNodes, List<String> partitionedNodes, Map<String, NodeStatus> nodesStatus, List<JSONObject> nodeInfos) {
@@ -582,7 +592,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         messagingService.addLine(getMessageDate() + " - WARN: " + s);
     }
 
-    private List<JSONObject> buildNodeInfo(Map<String, NodeStatus> nodesStatus, Set<String> allNodes) throws NodeStatusException {
+    List<JSONObject> buildNodeInfo(Map<String, NodeStatus> nodesStatus, Set<String> allNodes) throws NodeStatusException {
 
         List<JSONObject> nodesInfo = new ArrayList<>();
         for (String node : allNodes) {
@@ -684,7 +694,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return volumes;
     }
 
-    private Set<String> getRuntimeNodes(Map<String, NodeStatus> nodesStatus) throws ManagementException {
+    Set<String> getRuntimeNodes(Map<String, NodeStatus> nodesStatus) throws ManagementException {
         Set<String> allNodes = new TreeSet<>(getAllNodes());
 
         nodesStatus.values()
@@ -712,7 +722,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return allNodes;
     }
 
-    private Set<String> getRuntimeVolumes(Map<String, NodeStatus> nodesStatus) throws ManagementException {
+    Set<String> getRuntimeVolumes(Map<String, NodeStatus> nodesStatus) throws ManagementException {
         Set<String> allVolumes = new TreeSet<>(getAllVolumes());
 
         nodesStatus.values()

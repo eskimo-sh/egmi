@@ -40,6 +40,10 @@ import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,6 +66,16 @@ public class GlusterVolumeInfoTest extends AbstractCommandTest {
         assertEquals ("192.168.10.71:/var/lib/gluster/volume_bricks/test2_bis_1," +
                       "192.168.10.72:/var/lib/gluster/volume_bricks/test2_bis_2",
                 String.join (",", result.getBrickIds("test2").stream().map(BrickId::toString).collect(Collectors.toSet())));
+
+        Set<String> test1Options = result.getVolumeReconfiguredOptions("test2");
+        assertNotNull(test1Options);
+        assertEquals(3, test1Options.size());
+
+        List<String> sortedOptions = new ArrayList<>(test1Options);
+        sortedOptions.sort(Comparator.naturalOrder());
+        assertEquals("nfs.disable: on", sortedOptions.get(0));
+        assertEquals("performance.client-io-threads: off", sortedOptions.get(1));
+        assertEquals("transport.address-family: inet", sortedOptions.get(2));
     }
 
 

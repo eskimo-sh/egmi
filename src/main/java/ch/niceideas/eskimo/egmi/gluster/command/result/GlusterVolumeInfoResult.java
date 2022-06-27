@@ -67,6 +67,7 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
 
     private final Map<String, VolumeInformationWrapper> volumeInfos = new HashMap<>();
     private final Map<String, Map<Integer, BrickId>> volumeBricks = new HashMap<>();
+    private final Map<String, Set<String>> reconfiguredOptions = new HashMap<>();
 
     public void overrideStatus(String volume, String status) {
         VolumeInformationWrapper generalInfo = volumeInfos.get(volume);
@@ -78,6 +79,10 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
 
     public Set<String> getAllVolumes() {
         return volumeInfos.keySet();
+    }
+
+    public Set<String> getVolumeReconfiguredOptions(String volume) {
+        return reconfiguredOptions.get(volume);
     }
 
     public void feedVolumeInfoInStatus(NodeStatus status, String volume, int counter) {
@@ -106,11 +111,13 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
             //System.err.println(volumeResult);
 
             String currentVolume = "UNDEFINED";
+            boolean parsingOptionsState = false;
 
             for (String line : volumeResult.split("\n")) {
 
                 if (line.startsWith(VOLUME_NAME)) {
                     currentVolume = line.substring(VOLUME_NAME.length()).trim();
+                    parsingOptionsState = false;
                 }
 
                 if (currentVolume.equals("UNDEFINED")) {
@@ -125,12 +132,12 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
                     volumeInfo.setType(type);
                 }
 
-                if (line.startsWith(STORAGE_OWNER_UID)) {
+                else if (line.startsWith(STORAGE_OWNER_UID)) {
                     String owner = line.substring(STORAGE_OWNER_UID.length()).trim();
                     volumeInfo.setOwner (owner);
                 }
 
-                if (line.startsWith("Number of Bricks:")) {
+                else if (line.startsWith("Number of Bricks:")) {
                     String bricksRepr = line.substring("Number of Bricks:".length()).trim();
 
                     Matcher reprMatcher = BRICKS_REPR_PARSER.matcher(bricksRepr);
@@ -154,7 +161,7 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
                     }
                 }
 
-                if (line.startsWith(BRICK_PREFIX) && !line.trim().equalsIgnoreCase(BRICKS_LABEL)) {
+                else if (line.startsWith(BRICK_PREFIX) && !line.trim().equalsIgnoreCase(BRICKS_LABEL)) {
 
 
                     String brickNumberString = line.substring(BRICK_PREFIX.length(), line.indexOf(":", BRICK_PREFIX.length()));
@@ -172,6 +179,16 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
 
                         //System.err.println (currentVolume +  " - " + node + " - " + path);
                     }
+                }
+
+                else if (line.startsWith("Options Reconfigured")) {
+                    parsingOptionsState = true;
+
+                }
+
+                else if (parsingOptionsState) {
+                    Set<String> options = reconfiguredOptions.computeIfAbsent(currentVolume, (key) -> new HashSet<>());
+                    options.add (line);
                 }
             }
         }

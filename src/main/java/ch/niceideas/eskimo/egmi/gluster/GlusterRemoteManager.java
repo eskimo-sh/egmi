@@ -61,6 +61,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -166,6 +167,22 @@ public class GlusterRemoteManager {
             for (String volume : volumeInfo.getAllVolumes()) {
 
                 status.setValueForPath("volumes." + counter + ".name", volume);
+
+                Set<String> volumeOptions = volumeInfo.getVolumeReconfiguredOptions(volume);
+                if (volumeOptions != null && !volumeOptions.isEmpty()) {
+
+                    for (String option: volumeOptions) {
+
+                        String[] parsedOption = option.split(":");
+                        if (parsedOption.length == 2) {
+
+                            String optionKey = parsedOption[0].trim().replace(".", "__");
+                            String optionValue = parsedOption[1].trim();
+
+                            status.setValueForPath("volumes." + counter + ".options." + optionKey, optionValue);
+                        }
+                    }
+                }
 
                 volumeInfo.feedVolumeInfoInStatus(status, volume, counter);
 

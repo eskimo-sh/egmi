@@ -48,6 +48,11 @@
             ],
             "nb_replicas": "2",
             "name": "test2",
+            "options": {
+                "performance__client-io-threads": "off",
+                "nfs__disable": "on",
+                "transport__address-family": "inet"
+            },
             "type": "Replicate",
             "status": "OK",
             "nb_shards": "1"
@@ -88,6 +93,11 @@
             ],
             "nb_replicas": "3",
             "name": "test1",
+            "options": {
+                "performance__client-io-threads": "off",
+                "nfs__disable": "on",
+                "transport__address-family": "inet"
+            },
             "type": "Replicate",
             "status": "OK",
             "nb_shards": "1"
