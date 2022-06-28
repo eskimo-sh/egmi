@@ -1,5 +1,5 @@
 {
-    "hostname": "badbooknew/127.0.1.1",
+    "hostname": "badbook/127.0.1.1",
     "nodes": [
         {
             "host": "192.168.10.71",
@@ -30,26 +30,31 @@
         {
             "volume": "flink_data",
             "bricks": [],
+            "options": {},
             "status": "NO VOLUME"
         },
         {
             "volume": "logstash_data",
             "bricks": [],
+            "options": {},
             "status": "NO VOLUME"
         },
         {
             "volume": "spark_data",
             "bricks": [],
+            "options": {},
             "status": "NO VOLUME"
         },
         {
             "volume": "spark_eventlog",
             "bricks": [],
+            "options": {},
             "status": "NO VOLUME"
         },
         {
             "volume": "test",
             "bricks": [],
+            "options": {},
             "status": "NO VOLUME"
         },
         {
@@ -76,6 +81,7 @@
                 }
             ],
             "nb_replicas": "3 / 3",
+            "options": {},
             "type": "Replicate",
             "nb_shards": "1 / 1",
             "status": "NOT STARTED "

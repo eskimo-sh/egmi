@@ -391,7 +391,7 @@ public class ManagementServiceTest {
 
         SystemStatus ss = ms.getSystemStatus("testhost", nodesStatus, allNodes, allVolumes, nodesInfo);
 
-        System.err.println (ss.getFormattedValue());
+        //System.err.println (ss.getFormattedValue());
 
         SystemStatus result = new SystemStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/options/resultSystemStatus.json")));
 

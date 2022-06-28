@@ -247,6 +247,43 @@ public class NodeStatus extends JsonWrapper {
         return retInfo;
     }
 
+    public Map<String, String> getReconfiguredOptions (String volume) throws NodeStatusException {
+        if (isBrickStatusError()) {
+            throw new NodeStatusException("Brick status fetching failed.");
+        }
+
+        if (!getJSONObject().has("volumes")) {
+            return Collections.emptyMap();
+        }
+
+        JSONArray volumeArray = getJSONObject().getJSONArray("volumes");
+
+        Map<String, String> retMap = new HashMap<>();
+
+        volumeArray.toList().stream()
+                .filter(map -> {
+                    String name = (String) ((Map<?, ?>)map).get("name");
+                    return StringUtils.isNotBlank(name) && name.equals (volume);
+                })
+                .map(map -> ((Map<?, ?>)map).entrySet())
+                .forEach(
+                        entries -> entries.stream()
+                                .filter( entry -> entry.getKey().equals("options"))
+                                .forEach(entry -> {
+
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, String> options = (Map<String, String>) entry.getValue();
+                                    for (String optionKey : options.keySet()) {
+                                        String optionValue = options.get(optionKey);
+                                        retMap.put (optionKey, optionValue);
+                                    }
+                                })
+                );
+
+        return retMap;
+
+    }
+
     public Map<BrickId, BrickInformation> getVolumeBricksInformation(String volume) throws NodeStatusException {
         if (isBrickStatusError()) {
             throw new NodeStatusException("Brick status fetching failed.");

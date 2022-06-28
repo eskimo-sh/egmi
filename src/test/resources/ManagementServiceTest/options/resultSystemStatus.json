@@ -67,6 +67,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -107,6 +112,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -147,6 +157,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -187,6 +202,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -227,6 +247,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -267,6 +292,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -307,6 +337,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -347,6 +382,11 @@
         }
       ],
       "nb_replicas": "3 / 1",
+      "options": {
+        "nfs__disable": "on",
+        "transport__address-family": "inet",
+        "performance__client-io-threads": "off"
+      },
       "type": "Replicate",
       "nb_shards": "1 / 1",
       "status": "OK"
@@ -354,11 +394,13 @@
     {
       "volume": "test1",
       "bricks": [],
+      "options": {},
       "status": "NO VOLUME"
     },
     {
       "volume": "test2",
       "bricks": [],
+      "options": {},
       "status": "NO VOLUME"
     }
   ]

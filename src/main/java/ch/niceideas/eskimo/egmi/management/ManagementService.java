@@ -211,6 +211,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
             Set<String> allVolumes = getRuntimeVolumes (nodesStatus);
 
+            // -- problem detection phase
             List<JSONObject> nodeInfos = buildNodeInfo(nodesStatus, allNodes);
 
             SystemStatus newStatus = getSystemStatus(InetAddress.getLocalHost().toString(), nodesStatus, allNodes, allVolumes, nodeInfos);
@@ -221,8 +222,12 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             // 4. Detect peer connection inconsistencies
             detectConnectionInconsistencies (problemManager, allNodes, partitionedNodes, nodesStatus, nodeInfos);
 
+            // -- END OF problem detection phase
+
             // 5. Update problems
+            // -- problem recognition (validation) phase
             problemManager.recognize (newStatus);
+            // -- end of problem recognition (validation) phase
 
             // 6. Store status for UI
             info("Status fetching completed. " + problemManager.getProblemSummary());
@@ -264,8 +269,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         newStatus.getJSONObject().put("nodes", new JSONArray(nodeInfos));
 
         // 2. Build Volume status
-        newStatus.getJSONObject().put("volumes", new JSONArray(
-                buildVolumeInfo(nodesStatus, allNodes, allVolumes, nodeInfos)));
+        newStatus.getJSONObject().put("volumes", new JSONArray(buildVolumeInfo(nodesStatus, allNodes, allVolumes, nodeInfos)));
         return newStatus;
     }
 
@@ -337,7 +341,11 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             Set<String> errors = new HashSet<>();
 
             // get volume information from all nodes
+
+            Map<String, String> options = new HashMap<>();
+
             List<Pair<BrickId, JSONObject>> bricksInfo = new ArrayList<>();
+
             for (String node : allNodes) {
 
                 NodeStatus nodeStatus = nodesStatus.get(node);
@@ -378,8 +386,22 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
                     setInVolumeStatus(volumeSystemStatus, "nb_bricks", nbBricks, prevNbBricks, false, errors, "NB. BRICKS");
 
-                    Map<BrickId, BrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
+                    // volume options management
+                    Map<String, String> nodeOptions = nodeStatus.getReconfiguredOptions(volume);
+                    for (String optionKey : nodeOptions.keySet()) {
+                        String nodeOptionValue = nodeOptions.get(optionKey);
 
+                        String prevValue = options.get(optionKey);
+                        if (StringUtils.isBlank(prevValue)) {
+                            options.put(optionKey, nodeOptionValue);
+                        } else if (!prevValue.equals(nodeOptionValue)) {
+                            errors.add("DIFB. OPTIONS");
+                            notifyInconsistency(" - got option value " + nodeOptionValue + " while previous node had value " + prevValue);
+                        }
+                    }
+
+                    // volume brick management
+                    Map<BrickId, BrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
                     List<BrickId> brickIdList = new ArrayList<>(nodeBricksInfo.keySet());
                     brickIdList.sort(new BrickIdNumberComparator (nodeBricksInfo));
 
@@ -493,9 +515,14 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 }
             }
 
+            // check options matching performance disablement
+            // FIXME
+
             volumeSystemStatus.put("status", errors.size() == 0 ? "OK" : String.join(" / ", errors));
 
             volumeSystemStatus.put("bricks", new JSONArray(bricksInfo.stream().map(Pair::getValue).collect(Collectors.toList())));
+
+            volumeSystemStatus.put("options", new JSONObject(options));
 
             volumesInfo.add (volumeSystemStatus);
         }
