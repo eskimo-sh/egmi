@@ -86,6 +86,12 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     @Value("${target.defaultNumberReplica}")
     protected int defaultNumberReplica=3;
 
+    @Value("${target.volumes.performance.off}")
+    private String volumesPerformanceOff;
+
+    @Value("${config.performance.off}")
+    private String performanceOffOptions;
+
     private final ScheduledExecutorService statusRefreshScheduler;
     private final ReentrantLock statusUpdateLock = new ReentrantLock();
     private final AtomicReference<SystemStatus> lastStatus = new AtomicReference<>();
@@ -147,6 +153,26 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         if (statusRefreshScheduler != null) {
             statusRefreshScheduler.shutdown();
         }
+    }
+
+    public Set<String> getVolumesPerformanceOff() {
+        if (volumesPerformanceOff == null || StringUtils.isBlank(volumesPerformanceOff.trim())) {
+            return Collections.emptySet();
+        }
+
+        Set<String> retSet = new HashSet<>();
+        Collections.addAll(retSet, volumesPerformanceOff.split(","));
+        return retSet;
+    }
+
+    public Set<String> getPerformanceOffOptions() {
+        if (performanceOffOptions == null || StringUtils.isBlank(performanceOffOptions.trim())) {
+            return Collections.emptySet();
+        }
+
+        Set<String> retSet = new HashSet<>();
+        Collections.addAll(retSet, performanceOffOptions.split(","));
+        return retSet;
     }
 
     public String getRTConfiguredNodes() {
@@ -516,7 +542,19 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             }
 
             // check options matching performance disablement
-            // FIXME
+            if (getVolumesPerformanceOff().contains(volume)) {
+                for (String optionToTurnOff : getPerformanceOffOptions()) {
+
+                    String optionValue = options.get(optionToTurnOff.replace(".", "__"));
+                    if (StringUtils.isBlank(optionValue) || !optionValue.trim().equals("off")) {
+
+                        // FIXME create problem
+
+                        errors.add(volume + " WRONG OPTION " + optionToTurnOff + "/" + optionValue);
+
+                    }
+                }
+            }
 
             volumeSystemStatus.put("status", errors.size() == 0 ? "OK" : String.join(" / ", errors));
 
