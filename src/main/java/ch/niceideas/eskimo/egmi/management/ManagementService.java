@@ -549,7 +549,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                     if (StringUtils.isBlank(optionValue) || !optionValue.trim().equals("off")) {
 
                         // FIXME create problem
-
+                        problemManager.addProblem (new WrongOption(new Date(), volume, optionToTurnOff, optionValue, "off"));
                         errors.add(volume + " WRONG OPTION " + optionToTurnOff + "/" + optionValue);
 
                     }

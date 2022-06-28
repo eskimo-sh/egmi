@@ -89,6 +89,15 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
+    public JSONObject getOptions(String volume) {
+        JSONArray volumeArray = getVolumes();
+        return IntStream.range(0, volumeArray.length())
+                .mapToObj(volumeArray::getJSONObject)
+                .filter(volumeInfo -> volumeInfo.getString("volume").equals(volume))
+                .map(volumeInfo -> volumeInfo.getJSONObject("options"))
+                .findAny().orElse(null);
+    }
+
     public JSONObject getBrickInfo (String volume, BrickId brickId) {
         JSONArray brickArray = getBrickArray(volume);
 
