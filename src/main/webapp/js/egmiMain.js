@@ -47,6 +47,7 @@ egmi.Main = function() {
     let node = null;
     let volume = null;
     let action = null;
+    let showOptions = null;
 
     let statusUpdateTimeoutHandler = null;
     let masterQueryTimeoutHandler = null;
@@ -63,19 +64,24 @@ egmi.Main = function() {
             messaging.initialize();
 
             node = new egmi.Node({
-                egmiMain: this,
+                egmiMain: this
             });
             node.initialize();
 
             volume = new egmi.Volume({
-                egmiMain: this,
+                egmiMain: this
             });
             volume.initialize();
 
             action = new egmi.Action({
-                egmiMain: this,
+                egmiMain: this
             });
             action.initialize();
+
+            showOptions = new egmi.ShowOptions({
+                egmiMain: this
+            });
+            showOptions.initialize();
 
             updateStatus();
 
@@ -140,16 +146,29 @@ egmi.Main = function() {
     }
 
     let renderVolumeStatus = function (volumesData) {
+
+        $("#options-holder").html("");
+
         if (volumesData == null || volumesData.length <= 0) {
             renderEmptyVolumes();
         } else {
             $("#status-volume-table-body").html("");
 
-            // TODO
-
             for (let i = 0; i < volumesData.length; i++) {
 
                 let volume = volumesData[i];
+
+                // render options holder
+                let volumeOptions = volume.options;
+                if (volumeOptions && !jQuery.isEmptyObject(volumeOptions)) {
+                    let volumeOptionsHolder = '<div id="volume-options-' + volume.volume + '"><pre>';
+                    for (let optionKey in volumeOptions) {
+                        let optionValue = volumeOptions[optionKey];
+                        volumeOptionsHolder += (optionKey.replace("__", ".") + '=' + optionValue + '\n');
+                    }
+                    volumeOptionsHolder += "</pre></div>";
+                    $("#options-holder").append($(volumeOptionsHolder));
+                }
 
                 let brickCount = volume.bricks.length;
 
@@ -178,10 +197,11 @@ egmi.Main = function() {
                 }
 
                 if (volume.status && volume.status !== "" && volume.status !== "NO VOLUME") {
-                    volRow += "<td class=\"status-node-cell\" style=\"min-width: 100px; width: 100px;\"" + (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
+                    volRow += "<td class=\"status-node-cell\" style=\"min-width: 130px; width: 130px;\"" + (brickCount > 0 ? "rowspan=\"" + brickCount + "\"" : "") + ">"
                         + "<button type=\"button\" id=\"start_" + volume.volume + "\" title=\"Start Volume\" class=\"btn btn-light btn-action\"><span class=\"fa fa-play\"></span></button>&nbsp;"
                         + "<button type=\"button\" id=\"stop_" + volume.volume + "\" title=\"Stop Volume\" class=\"btn btn-light btn-action\"><span class=\"fa fa-pause\"></span></button>&nbsp;"
-                        + "<button type=\"button\" id=\"remove_" + volume.volume + "\" title=\"Delete Volume\" class=\"btn btn-light btn-action\"><span class=\"fa fa-remove\"></span></button>"
+                        + "<button type=\"button\" id=\"remove_" + volume.volume + "\" title=\"Delete Volume\" class=\"btn btn-light btn-action\"><span class=\"fa fa-remove\"></span></button>&nbsp;"
+                        + "<button type=\"button\" id=\"show_options_" + volume.volume + "\" title=\"Show Options\" class=\"btn btn-light btn-action\"><span class=\"fa fa-info\"></span></button>"
                         // &nbsp;&nbsp;
                         //+ "<a href=\"#\" id=\"add_" + volume.volume + "\" title=\"Add Brick\"><span class=\"fa fa-plus\"></span></a>&nbsp;"
                         + "</td>";
@@ -216,6 +236,10 @@ egmi.Main = function() {
 
                 $("#remove_" + volume.volume).click(function() {
                     volumeAction (volume.volume, "remove");
+                });
+
+                $("#show_options_" + volume.volume).click(function() {
+                    showOptions.showOptions (volume.volume);
                 });
             }
         }
