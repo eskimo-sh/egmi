@@ -77,7 +77,7 @@ public class NoVolume extends AbstractProblem implements Problem {
         }
 
         String status = volumeInfo.getString("status");
-        return StringUtils.isNotBlank(status) && status.equals("NO VOLUME");
+        return StringUtils.isNotBlank(status) && status.contains("NO VOLUME");
     }
 
     @Override

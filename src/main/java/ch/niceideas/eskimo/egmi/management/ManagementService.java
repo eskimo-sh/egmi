@@ -517,6 +517,21 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                     errors.add("MISSING " + (targetNbrBricks - bricksInfo.size()) + " BRICKS");
                     problemManager.addProblem (new MissingBrick(new Date(), volume, targetNbrBricks, bricksInfo.size()));
                 }
+
+                // check options matching performance disablement
+                if (getVolumesPerformanceOff().contains(volume)) {
+                    for (String optionToTurnOff : getPerformanceOffOptions()) {
+
+                        String optionValue = options.get(optionToTurnOff.replace(".", "__"));
+                        if (StringUtils.isBlank(optionValue) || !optionValue.trim().equals("off")) {
+
+                            // FIXME create problem
+                            problemManager.addProblem (new WrongOption(new Date(), volume, optionToTurnOff, optionValue, "off"));
+                            errors.add(volume + " WRONG OPTION " + optionToTurnOff + "/" + optionValue);
+
+                        }
+                    }
+                }
             }
 
             // Check if a brick could not be build at all
@@ -537,21 +552,6 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                                 }
                             }
                         }
-                    }
-                }
-            }
-
-            // check options matching performance disablement
-            if (getVolumesPerformanceOff().contains(volume)) {
-                for (String optionToTurnOff : getPerformanceOffOptions()) {
-
-                    String optionValue = options.get(optionToTurnOff.replace(".", "__"));
-                    if (StringUtils.isBlank(optionValue) || !optionValue.trim().equals("off")) {
-
-                        // FIXME create problem
-                        problemManager.addProblem (new WrongOption(new Date(), volume, optionToTurnOff, optionValue, "off"));
-                        errors.add(volume + " WRONG OPTION " + optionToTurnOff + "/" + optionValue);
-
                     }
                 }
             }
