@@ -117,7 +117,8 @@ public class ElectionProcess implements Runnable, Closeable {
         if (dataNode) {
             logger.info("[Process: " + id + "] Creating data node " + EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id);
             zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER);
-            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id, false, true, false);
+            zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id, false, true, false,
+                    id.getBytes(StandardCharsets.UTF_8));
         }
 
         /*
