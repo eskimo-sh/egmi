@@ -34,19 +34,18 @@
 
 package ch.niceideas.common.http;
 
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
-import org.apache.http.client.RedirectStrategy;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.Args;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpHead;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
+import org.apache.hc.client5.http.protocol.RedirectStrategy;
+import org.apache.hc.client5.http.utils.URIUtils;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.Args;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 public class LaxRedirectStrategy extends DefaultRedirectStrategy implements RedirectStrategy {
 
@@ -54,7 +53,7 @@ public class LaxRedirectStrategy extends DefaultRedirectStrategy implements Redi
     public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context)  {
         Args.notNull(request, "HTTP request");
         Args.notNull(response, "HTTP response");
-        int statusCode = response.getStatusLine().getStatusCode();
+        int statusCode = response.getCode();
         switch(statusCode) {
             case 301:
             case 307:
@@ -70,24 +69,4 @@ public class LaxRedirectStrategy extends DefaultRedirectStrategy implements Redi
         }
     }
 
-    @Override
-    public HttpUriRequest getRedirect(HttpRequest request, HttpResponse response, HttpContext context) throws ProtocolException {
-        URI uri = this.getLocationURI(request, response, context);
-        String method = request.getRequestLine().getMethod();
-        if(method.equalsIgnoreCase("HEAD")) {
-            return new HttpHead(uri);
-        } else if(method.equalsIgnoreCase("GET")) {
-            return new HttpGet(uri);
-        } else {
-            int status = response.getStatusLine().getStatusCode();
-            HttpUriRequest toReturn = null;
-            if(status == 307 || status == 308) {
-                toReturn = RequestBuilder.copy(request).setUri(uri).build();
-                toReturn.removeHeaders("Content-Length"); //Workaround for an apparent bug in HttpClient
-            } else {
-                toReturn = new HttpGet(uri);
-            }
-            return toReturn;
-        }
-    }
 }

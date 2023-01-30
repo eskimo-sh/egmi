@@ -36,9 +36,10 @@ package ch.niceideas.common.http;
 
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.common.utils.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.log4j.Logger;
 
 import java.io.Closeable;
@@ -62,13 +63,13 @@ public class HttpClientResponse implements Closeable {
 
     private static final Logger logger = Logger.getLogger(HttpClientResponse.class);
     
-    private final org.apache.http.HttpResponse response;
+    private final ClassicHttpResponse response;
     private final HttpEntity responseEntity;
     private final String targetHost;
 
     private byte[] respBytes;
 
-    public HttpClientResponse(org.apache.http.HttpResponse response, String targetHost) {
+    public HttpClientResponse(ClassicHttpResponse response, String targetHost) {
         super();
         this.response = response;
         this.responseEntity = response.getEntity();
@@ -86,7 +87,7 @@ public class HttpClientResponse implements Closeable {
      * @return the HTPP status code of the response
      */
     public int getStatusCode() {
-        return response.getStatusLine().getStatusCode();
+        return response.getCode();
     }
     
     public HttpResponseStatus getStatus() {
@@ -103,7 +104,7 @@ public class HttpClientResponse implements Closeable {
     public Map<String, String> getHeaderMap() {
 
         Map<String, String> headers = new HashMap<>();
-        for (Header header : this.response.getAllHeaders()) {
+        for (Header header : this.response.getHeaders()) {
             String key = header.getName();
             String value = header.getValue();
             if (key.equalsIgnoreCase("Transfer-Encoding") && StringUtils.isNotBlank(value)) {
@@ -153,10 +154,10 @@ public class HttpClientResponse implements Closeable {
     private StringBuilder buildResponseInformation() {
         StringBuilder messageBuilder = new StringBuilder();
         messageBuilder.append("Response status code = ");
-        messageBuilder.append(response.getStatusLine().getStatusCode());
+        messageBuilder.append(response.getCode());
         messageBuilder.append("\n");
         messageBuilder.append("Response status reason = ");
-        messageBuilder.append(response.getStatusLine().getReasonPhrase());
+        messageBuilder.append(response.getReasonPhrase());
         messageBuilder.append("\n");
         return messageBuilder;
     }

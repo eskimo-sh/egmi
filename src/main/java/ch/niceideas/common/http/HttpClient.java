@@ -35,29 +35,34 @@
 package ch.niceideas.common.http;
 
 import ch.niceideas.common.utils.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.*;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.ssl.SSLContexts;
+import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
+import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.protocol.BasicHttpContext;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
+import org.apache.hc.core5.pool.PoolReusePolicy;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.log4j.Logger;
 
 import java.io.Closeable;
@@ -82,40 +87,55 @@ public class HttpClient implements Closeable {
      * FIXME Document me
      */
     public enum HttpMethod {
-        POST((uri, content) -> {
+        POST((uri, content, type) -> {
             HttpPost httpPost = new HttpPost(uri);
-            setEntity(content, httpPost);
+            if (content != null) {
+                if (type == null) {
+                    throw new HttpClientException ("A content type is required when passing an HTTP entity");
+                }
+                setEntity(content, httpPost, type);
+            }
             return httpPost;
         }),
-        PATCH((uri, content) -> {
+        PATCH((uri, content, type) -> {
             HttpPatch httpPatch = new HttpPatch(uri);
-            setEntity(content,httpPatch);
+            if (content != null) {
+                if (type == null) {
+                    throw new HttpClientException ("A content type is required when passing an HTTP entity");
+                }
+                setEntity(content, httpPatch, type);
+            }
             return httpPatch;
         }),
-        PUT((uri, content) -> {
+        PUT((uri, content, type) -> {
             HttpPut httPut = new HttpPut(uri);
-            setEntity(content, httPut);
+            if (content != null) {
+                if (type == null) {
+                    throw new HttpClientException ("A content type is required when passing an HTTP entity");
+                }
+                setEntity(content, httPut, type);
+            }
             return httPut;
         }),
-        GET((uri, content) -> {
+        GET((uri, content, type) -> {
             if (content != null) {
                 throw new HttpClientException ("Http content is not supported with the HTTP GET method");
             }
             return new HttpGet(uri);
         }),
-        HEAD((uri, content) -> {
+        HEAD((uri, content, type) -> {
             if (content != null) {
                 throw new HttpClientException ("Http content is not supported with the HTTP HEAD method");
             }
             return new HttpHead(uri);
         }),
-        DELETE((uri, content) -> {
+        DELETE((uri, content, type) -> {
             if (content != null) {
                 throw new HttpClientException ("Http content is not supported with the HTTP DELETE method");
             }
             return new HttpDelete(uri);
         }),
-        TRACE((uri, content) -> {
+        TRACE((uri, content, type) -> {
             if (content != null) {
                 throw new HttpClientException ("Http content is not supported with the HTTP TRACE method");
             }
@@ -128,15 +148,15 @@ public class HttpClient implements Closeable {
 
         private final RequestCreator requestCreator;
 
-        public HttpRequest createRequest(String uri, Object content) throws HttpClientException {
-            return requestCreator.createRequest(uri.replaceAll("\\|", "%7C"), content);
+        public BasicClassicHttpRequest createRequest(String uri, Object content, ContentType type) throws HttpClientException {
+            return requestCreator.createRequest(uri.replaceAll("\\|", "%7C"), content, type);
         }
 
     }
 
-    private static void setEntity(Object content, HttpEntityEnclosingRequestBase httpEntityOwner) throws HttpClientException {
+    private static void setEntity(Object content, ClassicHttpRequest httpEntityOwner, ContentType type) throws HttpClientException {
         try {
-            httpEntityOwner.setEntity(buildEntity(content));
+            httpEntityOwner.setEntity(buildEntity(content, type));
         } catch (IOException e) {
             logger.error(e, e);
             throw new HttpClientException (e.getMessage(), e);
@@ -159,7 +179,7 @@ public class HttpClient implements Closeable {
             "(([?#])[\\p{L}\\p{M}_0-9.\\-:;?#|&= ’+/,'\"%!@*()\\[\\]$<>{}~]*)*");
 
     private final PoolingHttpClientConnectionManager cm;
-    private final org.apache.http.client.HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
     /**
      * Default constructor
@@ -180,25 +200,34 @@ public class HttpClient implements Closeable {
 
         this.defaultHeaders = defaultHeaders;
 
-        Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                .register("https", new SSLConnectionSocketFactory(SSLContexts.createDefault(), (hostname, session) -> {
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setRedirectsEnabled(true)
+                .setCookieSpec(StandardCookieSpec.RELAXED)
+                .setResponseTimeout(Timeout.defaultsToDisabled(Timeout.ofMilliseconds(REQUEST_TIMEOUT)))
+                .setCircularRedirectsAllowed(true)
+                .setConnectionRequestTimeout(Timeout.defaultsToDisabled(Timeout.ofMilliseconds(REQUEST_TIMEOUT)))
+                .build();
+
+        SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout(Timeout.ofMilliseconds(REQUEST_TIMEOUT))
+                .build();
+
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.defaultsToDisabled(Timeout.ofMilliseconds(REQUEST_TIMEOUT)))
+                .setSocketTimeout(Timeout.defaultsToDisabled(Timeout.ofMilliseconds(REQUEST_TIMEOUT)))
+                .build();
+
+        cm = PoolingHttpClientConnectionManagerBuilder.create()
+                .setSSLSocketFactory(new SSLConnectionSocketFactory(SSLContexts.createDefault(), (hostname, session) -> {
                     return true; // don't bother
                 }))
+                .setDefaultSocketConfig(socketConfig)
+                .setDefaultConnectionConfig(connectionConfig)
+                .setMaxConnPerRoute(MAX_CONNECTIONS_PER_ROUTE)
+                .setMaxConnTotal(MAX_CONNECTIONS)
+                .setPoolConcurrencyPolicy(PoolConcurrencyPolicy.LAX)
+                .setConnPoolPolicy(PoolReusePolicy.LIFO)
                 .build();
-
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(REQUEST_TIMEOUT)
-                .setConnectTimeout(REQUEST_TIMEOUT)
-                .setSocketTimeout(REQUEST_TIMEOUT)
-                .setCircularRedirectsAllowed(true)
-                .setCookieSpec(CookieSpecs.DEFAULT)
-                .build();
-
-        cm = new PoolingHttpClientConnectionManager(registry);
-        cm.setDefaultMaxPerRoute(MAX_CONNECTIONS_PER_ROUTE);
-        cm.setMaxTotal(MAX_CONNECTIONS);
-        cm.setValidateAfterInactivity(60 * 1000);
 
         httpClient = HttpClients.custom()
                 .setConnectionManager(cm)
@@ -208,19 +237,6 @@ public class HttpClient implements Closeable {
                 .setUserAgent(this.userAgent)
                 .build();
 
-
-        String proxyHostParm = System.getProperty("ch.niceideas.common.http.ProxyHost");
-        String proxyPortParm = System.getProperty("ch.niceideas.common.http.ProxyPort");
-        if (StringUtils.isNotBlank(proxyHostParm)) {
-            HttpHost proxyHost;
-            if (StringUtils.isNotBlank(proxyPortParm)) {
-                proxyHost = new HttpHost(proxyHostParm, Integer.parseInt(proxyPortParm), "http");
-            } else {
-                proxyHost = new HttpHost(proxyHostParm, 8080, "http");
-            }
-
-            httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
-        }
         
         /* Uncomment for proxy settings
         
@@ -234,7 +250,7 @@ public class HttpClient implements Closeable {
      * <b>This is verys important : do not forget to close the httpClient</b>
      */
     public void close() {
-        cm.shutdown();
+        cm.close();
     }
 
     /**
@@ -266,7 +282,7 @@ public class HttpClient implements Closeable {
      * @throws HttpClientException in case anything wrong occurd
      */
     public HttpClientResponse sendRequest(String url, Properties requestParams) throws HttpClientException {
-        return sendRequest(url, requestParams, null);
+        return sendRequest(url, requestParams, null, null);
     }
 
     /**
@@ -284,9 +300,9 @@ public class HttpClient implements Closeable {
      * @return the HTTP response converted to the desired class.
      * @throws HttpClientException in case anything wrong occurd
      */
-    public HttpClientResponse sendRequest(String url, Properties requestParams, Object content)
+    public HttpClientResponse sendRequest(String url, Properties requestParams, Object content, ContentType type)
             throws HttpClientException {
-        return sendRequest(url, HttpMethod.GET, requestParams, content);
+        return sendRequest(url, HttpMethod.GET, requestParams, content, type);
     }
 
     /**
@@ -302,9 +318,9 @@ public class HttpClient implements Closeable {
      * @return the HTTP response
      * @throws HttpClientException in case anything wrong occurd
      */
-    public HttpClientResponse sendRequest(String url, HttpMethod method, Properties requestParams, Object content)
+    public HttpClientResponse sendRequest(String url, HttpMethod method, Properties requestParams, Object content, ContentType type)
             throws HttpClientException {
-        return sendRequest(url, method, requestParams, content, cookieStore);
+        return sendRequest(url, method, requestParams, content, type, cookieStore);
     }
 
     /**
@@ -322,7 +338,7 @@ public class HttpClient implements Closeable {
      * @throws HttpClientException in case anything wrong occurd
      */
     public HttpClientResponse sendRequest(String url, HttpMethod method, Properties requestParams, Object content,
-                                          CookieStore cookieStore) throws HttpClientException {
+                                          ContentType type, CookieStore cookieStore) throws HttpClientException {
 
         // 1. ValidateRequest
         Matcher matcher = requestValidationPattern.matcher(url);
@@ -341,9 +357,9 @@ public class HttpClient implements Closeable {
 
 
         // 3. Create Http request
-        HttpRequest request;
+        BasicClassicHttpRequest request;
         try {
-        	request = method.createRequest(ensureEscaping (uriString + (queryString == null ? "" : queryString)), content);
+        	request = method.createRequest(ensureEscaping (uriString + (queryString == null ? "" : queryString)), content, type);
         } catch (IllegalArgumentException e) {
         	logger.warn (e, e);
         	throw new HttpClientException (e.getMessage(), e);
@@ -365,11 +381,12 @@ public class HttpClient implements Closeable {
         context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
 
         // 5. Send request
-        org.apache.http.HttpResponse response;
+        ClassicHttpResponse response;
         try {
             response = httpClient.execute( //
-                    new HttpHost(serverString, StringUtils.isBlank(portString) ? -1 : Integer.parseInt(portString),
-                            StringUtils.isBlank(schemeString) ? null : schemeString), //
+                    new HttpHost(StringUtils.isBlank(schemeString) ? "http" : schemeString,
+                            serverString,
+                            StringUtils.isBlank(portString) ? -1 : Integer.parseInt(portString)), //
                     request,
                     context);
 
@@ -402,15 +419,15 @@ public class HttpClient implements Closeable {
                 ;
     }
 
-    private HttpClientResponse processResponse(org.apache.http.HttpResponse response, HttpHost targetHost) {
+    private HttpClientResponse processResponse(ClassicHttpResponse response, HttpHost targetHost) {
         return new HttpClientResponse(response, targetHost != null ? targetHost.toString() : null);
     }
 
-    private static HttpEntity buildEntity(Object content) throws IOException {
+    private static HttpEntity buildEntity(Object content, ContentType type) throws IOException {
         if (content instanceof InputStream) {
-            return new InputStreamEntity((InputStream) content, -1);
+            return new InputStreamEntity((InputStream) content, type);
         } else if (content instanceof byte[]) {
-            return new ByteArrayEntity((byte[]) content);
+            return new ByteArrayEntity((byte[]) content, type);
         } else if (content instanceof String) {
             return new StringEntity((String) content, StandardCharsets.UTF_8);
         }
@@ -421,7 +438,7 @@ public class HttpClient implements Closeable {
     }
 
     private interface RequestCreator {
-        HttpRequest createRequest(String uri, Object content) throws HttpClientException;
+        BasicClassicHttpRequest createRequest(String uri, Object content, ContentType type) throws HttpClientException;
     }
 
 }

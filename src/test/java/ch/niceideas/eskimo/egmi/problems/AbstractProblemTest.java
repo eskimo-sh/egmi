@@ -46,10 +46,8 @@ import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.management.MessagingService;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
@@ -78,30 +76,20 @@ public abstract class AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
 
-        HttpResponse respProxy = (HttpResponse) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] {HttpResponse.class}, (proxy, method, args) -> {
+        ClassicHttpResponse respProxy = (ClassicHttpResponse) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] {ClassicHttpResponse.class}, (proxy, method, args) -> {
 
-            if (method.getName().equals("getEntity")) {
-                return new StringEntity(response.get());
+            switch (method.getName()) {
+                case "getEntity":
+                    return new StringEntity(response.get());
 
-            } else if (method.getName().equals("getStatusLine")) {
-                return new StatusLine() {
-                    @Override
-                    public ProtocolVersion getProtocolVersion() {
-                        return new ProtocolVersion("HTTTP", 1, 1);
-                    }
-                    @Override
-                    public int getStatusCode() {
-                        return 200;
-                    }
+                case "getCode":
+                    return 200;
 
-                    @Override
-                    public String getReasonPhrase() {
-                        return "OK";
-                    }
-                };
+                case "getReasonPhrase":
+                    return "Ok";
 
-            } else {
-                throw new UnsupportedOperationException(method.getName());
+                default:
+                    throw new UnsupportedOperationException(method.getName());
             }
         });
 

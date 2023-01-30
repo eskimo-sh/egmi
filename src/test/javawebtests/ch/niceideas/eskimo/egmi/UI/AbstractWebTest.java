@@ -34,6 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.UI;
 
+import ch.niceideas.common.exceptions.CommonRTException;
 import ch.niceideas.common.utils.FileUtils;
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.eskimo.egmi.testinfrastructure.GenerateLCOV;
@@ -44,7 +45,6 @@ import jscover.Main;
 import jscover.report.FileData;
 import jscover.report.JSONDataMerger;
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -113,7 +113,11 @@ public abstract class AbstractWebTest {
             main.stop();
 
             File targetFile = new File(jsCoverReportDir + "/" + className, "jscoverage.json");
-            targetFile.getParentFile().mkdirs();
+            if (!targetFile.getParentFile().exists()) {
+                if (!targetFile.getParentFile().mkdirs()) {
+                    throw new CommonRTException("Couldn't create " + targetFile.getParentFile());
+                }
+            }
             FileUtils.write(targetFile, mergeJSON());
         }
     }
@@ -186,7 +190,7 @@ public abstract class AbstractWebTest {
 
         URL testPage = new URL (ResourceUtils.getURL(target).toExternalForm() + "?" + String.join("&", arguments));
         page = webClient.getPage(testPage);
-        Assert.assertEquals("Generic Test Page", page.getTitleText());
+        assertEquals("Generic Test Page", page.getTitleText());
 
         // 3 attempts
         for (int i = 0; i < 3 ; i++) {

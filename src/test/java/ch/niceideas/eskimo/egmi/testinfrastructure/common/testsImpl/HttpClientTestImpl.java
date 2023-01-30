@@ -36,17 +36,17 @@ package ch.niceideas.eskimo.egmi.testinfrastructure.common.testsImpl;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.common.http.HttpClientResponse;
-import org.apache.http.HttpEntity;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.EnglishReasonPhraseCatalog;
-import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.message.BasicStatusLine;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 @Component
@@ -57,14 +57,14 @@ public class HttpClientTestImpl extends HttpClient {
     @Override
     public HttpClientResponse sendRequest(String url) {
 
-        BasicHttpResponse bhr = new BasicHttpResponse(
-                new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), 200, null),
+        ClassicHttpResponse bhr = new BasicClassicHttpResponse(
+                200,
                 EnglishReasonPhraseCatalog.INSTANCE,
                 Locale.ENGLISH
         ) {
             @Override
             public HttpEntity getEntity() {
-                return new StringEntity("<html><head><title>TEST TITLE</title></head><body><div>TEST</div></body></html>", "UTF-8");
+                return new StringEntity("<html><head><title>TEST TITLE</title></head><body><div>TEST</div></body></html>", StandardCharsets.UTF_8);
             }
         };
 
