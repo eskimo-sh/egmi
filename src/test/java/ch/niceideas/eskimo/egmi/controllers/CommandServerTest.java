@@ -106,6 +106,6 @@ public class CommandServerTest {
 
         assertEquals ("OK", result);
 
-        assertEquals("/usr/sbin/gluster volume replace-brick spark_data 192.168.10.72:/var/lib/gluster/volume_bricks/spark_data 192.168.10.74:/var/lib/gluster/volume_bricks/spark_data commit force --mode=script", String.join ("\n", commandList));
+        assertEquals("/usr/sbin/gluster --mode=script volume replace-brick spark_data 192.168.10.72:/var/lib/gluster/volume_bricks/spark_data 192.168.10.74:/var/lib/gluster/volume_bricks/spark_data commit force --mode=script", String.join ("\n", commandList));
     }
 }

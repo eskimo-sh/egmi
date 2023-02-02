@@ -78,7 +78,7 @@ public class HttpClient implements Closeable {
     
     private static final Logger logger = Logger.getLogger(HttpClient.class);
     
-    private static final int REQUEST_TIMEOUT = 15 * 1000; // 15 seconds
+    private static final int REQUEST_TIMEOUT = 20 * 1000; // 20 seconds
     private static final int MAX_CONNECTIONS = 200;
     private static final int MAX_CONNECTIONS_PER_ROUTE = 5;
 

@@ -89,12 +89,12 @@ fi
 
 
 echo "   + 5. try gluster start volume again"
-/usr/sbin/gluster volume start $VOLUME force
+/usr/sbin/gluster --mode=script volume start $VOLUME force
 sleep 3
 
 
 echo "   + 6. ensure process is properly restarted"
-if [[ `/usr/sbin/gluster volume status $VOLUME $NODE:$BRICK_PATH detail | grep Online | cut -d ":" -f 2 | xargs` != "Y" ]]; then
+if [[ `/usr/sbin/gluster  --mode=script volume status $VOLUME $NODE:$BRICK_PATH detail | grep Online | cut -d ":" -f 2 | xargs` != "Y" ]]; then
     echo "Failed to force start brick $NODE:$BRICK_PATH"
     exit 3
 fi

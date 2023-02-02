@@ -89,7 +89,7 @@ public class CommandServer {
 
             // default leads to gluster command
             default:
-                commandLine = String.format("/usr/sbin/gluster %s %s %s", command, subcommand, options);
+                commandLine = String.format("/usr/sbin/gluster --mode=script %s %s %s", command, subcommand, options);
                 break;
         }
 

@@ -70,7 +70,7 @@ public class NodePartitionedTest extends AbstractProblemTest {
         assertEquals("192.168.10.73:1234/command?command=volume&subcommand=stop&options=test1%20--mode=script\n" +
                 "192.168.10.73:1234/command?command=force-remove-volume-bricks&subcommand=test1&options=192.168.10.73\n" +
                 "192.168.10.73:1234/command?command=volume&subcommand=delete&options=test1%20--mode=script\n" +
-                "192.168.10.74:1234/command?command=peer&subcommand=detach&options=192.168.10.73\n" +
+                "192.168.10.74:1234/command?command=peer&subcommand=detach&options=192.168.10.73%20force\n" +
                 "192.168.10.71:1234/command?command=peer&subcommand=probe&options=192.168.10.73\n" +
                 "192.168.10.73:1234/command?command=pool&subcommand=list&options=\n" +
                 "192.168.10.73:1234/command?command=pool&subcommand=list&options=\n" +

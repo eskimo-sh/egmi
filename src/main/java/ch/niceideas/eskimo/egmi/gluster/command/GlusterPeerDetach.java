@@ -39,6 +39,6 @@ import ch.niceideas.common.http.HttpClient;
 public class GlusterPeerDetach extends AbstractGlusterSimpleOperation {
 
     public GlusterPeerDetach(HttpClient httpClient, String peer) {
-        super (httpClient, "peer", "detach", peer);
+        super (httpClient, "peer", "detach", peer, "force");
     }
 }

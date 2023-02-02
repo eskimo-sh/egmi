@@ -51,7 +51,7 @@ public class GlusterPeerDetachTest extends AbstractCommandTest {
         assertNotNull (result);
         assertTrue(result.isSuccess());
 
-        assertEquals("127.0.0.1:12345/command?command=peer&subcommand=detach&options=192.168.10.75", url.get());
+        assertEquals("127.0.0.1:12345/command?command=peer&subcommand=detach&options=192.168.10.75%20force", url.get());
     }
 
 
