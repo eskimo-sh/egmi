@@ -45,10 +45,7 @@ import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,11 +67,9 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
     private final Map<String, Set<String>> reconfiguredOptions = new HashMap<>();
 
     public void overrideStatus(String volume, String status) {
-        VolumeInformationWrapper generalInfo = volumeInfos.get(volume);
-        if (generalInfo == null) {
-            throw new IllegalStateException("No GeneralInfo stored for volume " + volume);
-        }
-        generalInfo.setStatus(status);
+        Optional.ofNullable(volumeInfos.get(volume))
+                .orElseThrow(() -> new IllegalStateException("No GeneralInfo stored for volume " + volume))
+                .setStatus(status);
     }
 
     public Set<String> getAllVolumes() {

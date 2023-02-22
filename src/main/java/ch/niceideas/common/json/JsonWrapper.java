@@ -44,6 +44,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This is a wrapper around a JSON string which enables one to get the value at a specific node, change it, test if
@@ -127,7 +128,6 @@ public class JsonWrapper implements Serializable {
             }
 
             try {
-
                 current = handleArray(path, current, nextPath);
 
             } catch (JSONException e) {

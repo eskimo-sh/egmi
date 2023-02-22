@@ -151,7 +151,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     public void destroy() {
         logger.info ("Cancelling status updater scheduler");
         if (statusRefreshScheduler != null) {
-            statusRefreshScheduler.shutdown();
+            statusRefreshScheduler.shutdownNow();
         }
     }
 

@@ -40,6 +40,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * <b>
@@ -55,37 +56,22 @@ public class CommonBusinessException extends Exception {
 
     private List<Throwable> underlyingExceptions = null;
 
-    /**
-     * FIXME Document me
-     */
     public CommonBusinessException() {}
 
-    /**
-     * FIXME Document me
-     */
     public CommonBusinessException(String message) {
         super(message);
     }
 
-    /**
-     * FIXME Document me
-     */
     public CommonBusinessException(String message, Throwable under) {
         super(message);
         this.addUnderlyingException(under);
     }
 
-    /**
-     * FIXME Document me
-     */
     public CommonBusinessException(Throwable under) {
         super();
         this.addUnderlyingException(under);
     }
 
-    /**
-     * FIXME Document me
-     */
     public void addUnderlyingException(Throwable under) {
         if (under != null) {
             if (underlyingExceptions == null) {
@@ -95,9 +81,6 @@ public class CommonBusinessException extends Exception {
         }
     }
 
-    /**
-     * FIXME Document me
-     */
     public Throwable[] getUnderlyingExceptions() {
         if (underlyingExceptions == null) {
             return new Throwable[0];
@@ -152,9 +135,6 @@ public class CommonBusinessException extends Exception {
         super.printStackTrace(s);
     }
 
-    /**
-     * FIXME Document me
-     */
     public String getCompleteMessage() {
         StringBuilder messageBuilder = new StringBuilder();
         String message = this.getMessage();
@@ -211,20 +191,11 @@ public class CommonBusinessException extends Exception {
         printStackTrace(pw);
         return sw.toString();
     }
-    
-    /**
-     * Get the Stack-Trace as a string
-     * 
-     * @return the Stack-Trace
-     * @throws IOException
-     */
+
     public String getStackTraceString() {
         return stackToString();
     }
 
-    /**
-     * FIXME Document me
-     */    
     @SuppressWarnings("unchecked")
     public <T extends CommonBusinessException> void throwIfAny() throws T {
         if (underlyingExceptions != null && underlyingExceptions.size() > 0) {
@@ -232,9 +203,6 @@ public class CommonBusinessException extends Exception {
         }
     }
 
-    /**
-     * FIXME Document me
-     */
     public void resetUnderlyingExceptions() {
         if (underlyingExceptions != null && underlyingExceptions.size() > 0) {
             underlyingExceptions.clear();

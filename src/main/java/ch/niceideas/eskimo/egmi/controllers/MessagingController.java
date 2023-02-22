@@ -72,7 +72,7 @@ public class MessagingController extends AbstractInformationController<String, S
             return ReturnStatusHelper.createOKStatus(map -> {
                 map.put("lastLine", newLines.getKey());
                 map.put("lines", Base64.getEncoder().encodeToString(newLines.getValue().getBytes()));
-            });
+            }).getFormattedValue();
 
         } catch (JSONException e) {
             logger.error(e, e);

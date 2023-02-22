@@ -32,46 +32,17 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.utils;
+
+package ch.niceideas.eskimo.egmi.controllers;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class ReturnStatusHelperTest {
-
-    @Test
-    public void testCreateErrorStatus() {
-        assertEquals("{\n" +
-                "    \"error\": \"test\",\n" +
-                "    \"status\": \"KO\"\n" +
-                "}", ReturnStatusHelper.createErrorStatus("test").getFormattedValue());
-    }
+public class ActionControllerTest {
 
     @Test
-    public void testCreateEncodedErrorStatus() {
-        assertEquals("{\n" +
-                "    \"error\": \"dGVzdA==\",\n" +
-                "    \"status\": \"KO\"\n" +
-                "}", ReturnStatusHelper.createEncodedErrorStatus(new RuntimeException("test")).getFormattedValue());
-    }
-
-    @Test
-    public void testCreateClearStatus() {
-        assertEquals("{\n" +
-                "    \"clear\": \"test\",\n" +
-                "    \"processingPending\": true,\n" +
-                "    \"status\": \"OK\"\n" +
-                "}", ReturnStatusHelper.createClearStatus("test", true).getFormattedValue());
-    }
-
-    @Test
-    public void testCreateClearStatusWithMessage() {
-        assertEquals("{\n" +
-                "    \"clear\": \"test\",\n" +
-                "    \"message\": \"test-message\",\n" +
-                "    \"processingPending\": true,\n" +
-                "    \"status\": \"OK\"\n" +
-                "}", ReturnStatusHelper.createClearStatusWithMessage("test", true, "test-message").getFormattedValue());
+    public void testTodo() {
+        fail ("To be Implemented");
     }
 }

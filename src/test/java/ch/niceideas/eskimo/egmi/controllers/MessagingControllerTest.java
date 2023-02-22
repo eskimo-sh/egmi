@@ -58,9 +58,9 @@ public class MessagingControllerTest {
         });
 
         assertEquals ("{\n" +
-                "  \"lines\": \"TGluZTEKTGluZTIKTGluZTM=\",\n" +
-                "  \"lastLine\": 3,\n" +
-                "  \"status\": \"OK\"\n" +
+                "    \"lines\": \"TGluZTEKTGluZTIKTGluZTM=\",\n" +
+                "    \"lastLine\": 3,\n" +
+                "    \"status\": \"OK\"\n" +
                 "}", messagingController.fetchMessages(0));
 
         messagingController.setMessagingService(new MessagingService(5000) {

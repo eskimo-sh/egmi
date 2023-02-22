@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Optional;
 
 /**
  * Various utility methods aimed at helping with stream handling.
@@ -55,13 +56,10 @@ public abstract class StreamUtils {
      */
 
     public static void copy(InputStream input, OutputStream output) throws IOException {
-        if (input == null) {
-            throw new IOException("Input is null");
-        }
-        if (output == null) {
-            throw new IOException("Output is null");
-        }
-        input.transferTo(output);
+        Optional.ofNullable(input)
+                .orElseThrow(() -> new IOException("Input is null"))
+                        .transferTo(Optional.ofNullable(output)
+                                .orElseThrow(() -> new IOException("Output is null")));
     }
 
     /**
@@ -101,13 +99,8 @@ public abstract class StreamUtils {
      * Copies information between specified streams and then closes both of the streams.
      */
     public static void copyThenClose(InputStream input, OutputStream output) throws IOException {
-        if (input == null) {
-            throw new IOException ("Passed input stream is null");
-        }
-        if (output == null) {
-            throw new IOException ("Passed output stream is null");
-        }
-        copy(input, output);
+        copy(Optional.ofNullable(input).orElseThrow(() -> new IOException ("Passed input stream is null")),
+             Optional.ofNullable(output).orElseThrow(() -> new IOException ("Passed output stream is null")));
         input.close();
         output.close();
     }

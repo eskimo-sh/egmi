@@ -47,11 +47,11 @@ public class AbstractInformationController<T, R>  {
     }
 
     String lastLine(Integer lastLine) {
-        return ReturnStatusHelper.createOKStatus(map -> map.put("lastLine", lastLine));
+        return ReturnStatusHelper.createOKStatus(map -> map.put("lastLine", lastLine)).getFormattedValue();
     }
 
     public String clear(AbstractInformationService<T, R>  is) {
         is.clear();
-        return ReturnStatusHelper.createOKStatus();
+        return ReturnStatusHelper.createOKStatus().getFormattedValue();
     }
 }

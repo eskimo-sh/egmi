@@ -58,45 +58,45 @@ public class ActionController {
     @GetMapping("/remove-volume")
     @ResponseBody
     public String deleteNode (@RequestParam(name="volume") String volume) {
-        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty");
+        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
         return doAction (() -> actionService.deleteVolume (volume));
     }
 
     @GetMapping("/stop-volume")
     @ResponseBody
     public String stopNode (@RequestParam(name="volume") String volume) {
-        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty");
+        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
         return doAction (() -> actionService.stopVolume (volume));
     }
 
     @GetMapping("/start-volume")
     @ResponseBody
     public String startNode (@RequestParam(name="volume") String volume) {
-        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty");
+        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
         return doAction (() -> actionService.startVolume (volume));
     }
 
     @PostMapping("/volume")
     @ResponseBody
     public String addVolume (@RequestParam(name="volume") String volume) {
-        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty");
+        if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
         return doAction (() -> actionService.addVolume (volume));
     }
 
     @PostMapping("/node")
     @ResponseBody
     public String addNode (@RequestParam(name="node") String node) {
-        if (StringUtils.isBlank(node)) return ReturnStatusHelper.createErrorStatus("Passed node is empty");
+        if (StringUtils.isBlank(node)) return ReturnStatusHelper.createErrorStatus("Passed node is empty").getFormattedValue();
         return doAction (() -> actionService.addNode (node));
     }
 
     private String doAction (Action action) {
         try {
             action.run();
-            return ReturnStatusHelper.createOKStatus();
+            return ReturnStatusHelper.createOKStatus().getFormattedValue();
         } catch (ActionException e) {
             logger.debug(e, e);
-            return ReturnStatusHelper.createErrorStatus (e);
+            return ReturnStatusHelper.createErrorStatus (e).getFormattedValue();
         }
     }
 

@@ -34,9 +34,9 @@
 
 package ch.niceideas.eskimo.egmi.controllers;
 
+import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
-import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.utils.ReturnStatusHelper;
 import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
 import org.apache.log4j.Logger;
@@ -47,6 +47,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @Controller
 public class StatusController {
@@ -67,18 +68,13 @@ public class StatusController {
     public String getStatus() {
 
         try {
-
-            SystemStatus systemStatus = managementService.getSystemStatus();
-
-            if (systemStatus == null) {
-                return ReturnStatusHelper.createClearStatus("init", false);
-            }
-
-            return systemStatus.getFormattedValue();
+            return Optional.ofNullable ((JsonWrapper)managementService.getSystemStatus())
+                    .orElse(ReturnStatusHelper.createClearStatus("init", false))
+                    .getFormattedValue();
 
         } catch (ManagementException e) {
             logger.debug(e.getCause(), e.getCause());
-            return ReturnStatusHelper.createErrorStatus ((Exception)e.getCause());
+            return ReturnStatusHelper.createErrorStatus ((Exception)e.getCause()).getFormattedValue();
 
         }
     }
@@ -89,7 +85,7 @@ public class StatusController {
         return ReturnStatusHelper.createOKStatus(map -> map.putAll(new HashMap<>(){{
             put ("master", zookeeperService.isMaster());
             put ("master_url", resolveMasterUrl (redirectURLPattern, zookeeperService.getMasterHostname()));
-        }}));
+        }})).getFormattedValue();
     }
 
     private String resolveMasterUrl(String redirectURLPattern, String masterHostname) {

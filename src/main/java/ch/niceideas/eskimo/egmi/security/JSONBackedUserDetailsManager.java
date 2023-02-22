@@ -63,10 +63,7 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -186,14 +183,10 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
         Authentication currentUser = SecurityContextHolder.getContext()
                 .getAuthentication();
 
-        if (currentUser == null) {
-            // This would indicate bad coding somewhere
-            throw new AccessDeniedException(
-                    "Can't change password as no Authentication object found in context "
-                            + "for current user.");
-        }
-
-        String username = currentUser.getName();
+        String username = Optional.ofNullable(currentUser)
+                .orElseThrow(() -> new AccessDeniedException(
+                        "Can't change password as no Authentication object found in context for current user."))
+                .getName();
 
         logger.debug("Changing password for user '" + username + "'");
 
@@ -235,15 +228,10 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
     @Override
     public UserDetails loadUserByUsername(String username) {
 
-        if (username == null) {
-            throw new UsernameNotFoundException(username);
-        }
-
-        UserDetails user = users.get(username.toLowerCase());
-
-        if (user == null) {
-            throw new UsernameNotFoundException(username);
-        }
+        UserDetails user = Optional.ofNullable (users.get(Optional.of (username)
+                    .orElseThrow(() -> new UsernameNotFoundException(username))
+                    .toLowerCase()))
+                .orElseThrow(() -> new UsernameNotFoundException(username));
 
         return new User(user.getUsername(), user.getPassword(), user.isEnabled(),
                 user.isAccountNonExpired(), user.isCredentialsNonExpired(),

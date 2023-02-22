@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ElectionProcess implements Runnable, Closeable {
@@ -109,10 +110,8 @@ public class ElectionProcess implements Runnable, Closeable {
 
         zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE);
 
-        final String electionRootNodePath = zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
-        if(electionRootNodePath == null) {
-            throw new IllegalStateException("Unable to create/access leader election root node with path: " + EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE);
-        }
+        final String electionRootNodePath = Optional.ofNullable (zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE))
+                .orElseThrow(() -> new IllegalStateException("Unable to create/access leader election root node with path: " + EGMI_ROOT_NODE + LEADER_ELECTION_ROOT_NODE));
 
         if (dataNode) {
             logger.info("[Process: " + id + "] Creating data node " + EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id);

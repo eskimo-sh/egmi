@@ -46,12 +46,8 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
-import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
-import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.*;
-import org.apache.hc.core5.http.config.Registry;
-import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
@@ -70,6 +66,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -90,30 +87,27 @@ public class HttpClient implements Closeable {
         POST((uri, content, type) -> {
             HttpPost httpPost = new HttpPost(uri);
             if (content != null) {
-                if (type == null) {
-                    throw new HttpClientException ("A content type is required when passing an HTTP entity");
-                }
-                setEntity(content, httpPost, type);
+                setEntity(content, httpPost,
+                        Optional.ofNullable(type)
+                                .orElseThrow(() -> new HttpClientException ("A content type is required when passing an HTTP entity")));
             }
             return httpPost;
         }),
         PATCH((uri, content, type) -> {
             HttpPatch httpPatch = new HttpPatch(uri);
             if (content != null) {
-                if (type == null) {
-                    throw new HttpClientException ("A content type is required when passing an HTTP entity");
-                }
-                setEntity(content, httpPatch, type);
+                setEntity(content, httpPatch,
+                        Optional.ofNullable(type)
+                                .orElseThrow(() -> new HttpClientException ("A content type is required when passing an HTTP entity")));
             }
             return httpPatch;
         }),
         PUT((uri, content, type) -> {
             HttpPut httPut = new HttpPut(uri);
             if (content != null) {
-                if (type == null) {
-                    throw new HttpClientException ("A content type is required when passing an HTTP entity");
-                }
-                setEntity(content, httPut, type);
+                setEntity(content, httPut,
+                        Optional.ofNullable(type)
+                                .orElseThrow(() -> new HttpClientException ("A content type is required when passing an HTTP entity")));
             }
             return httPut;
         }),

@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.utils;
 
 import ch.niceideas.common.exceptions.CommonBusinessException;
+import ch.niceideas.common.json.JsonWrapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,7 +47,7 @@ public class ReturnStatusHelper {
 
     private ReturnStatusHelper() {}
 
-    public static String createErrorStatus (Exception e) {
+    public static JsonWrapper createErrorStatus (Exception e) {
         return createErrorStatus(e instanceof  CommonBusinessException ? ((CommonBusinessException)e).getCompleteMessage() : e.getMessage());
     }
 
@@ -61,20 +62,20 @@ public class ReturnStatusHelper {
         return errorMessageBuilder.toString();
     }
 
-    public static String createErrorStatus (String errorMessage) {
+    public static JsonWrapper createErrorStatus (String errorMessage) {
 
         try {
-            return new JSONObject(new HashMap<String, Object>() {{
+            return new JsonWrapper (new JSONObject(new HashMap<String, Object>() {{
                 put("status", "KO");
                 put("error", errorMessage);
-            }}).toString(2);
+            }}));
         } catch (JSONException e1) {
             // cannot happen
             throw new ErrorStatusException(e1);
         }
     }
 
-    public static String createOKStatus() {
+    public static JsonWrapper createOKStatus() {
         return createOKStatus(map -> {});
     }
 
@@ -82,70 +83,70 @@ public class ReturnStatusHelper {
         void feedMap (Map<String, Object> map) throws JSONException;
     }
 
-    public static String createOKStatus(MapFeeder additionalAttributesFeeder) {
+    public static JsonWrapper createOKStatus(MapFeeder additionalAttributesFeeder) {
         try {
-            return new JSONObject(new HashMap<String, Object>() {{
+            return new JsonWrapper (new JSONObject(new HashMap<String, Object>() {{
                 put("status", "OK");
                 additionalAttributesFeeder.feedMap (this);
-            }}).toString(2);
+            }}));
         } catch (JSONException e) {
             return ReturnStatusHelper.createErrorStatus(e);
         }
     }
 
-    public static String createClearStatus (String flag, boolean processingPending, MapFeeder additionalAttributesFeeder) {
+    public static JsonWrapper createClearStatus (String flag, boolean processingPending, MapFeeder additionalAttributesFeeder) {
 
         try {
-            return new JSONObject(new HashMap<String, Object>() {{
+            return new JsonWrapper (new JSONObject(new HashMap<String, Object>() {{
                 put("status", "OK");
                 put("processingPending", processingPending);
                 put("clear", flag);
                 additionalAttributesFeeder.feedMap (this);
-            }}).toString(2);
+            }}));
         } catch (JSONException e1) {
             // cannot happen
             throw new ErrorStatusException(e1);
         }
     }
 
-    public static String createEncodedErrorStatus (Exception e) {
+    public static JsonWrapper createEncodedErrorStatus (Exception e) {
 
         String errorMessageBuilder = buildFullMessage(e);
 
         try {
-            return new JSONObject(new HashMap<String, Object>() {{
+            return new JsonWrapper (new JSONObject(new HashMap<String, Object>() {{
                 put("status", "KO");
                 put("error", Base64.getEncoder().encodeToString(errorMessageBuilder.getBytes()));
-            }}).toString(2);
+            }}));
         } catch (JSONException e1) {
             // cannot happen
             throw new ErrorStatusException(e1);
         }
     }
 
-    public static String createClearStatus (String flag, boolean processingPending) {
+    public static JsonWrapper createClearStatus (String flag, boolean processingPending) {
 
         try {
-            return new JSONObject(new HashMap<String, Object>() {{
+            return new JsonWrapper (new JSONObject(new HashMap<String, Object>() {{
                 put("status", "OK");
                 put("processingPending", processingPending);
                 put("clear", flag);
-            }}).toString(2);
+            }}));
         } catch (JSONException e1) {
             // cannot happen
             throw new ErrorStatusException(e1);
         }
     }
 
-    public static String createClearStatusWithMessage (String flag, boolean processingPending, String message) {
+    public static JsonWrapper createClearStatusWithMessage (String flag, boolean processingPending, String message) {
 
         try {
-            return new JSONObject(new HashMap<String, Object>() {{
+            return new JsonWrapper (new JSONObject(new HashMap<String, Object>() {{
                 put("status", "OK");
                 put("processingPending", processingPending);
                 put("clear", flag);
                 put("message", message);
-            }}).toString(2);
+            }}));
         } catch (JSONException e1) {
             // cannot happen
             throw new ErrorStatusException(e1);

@@ -81,9 +81,7 @@ public class FileUtils {
             String[] fileContent = file.list();
             if (fileContent == null || fileContent.length == 0) {
 
-                if (file.delete()) {
-                    //logger.debug("Directory is deleted : " + file.getAbsolutePath());
-                } else {
+                if (!file.delete()) {
                     throw new FileDeleteFailedException ("Could not delete directory " + file.getAbsolutePath());
                 }
                 //logger.debug ("Directory is deleted : " + file.getAbsolutePath());
