@@ -38,6 +38,8 @@ import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Collections;
+import java.util.Optional;
 
 
 /**
@@ -88,7 +90,7 @@ public class FileUtils {
 
             } else {
 
-                for (File underFile : file.listFiles()) {
+                for (File underFile : Optional.ofNullable(file.listFiles()).orElse(new File[0])) {
 
                     // recursive delete
                     delete(underFile);
@@ -106,9 +108,7 @@ public class FileUtils {
 
         } else {
             // if file, then delete it
-            if (file.delete()) {
-                //logger.debug("File is deleted : " + file.getAbsolutePath());
-            } else {
+            if (!file.delete()) {
                 throw new FileDeleteFailedException ( "Could not delete file " + file.getAbsolutePath());
             }            
         }
@@ -141,9 +141,6 @@ public class FileUtils {
     /**
      * Closes InputStream and/or OutputStream. It makes sure that both streams tried to be closed, even first throws
      * an exception.
-     * 
-     * @throws IOException if stream (is not null and) cannot be closed.
-     * 
      */
     public static void close(InputStream iStream, OutputStream oStream) {
         StreamUtils.close(iStream);

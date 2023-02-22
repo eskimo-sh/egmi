@@ -262,8 +262,8 @@ public class ManagementServiceTest {
         ms.setTestConfig("192.168.56.20", null);
 
         File tmp = File.createTempFile("test", "egmi-mgmt-service");
-        tmp.delete();
-        tmp.mkdir();
+        assertTrue (tmp.delete());
+        assertTrue (tmp.mkdir());
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 
@@ -297,8 +297,8 @@ public class ManagementServiceTest {
         ms.setTestConfig("192.168.56.20", "test1,test2");
 
         File tmp = File.createTempFile("test", "egmi-mgmt-service");
-        tmp.delete();
-        tmp.mkdir();
+        assertTrue (tmp.delete());
+        assertTrue (tmp.mkdir());
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 
@@ -337,8 +337,8 @@ public class ManagementServiceTest {
         ms.setTestConfig("192.168.56.20", null);
 
         File tmp = File.createTempFile("test", "egmi-mgmt-service");
-        tmp.delete();
-        tmp.mkdir();
+        assertTrue (tmp.delete());
+        assertTrue (tmp.mkdir());
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 
@@ -371,8 +371,8 @@ public class ManagementServiceTest {
         ms.setTestConfig("192.168.56.20", "test1,test2");
 
         File tmp = File.createTempFile("test", "egmi-mgmt-service");
-        tmp.delete();
-        tmp.mkdir();
+        assertTrue (tmp.delete());
+        assertTrue (tmp.mkdir());
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 

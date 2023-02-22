@@ -147,12 +147,14 @@ egmi.Main = function() {
 
     let renderVolumeStatus = function (volumesData) {
 
-        $("#options-holder").html("");
+        const $optionsHolder = $("#options-holder");
+        $optionsHolder.html("");
 
         if (volumesData == null || volumesData.length <= 0) {
             renderEmptyVolumes();
         } else {
-            $("#status-volume-table-body").html("");
+            const $statusVolumeTableBody = $("#status-volume-table-body");
+            $statusVolumeTableBody.html("");
 
             for (let i = 0; i < volumesData.length; i++) {
 
@@ -167,7 +169,7 @@ egmi.Main = function() {
                         volumeOptionsHolder += (optionKey.replace("__", ".") + '=' + optionValue + '\n');
                     }
                     volumeOptionsHolder += "</pre></div>";
-                    $("#options-holder").append($(volumeOptionsHolder));
+                    $optionsHolder.append($(volumeOptionsHolder));
                 }
 
                 let brickCount = volume.bricks.length;
@@ -212,7 +214,7 @@ egmi.Main = function() {
 
                 volRow += "</tr>";
 
-                $("#status-volume-table-body").append($(volRow));
+                $statusVolumeTableBody.append($(volRow));
 
                 for (let j = 1; j < brickCount; j++) {
 
@@ -283,7 +285,8 @@ egmi.Main = function() {
         if (nodesData == null || nodesData.length <= 0) {
             renderEmptyNodes();
         } else {
-            $("#status-node-table-body").html("");
+            const $statusNodeTableBody = $("#status-node-table-body");
+            $statusNodeTableBody.html("");
 
             // TODO
 
@@ -311,7 +314,7 @@ egmi.Main = function() {
 
                 nodeRow += "</tr>";
 
-                $("#status-node-table-body").append($(nodeRow));
+                $statusNodeTableBody.append($(nodeRow));
 
             }
         }

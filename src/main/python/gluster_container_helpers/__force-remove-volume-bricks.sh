@@ -55,7 +55,7 @@ echo "-> __force-remove-volume-brick.sh"
 echo " - Forcing removal of all bricks of volume $VOLUME"
 
 # confirm node is current node
-if [[ `/sbin/ifconfig | grep $NODE` == "" ]]; then
+if [[ $(/sbin/ifconfig | grep $NODE) == "" ]]; then
     echo "$NODE doesn't match any of the current node IP adresses"
     exit 1
 fi
@@ -65,12 +65,12 @@ if [[ $? != 0 ]]; then
     cat /tmp/volume_info_$VOLUME.log
     exit 2
 fi
-if [[ `cat /tmp/volume_info_$VOLUME.log | grep "does not exist"` != "" ]]; then
+if [[ $(grep -F "does not exist" /tmp/volume_info_$VOLUME.log) != "" ]]; then
     cat /tmp/volume_info_$VOLUME.log
     exit 3
 fi
 
-for i in `cat /tmp/volume_info_$VOLUME.log | grep $NODE | grep ":/" | cut -d ':' -f 3`; do
+for i in $(grep $NODE /tmp/volume_info_$VOLUME.log | grep ":/" | cut -d ':' -f 3); do
     echo "   + removing $i"
     rm -Rf $i
     if [[ $? != 0 ]]; then

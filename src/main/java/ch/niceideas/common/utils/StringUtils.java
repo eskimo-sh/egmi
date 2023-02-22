@@ -80,7 +80,7 @@ public abstract class StringUtils {
      * @return the URL encoded version
      */
     public static String urlEncode(String source) {
-        String retValue = null;
+        String retValue ;
         try {
             retValue = URLEncoder.encode(source, DEFAULT_ENCODING);
         } catch (UnsupportedEncodingException e) {
@@ -97,7 +97,7 @@ public abstract class StringUtils {
      * @return the URL encoded version
      */
     public static String urlDecode(String source) {
-        String retValue = null;
+        String retValue;
         try {
             retValue = URLDecoder.decode(source, DEFAULT_ENCODING);
         } catch (UnsupportedEncodingException e) {
@@ -165,7 +165,7 @@ public abstract class StringUtils {
      * @return <code>true</code> if the String is empty or null
      */
     public static boolean isEmpty(String string) {
-        return org.springframework.util.StringUtils.isEmpty(string);
+        return string == null || string.equals("");
     }
 
     /**
@@ -185,7 +185,7 @@ public abstract class StringUtils {
      * @return <code>true</code> if the String is null, empty or whitespace
      */
     public static boolean isBlank(String string) {
-        return org.springframework.util.StringUtils.isEmpty(string);
+        return isEmpty(string);
     }
 
     /**
@@ -205,7 +205,7 @@ public abstract class StringUtils {
      * @return <code>true</code> if the String is not empty and not null
      */
     public static boolean isNotEmpty(String string) {
-        return !org.springframework.util.StringUtils.isEmpty(string);
+        return !isEmpty(string);
     }
 
     /**
@@ -225,7 +225,7 @@ public abstract class StringUtils {
      * @return <code>true</code> if the String is not empty and not null and not whitespace
      */
     public static boolean isNotBlank(String string) {
-        return !org.springframework.util.StringUtils.isEmpty(string);
+        return !isEmpty(string);
     }
 
     /**

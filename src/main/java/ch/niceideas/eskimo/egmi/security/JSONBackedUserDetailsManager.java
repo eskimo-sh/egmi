@@ -80,7 +80,7 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
 
     private final String jsonFilePath;
 
-    private BCryptPasswordEncoder passwordEncoder = null;
+    private BCryptPasswordEncoder passwordEncoder;
 
     public JSONBackedUserDetailsManager() throws FileException {
         this ("/tmp/test");
@@ -114,7 +114,7 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
 
                 String username = userObject.getString("username");
                 String password = userObject.getString("password");
-                Boolean enabled = userObject.getBoolean("enabled");
+                boolean enabled = userObject.getBoolean("enabled");
 
                 UserDetails user = new User(username, password, enabled, true,
                         true, true, new ArrayList<>() {{ add (new SimpleGrantedAuthority("admin"));}});

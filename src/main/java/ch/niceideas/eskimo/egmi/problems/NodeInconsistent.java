@@ -44,8 +44,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -57,7 +56,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
 public class NodeInconsistent extends AbstractProblem implements Problem {
 
@@ -117,7 +118,7 @@ public class NodeInconsistent extends AbstractProblem implements Problem {
             activeNodes.remove(host);
 
             // 2. Remove all node bricks
-            String activeNode = activeNodes.stream().findFirst().get();
+            String activeNode = activeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
             Map<BrickId, String> nodeBricks = nodesStatus.get(activeNode).getNodeBricksAndVolumes(host);
             for (String volume : nodeBricks.values()) {
                 if (!NodeDown.handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {

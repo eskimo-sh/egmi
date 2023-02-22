@@ -32,7 +32,7 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.UI;
+package ch.niceideas.eskimo.egmi.ui;
 
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;

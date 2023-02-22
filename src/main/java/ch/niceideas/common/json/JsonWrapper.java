@@ -34,17 +34,16 @@
 
 package ch.niceideas.common.json;
 
+import ch.niceideas.common.utils.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * This is a wrapper around a JSON string which enables one to get the value at a specific node, change it, test if
@@ -208,7 +207,7 @@ public class JsonWrapper implements Serializable {
     }
 
     private Object setValueJSONArray(String path, Object current, String nextPath) {
-        int index = -1;
+        int index ;
         if (Character.isDigit(nextPath.charAt(0))) {
             index = Integer.parseInt(nextPath);
         } else {
@@ -307,7 +306,7 @@ public class JsonWrapper implements Serializable {
     Object handleArray(String path, Object current, String nextPath)  {
         if (current instanceof JSONArray) {
 
-            int index = -1;
+            int index;
             if (Character.isDigit(nextPath.charAt(0))) {
                 index = Integer.parseInt(nextPath);
             } else {

@@ -32,7 +32,7 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.UI;
+package ch.niceideas.eskimo.egmi.ui;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

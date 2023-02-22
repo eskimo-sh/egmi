@@ -55,7 +55,7 @@ echo "-> __force-remove-brick.sh"
 echo " - Forcing removal of brick at $BRICK_PATH"
 
 # confirm node is current node
-if [[ `/sbin/ifconfig | grep $NODE` == "" ]]; then
+if [[ $(/sbin/ifconfig | grep $NODE) == "" ]]; then
     echo "$NODE doesn't match any of the current node IP adresses"
     exit 1
 fi

@@ -39,8 +39,7 @@ import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.model.BrickInformation;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.log4j.Logger;
 
 import java.nio.charset.Charset;
@@ -164,7 +163,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
         return null;
     }
 
-    @Data
+    @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor
     private static class BrickDetail extends BrickInformation {
 

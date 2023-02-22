@@ -42,66 +42,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class WebServerConfiguration {
 
-    public static final int MESSAGE_SIZE_LIMIT = 10 * 1024 * 1024; // 10 Mb
-
     @Bean
     public ConfigurableServletWebServerFactory webServerFactory() {
         TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
         factory.addConnectorCustomizers(connector -> connector.setProperty("relaxedQueryChars", "|{}[]"));
         return factory;
     }
-
-    /*
-    @Bean
-    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainer() {
-        return server -> {
-            if (server != null) {
-                server.addAdditionalTomcatConnectors(redirectConnector());
-            }
-        };
-    }
-
-    private Connector redirectConnector() {
-        Connector connector = new Connector("AJP/1.3");
-        connector.setScheme("http");
-        connector.setPort(8009);
-        connector.setAllowTrace(false);
-        connector.setSecure(false);
-
-        final AbstractAjpProtocol<?> protocol = (AbstractAjpProtocol<?>) connector.getProtocolHandler();
-        protocol.setSecretRequired(false);
-
-        return connector;
-    }
-     */
-
-
-    /*
-    @Bean
-    public ServletServerContainerFactoryBean createServletServerContainerFactoryBean() {
-        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
-        container.setMaxTextMessageBufferSize(MESSAGE_SIZE_LIMIT);
-        container.setMaxBinaryMessageBufferSize(MESSAGE_SIZE_LIMIT);
-        return container;
-    }
-    */
-
-    /*
-    @Bean
-    public ServletListenerRegistrationBean<ProxyServlet.ProxySessionListener> sessionListenerWithMetrics() {
-        ServletListenerRegistrationBean<ProxyServlet.ProxySessionListener> listenerRegBean =
-                new ServletListenerRegistrationBean<>();
-
-        listenerRegBean.setListener(new ProxyServlet.ProxySessionListener());
-        return listenerRegBean;
-    }
-
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new WebSocketProxyServer(proxyManagerService, servicesDefinition), Arrays.stream(servicesDefinition.listProxiedServices())
-                .map(serviceName -> servicesDefinition.getService(serviceName))
-                .map(service -> "/ws/" + service.getName() + "/*")
-                .toArray(String[]::new));
-    }
-    */
 }

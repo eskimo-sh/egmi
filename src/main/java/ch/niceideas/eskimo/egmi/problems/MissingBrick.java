@@ -38,18 +38,21 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.ForceRemoveBrick;
-import ch.niceideas.eskimo.egmi.gluster.command.ForceRemoveVolumeBricks;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeAddBrick;
 import ch.niceideas.eskimo.egmi.model.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
 public class MissingBrick extends AbstractProblem implements Problem{
 
@@ -154,17 +157,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
                 List<BrickId> brickIds = BrickAllocationHelper.buildNewReplicasBrickAllocation(
                         volume, brickInformations, currentNbReplicas, currentNbShards, volumePath, sortedNodes);
 
-                String lastNode = brickIds.stream().map(BrickId::getNode).findAny().get();
-
-                context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
-
-                // 3.1.1 Force clean brick paths on their nodes
-                for (BrickId brickId : brickIds) {
-                    executeSimpleOperation(new ForceRemoveBrick(context.getHttpClient(), brickId.getPath(), brickId.getNode()), context, brickId.getNode());
-                }
-
-                // 3.1.2 Call Add Brick command without any messing on server bricks
-                executeSimpleOperation(new GlusterVolumeAddBrick(context.getHttpClient(), volume, currentNbReplicas + 1, brickIds), context, lastNode);
+                addShard(brickIds, context, currentNbReplicas + 1);
 
                 return true;
             }
@@ -184,17 +177,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
                 List<BrickId> brickIds = BrickAllocationHelper.buildNewShardBrickAllocation(
                         volume, brickInformations, currentNbReplicas, volumePath, sortedNodes);
 
-                String lastNode = brickIds.stream().map(BrickId::getNode).findAny().get();
-
-                context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
-
-                // 3.2.1 Force clean brick paths on their nodes
-                for (BrickId brickId : brickIds) {
-                    executeSimpleOperation(new ForceRemoveBrick(context.getHttpClient(), brickId.getPath(), brickId.getNode()), context, brickId.getNode());
-                }
-
-                // 3.2.2 Add shards
-                executeSimpleOperation(new GlusterVolumeAddBrick(context.getHttpClient(), volume, currentNbReplicas, brickIds), context, lastNode);
+                addShard(brickIds, context, currentNbReplicas);
 
                 return true;
             }
@@ -208,6 +191,20 @@ public class MissingBrick extends AbstractProblem implements Problem{
         }
 
         return false;
+    }
+
+    private void addShard(List<BrickId> brickIds, CommandContext context, int currentNbReplicas) throws ResolutionStopException {
+        String lastNode = brickIds.stream().map(BrickId::getNode).findAny().orElseThrow(IllegalStateException::new);
+
+        context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
+
+        // 3.2.1 Force clean brick paths on their nodes
+        for (BrickId brickId : brickIds) {
+            executeSimpleOperation(new ForceRemoveBrick(context.getHttpClient(), brickId.getPath(), brickId.getNode()), context, brickId.getNode());
+        }
+
+        // 3.2.2 Add shards
+        executeSimpleOperation(new GlusterVolumeAddBrick(context.getHttpClient(), volume, currentNbReplicas, brickIds), context, lastNode);
     }
 
 

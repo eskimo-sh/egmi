@@ -40,8 +40,7 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.VolumeInformation;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.log4j.Logger;
 
 import java.nio.charset.Charset;
@@ -86,7 +85,7 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
     }
 
     public boolean hasBrickIds(String volume) {
-        return volumeBricks != null && volumeBricks.get(volume) != null && !volumeBricks.get(volume).isEmpty();
+        return volumeBricks.get(volume) != null && !volumeBricks.get(volume).isEmpty();
     }
 
     public Set<BrickId> getBrickIds(String volume) {
@@ -191,7 +190,7 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
         return this;
     }
 
-    @Data
+    @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor
     private static class VolumeInformationWrapper extends VolumeInformation {
 

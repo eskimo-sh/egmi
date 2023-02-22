@@ -109,20 +109,9 @@ public abstract class AbstractScenarioTest {
         ms.setMessagingService(messagingService);
 
         ms.setProblemManager(new ProblemManager() {
-            /*
-            public void addProblem(Problem problem) {
-                // TODO
-            }
-            public void recognize(SystemStatus newStatus) {
-                // TODO
-            }
-            public String getProblemSummary() {
-                // TODO
-                return null;
-            }
-            */
+            @Override
             public void resolutionIteration(SystemStatus newStatus) {
-                // TODO
+                // No-Op
             }
         });
 

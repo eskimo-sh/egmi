@@ -122,7 +122,7 @@ public class GlusterRemoteManager {
             return "";
         }
 
-        if (hostname.trim().toLowerCase().equals("localhost")) {
+        if (hostname.trim().equalsIgnoreCase("localhost")) {
             return ipAddress;
         }
 

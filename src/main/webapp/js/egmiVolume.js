@@ -49,20 +49,22 @@ egmi.Volume = function() {
             if (statusTxt === "success") {
 
                 // clear password on user model everytime it's shown
-                $("#modal-volume").on('show.bs.modal', function(){
+                const $modalVolume = $("#modal-volume");
+                $modalVolume.on('show.bs.modal', function(){
                     $('#volume').val("");
                     $('#button-create-volume').prop('disabled', true);
                 });
 
                 // put focus on user email on user edition modal when shown
-                $("#modal-volume").on('shown.bs.modal', function(){
+                $modalVolume.on('shown.bs.modal', function(){
                     $("#volume").focus();
                 });
 
-                $('#volume').keypress(function() {
+                const $volume = $('#volume');
+                $volume.keypress(function() {
                     $('#button-create-volume').prop('disabled', false);
                 });
-                $('#volume').change(function() {
+                $volume.change(function() {
                     $('#button-create-volume').prop('disabled', false);
                 });
 
@@ -76,19 +78,19 @@ egmi.Volume = function() {
 
     };
 
-    let showVolumeEdition = function() {
+    function showVolumeEdition() {
 
         // TODO
 
         $("#modal-volume").modal();
-    };
+    }
     this.showVolumeEdition = showVolumeEdition;
 
     let submitVolume = function() {
 
         let newVolume = $('#volume').val();
 
-        if (newVolume && !newVolume.trim() == "") {
+        if (newVolume && newVolume.trim() !== "") {
 
             $('#button-create-volume').prop('disabled', true);
             $('#volume-overlay').css('display', 'block');

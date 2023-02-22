@@ -139,10 +139,11 @@ egmi.Messaging = function(constrObj) {
     function addMessage (message) {
         messagesCounter++;
         // safety net
+        const $pendingMessageContent = $("#pending-message-content");
         if (messagesCounter > MAX_MESSAGES_COUNT) {
-            $("#pending-message-content").html("");
+            $pendingMessageContent.html("");
         }
-        $("#pending-message-content").append(message);
+        $pendingMessageContent.append(message);
     }
     this.addMessage = addMessage;
 

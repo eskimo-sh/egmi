@@ -61,14 +61,14 @@ egmi.Action = function() {
 
     };
 
-    let showActionConfirm = function(message, callback) {
+    function showActionConfirm(message, callback) {
 
         $('#action-message').html(message);
 
         that.callback = callback;
 
         $("#modal-action").modal();
-    };
+    }
     this.showActionConfirm = showActionConfirm;
 
     let submitAction = function() {

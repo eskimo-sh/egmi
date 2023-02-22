@@ -478,7 +478,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                             continue;
                         }
 
-                        if (StringUtils.isBlank(volStatus) || !volStatus.contains("TEMP")) {
+                        if (nodeBrickInfo != null && StringUtils.isBlank(volStatus) || !volStatus.contains("TEMP")) {
 
                             String effStatus = nodeBrickInfo.getStatus();
                             if (effStatus != null && effStatus.equals("OFFLINE")) {

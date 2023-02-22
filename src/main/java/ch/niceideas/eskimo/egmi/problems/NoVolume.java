@@ -41,15 +41,16 @@ import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeCreate;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeStart;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
 public class NoVolume extends AbstractProblem implements Problem {
 
@@ -146,7 +147,7 @@ public class NoVolume extends AbstractProblem implements Problem {
         List<BrickId> brickIds = BrickAllocationHelper.buildNewVolumeBrickAllocation(
                 volume, context, nodesStatus, activeNodes, rl);
 
-        String lastNode = brickIds.stream().map(BrickId::getNode).findAny().get();
+        String lastNode = brickIds.stream().map(BrickId::getNode).findAny().orElseThrow(IllegalStateException::new);
 
         context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
 

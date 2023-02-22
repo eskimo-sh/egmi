@@ -73,7 +73,6 @@ public class ElectionProcess implements Runnable, Closeable {
 
     private final ProcessNodeWatcher watcher = new ProcessNodeWatcher();
 
-
     public ElectionProcess(final String id, final boolean dataNode, final boolean masterElection, final String zkURL, final int zkSessionTimeout, final ElectionCallback callback) throws IOException {
         this.dataNode = dataNode;
         this.masterElection = masterElection;
@@ -119,11 +118,6 @@ public class ElectionProcess implements Runnable, Closeable {
             zooKeeperManager.getOrCreateNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER + "/" + id, false, true, false,
                     id.getBytes(StandardCharsets.UTF_8));
         }
-
-        /*
-        logger.info("[Process: " + id + "] Registering watches on data nodes folder " + EGMI_ROOT_NODE + DATA_NODE_FOLDER);
-        zooKeeperManager.watchNode(EGMI_ROOT_NODE + DATA_NODE_FOLDER, true);
-        */
 
         if (masterElection) {
 

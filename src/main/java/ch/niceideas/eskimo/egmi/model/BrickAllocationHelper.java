@@ -101,7 +101,7 @@ public class BrickAllocationHelper {
         List<BrickId> brickIds = new ArrayList<>();
         for (int i = 0; i < currentNbReplicas; i++) {
 
-            String brickNode = freeNodes.stream().findFirst().get();
+            String brickNode = freeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
             freeNodes.remove (brickNode);
             String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
             brickIds.add (new BrickId (brickNode, path));
@@ -129,7 +129,7 @@ public class BrickAllocationHelper {
         Map<Integer, String> newReplicaNodes = new HashMap<>();
         for (int shardNbr : brickNodesMap.keySet()) {
 
-            String targetNode = null;
+            String targetNode;
 
             String freeNode = sortedNodes.stream()
                     .filter(node -> !brickInformations.keySet().stream().map(BrickId::getNode).collect(Collectors.toSet()).contains(node))

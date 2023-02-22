@@ -41,8 +41,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeRemoveBrick;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeReplaceBrick;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -51,7 +50,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
 public class NodeDown extends AbstractProblem implements Problem {
 
@@ -153,12 +154,8 @@ public class NodeDown extends AbstractProblem implements Problem {
                 // for every of them
                 else {
 
-                    if (!handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {
-                        return false;
-                    }
+                    return handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks);
                 }
-
-                return true;
             }
 
             return false;
@@ -180,7 +177,10 @@ public class NodeDown extends AbstractProblem implements Problem {
 
                 context.info ("  + Handling Brick " + brickId);
 
-                VolumeInformation volumeInformation = nodesStatus.get(activeNodes.stream().findFirst().get()).getVolumeInformation(brickVolume);
+                VolumeInformation volumeInformation = nodesStatus.get(activeNodes.stream()
+                            .findFirst()
+                            .orElseThrow(IllegalStateException::new))
+                        .getVolumeInformation(brickVolume);
 
                 // 3.1 if the volume is replicated, there should be a replica of this brick,
                 if (volumeInformation.isReplicated()) {
@@ -188,7 +188,10 @@ public class NodeDown extends AbstractProblem implements Problem {
                     context.info ("    - Brick " + brickId + " is replicated. Can proceed further");
 
                     Map<BrickId, BrickInformation> brickInformations =
-                            nodesStatus.get(activeNodes.stream().findFirst().get()).getVolumeBricksInformation(volume);
+                            nodesStatus.get(activeNodes.stream().
+                                        findFirst().
+                                        orElseThrow(IllegalStateException::new))
+                                    .getVolumeBricksInformation(volume);
 
                     // 3.1.1 If there is enough space to create this replica elsewhere remove it and create a brick elsewhere
                     // use "replace-brick" command

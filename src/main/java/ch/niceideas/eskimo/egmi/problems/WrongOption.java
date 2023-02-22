@@ -41,8 +41,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.ForceRemoveBrick;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeAddBrick;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeSet;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,7 +49,9 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
 public class WrongOption extends AbstractProblem implements Problem{
 

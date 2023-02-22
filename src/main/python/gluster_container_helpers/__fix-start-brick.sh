@@ -56,7 +56,7 @@ echo "  __fix-start-brick.sh on volume $VOLUME for node $NODE"
 echo "   + 1. confirm brick on this node is the node passed in argument and brick for volume exist"
 
 # confirm node is current node
-if [[ `/sbin/ifconfig | grep $NODE` == "" ]]; then
+if [[ $(/sbin/ifconfig | grep $NODE) == "" ]]; then
     echo "$NODE doesn't match any of the current node IP adresses"
     exit 1
 fi
@@ -71,14 +71,14 @@ fi
 
 echo "   + 2. confirm brick is reported offline indeed"
 
-if [[ `/usr/sbin/gluster volume status $VOLUME $NODE:$BRICK_PATH detail | grep Online | cut -d ":" -f 2 | xargs` == "Y" ]]; then
+if [[ $(/usr/sbin/gluster volume status $VOLUME $NODE:$BRICK_PATH detail | grep Online | cut -d ":" -f 2 | xargs) == "Y" ]]; then
     echo "Brick $NODE:$BRICK_PATH is already reported online"
     exit 0
 fi
 
 
 echo "   + 3. see if the process for the brick is up and running"
-if [[ `ps -efl | grep glusterfsd | grep $NODE | grep $VOLUME` != "" ]]; then
+if [[ $(ps -efl | grep glusterfsd | grep $NODE | grep $VOLUME) != "" ]]; then
 
     echo "   + 4. if it is, kill it"
     PID=$(pgrep -f "$VOLUME.$NODE")
@@ -94,7 +94,7 @@ sleep 3
 
 
 echo "   + 6. ensure process is properly restarted"
-if [[ `/usr/sbin/gluster  --mode=script volume status $VOLUME $NODE:$BRICK_PATH detail | grep Online | cut -d ":" -f 2 | xargs` != "Y" ]]; then
+if [[ $(/usr/sbin/gluster  --mode=script volume status $VOLUME $NODE:$BRICK_PATH detail | grep Online | cut -d ":" -f 2 | xargs) != "Y" ]]; then
     echo "Failed to force start brick $NODE:$BRICK_PATH"
     exit 3
 fi

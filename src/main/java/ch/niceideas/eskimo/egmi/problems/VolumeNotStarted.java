@@ -43,15 +43,16 @@ import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.NodeStatusException;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.model.VolumeInformation;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Map;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
 public class VolumeNotStarted extends AbstractProblem implements Problem {
 

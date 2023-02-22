@@ -32,7 +32,7 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.UI;
+package ch.niceideas.eskimo.egmi.ui;
 
 import ch.niceideas.common.exceptions.CommonRTException;
 import ch.niceideas.common.utils.FileUtils;
@@ -69,7 +69,6 @@ public abstract class AbstractWebTest {
     private static final int INCREMENTAL_WAIT_MS = 500;
     private static final int MAX_WAIT_RETRIES = 50;
 
-    private static Thread server;
     private static Main main = null;
 
     private static final File jsCoverageFlagFile = new File("target/jsCoverageFlag");
@@ -102,7 +101,7 @@ public abstract class AbstractWebTest {
     public static void setUpOnce() {
         if (isCoverageRun()) {
             main = new Main();
-            server = new Thread(() -> main.runMain(jsCoverArgs));
+            Thread server = new Thread(() -> main.runMain(jsCoverArgs));
             server.start();
         }
     }
@@ -136,17 +135,6 @@ public abstract class AbstractWebTest {
 
             await().atMost(MAX_WAIT_RETRIES * 500 * (isCoverageRun() ? 2 : 1)  , TimeUnit.SECONDS).until(
                     () -> (Boolean) js("window.jscoverFinished"));
-
-            // FIXME remove after I ensure awaitility is fixed
-            /*
-            int attempt = 0;
-            while ((!(Boolean) (js("window.jscoverFinished"))) && attempt < 10) {
-                logger.debug("Waiting for coverage report to be written ...");
-                //noinspection BusyWait
-                Thread.sleep(500);
-                attempt++;
-            }
-            */
 
             String json = (String) (js("jscoverage_serializeCoverageToJSON();"));
             coverages.add(json);
@@ -238,35 +226,12 @@ public abstract class AbstractWebTest {
     }
 
     protected void waitForElementIdInDOM(String elementId) {
-
         await().atMost(MAX_WAIT_RETRIES * INCREMENTAL_WAIT_MS * (isCoverageRun() ? 2 : 1) , TimeUnit.SECONDS).until(
                 () -> page.getElementById(elementId) != null);
-
-
-        // FIXME remove after I ensure awaitility is fixed
-        /*
-        int attempt = 0;
-        while (page.getElementById(elementId) == null && attempt < MAX_WAIT_RETRIES) {
-            //noinspection BusyWait
-            Thread.sleep(INCREMENTAL_WAIT_MS);
-            attempt++;
-        }
-        */
     }
 
     protected void waitForDefinition(String varName) {
-
         await().atMost(INCREMENTAL_WAIT_MS * MAX_WAIT_RETRIES * (isCoverageRun() ? 2 : 1) , TimeUnit.SECONDS).until(
                 () -> !js("typeof " + varName).toString().equals ("undefined"));
-
-        // FIXME remove after I ensure awaitility is fixed
-        /*
-        int attempt = 0;
-        while (js("typeof " + varName).toString().equals ("undefined") && attempt < MAX_WAIT_RETRIES) {
-            //noinspection BusyWait
-            Thread.sleep(INCREMENTAL_WAIT_MS);
-            attempt++;
-        }
-        */
     }
 }

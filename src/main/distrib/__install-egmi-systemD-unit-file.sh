@@ -113,14 +113,14 @@ cp $SCRIPT_DIR/../../utils/gluster_container_helpers/* /usr/local/sbin/
 echo " - Ensuring Java is in path"
 set +e
 export PATH=$JAVA_HOME/bin:$PATH
-java_version=`java -version`
+java_version=$(java -version)
 if [[ $? != 0 ]]; then
     echo "Could not find any java executable in PATH."
     echo "EGMI needs to have the JDK 11 java executable in path or the JAVA_HOME env var properly defined"
     echo "Please re-launch this script after defining JAVA_HOME in the system profile or bashrc or adding the java executable in PATH"
     exit 5
 fi
-if [[ `echo $java_version | grep version | grep "11"` == "" ]]; then
+if [[ $(echo $java_version | grep version | grep "11") == "" ]]; then
     echo "The java version in path of JAVA_HOME is $(echo \"$java_version\" | grep version)"
     echo "EGMI needs JDK 11 or greater to run"
     if [[ $FORCE != "force" ]]; then
@@ -141,7 +141,7 @@ set -e
 install_capsh(){
 
     echo " - checking whether gcc is installed"
-    if [[ `which gcc 2>/dev/null` == "" ]]; then
+    if [[ $(which gcc 2>/dev/null) == "" ]]; then
         echo "!!! capsh building needs gcc installed (e.g. yum install gcc) !!! "
         echo "Cannot move forward with capsh building. Stopping here."
         echo "Please install gcc and restart this script"
@@ -149,7 +149,7 @@ install_capsh(){
     fi
 
     echo " - checking whether git is installed"
-    if [[ `which git 2>/dev/null` == "" ]]; then
+    if [[ $(which git 2>/dev/null) == "" ]]; then
         echo "!!! capsh building needs git installed (e.g. yum install git) !!! "
         echo "Cannot move forward with capsh building. Stopping here."
         echo "Please install git and restart this script"
@@ -157,7 +157,7 @@ install_capsh(){
     fi
 
     echo " - checking whether libc static library is available"
-    if [[ `find / -name "libc.*a" 2>/dev/null` == "" ]]; then
+    if [[ $(find / -name "libc.*a" 2>/dev/null) == "" ]]; then
         echo "!!! capsh building needs static libc installed (e.g. yum install glib-static) !!! "
         echo "Cannot move forward with capsh building. Stopping here."
         echo "Please install glibc static library and restart this script"
@@ -185,12 +185,12 @@ install_capsh(){
 if [[ $SKIP_SYSTEM_D != "skip" ]]; then
     if [[ ! -f $SCRIPT_DIR/capsh ]]; then
         # Find out about capsh possibilities
-        if [[ `which capsh 2>/dev/null` == "" ]]; then
+        if [[ $(which capsh 2>/dev/null) == "" ]]; then
             export CAPSH_NOT_FOUND=1
         else
             export CAPSH_NOT_FOUND=0
 
-            if [[ `capsh --help | grep 'addamb'` == "" ]]; then
+            if [[ $(capsh --help | grep 'addamb') == "" ]]; then
                 export CAPSH_OLD=1
             else
                 export CAPSH_OLD=0
@@ -217,7 +217,7 @@ if [[ $SKIP_SYSTEM_D != "skip" ]]; then
             fi
         else
             # link system capsh to local capsh
-            ln -s `which capsh` $SCRIPT_DIR/capsh
+            ln -s "$(which capsh)" $SCRIPT_DIR/capsh
         fi
     fi
 fi
@@ -227,7 +227,7 @@ create_egmi_user() {
 
     echo " - Creating user egmi (if not exist)"
     useradd egmi
-    new_user_id=`id -u egmi`
+    new_user_id=$(id -u egmi)
     if [[ $new_user_id == "" ]]; then
         echo "Failed to add user egmi"
         exit 43
@@ -247,7 +247,7 @@ create_egmi_user() {
 
 # Find out if user egmi exists
 set +e
-egmi_id=`id -u egmi`
+egmi_id=$(id -u egmi)
 if [[ $egmi_id == "" ]]; then
     echo "EGMI runs under user 'egmi'"
     echo "User 'egmi' has not been found on this system"
@@ -293,7 +293,7 @@ if [[ $SKIP_SYSTEM_D != "skip" ]]; then
         systemctl start egmi
     }
 
-    if [[ `systemctl status egmi | grep 'dead'` != "" ]]; then
+    if [[ $(systemctl status egmi | grep 'dead') != "" ]]; then
 
         if [[ $FORCE == "force" ]]; then
             try_egmi_startup
@@ -316,7 +316,7 @@ if [[ $SKIP_SYSTEM_D != "skip" ]]; then
         systemctl enable egmi
     }
 
-    if [[ `systemctl status egmi | grep 'disabled;'` != "" ]]; then
+    if [[ $(systemctl status egmi | grep 'disabled;') != "" ]]; then
 
         if [[ $FORCE == "force" ]]; then
             enable_egmi

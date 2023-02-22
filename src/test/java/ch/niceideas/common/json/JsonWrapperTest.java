@@ -57,17 +57,9 @@ public class JsonWrapperTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        InputStream sourceJSONStream = ResourceUtils.getResourceAsStream("JsonWrapperTest/in.json");
-        sourceJSONInput = StreamUtils.getAsString(sourceJSONStream);
-        sourceJSONStream.close();
-
-        sourceJSONStream = ResourceUtils.getResourceAsStream("JsonWrapperTest/out.json");
-        sourceJSONOutput = StreamUtils.getAsString(sourceJSONStream);
-        sourceJSONStream.close();
-
-        InputStream sourceJSONSearchYahootream = ResourceUtils.getResourceAsStream("JsonWrapperTest/yahooSearchIBMJson.json");
-        sourceJSONSearchYahoo = StreamUtils.getAsString(sourceJSONSearchYahootream);
-        sourceJSONSearchYahootream.close();
+        sourceJSONInput = StreamUtils.getAsString(ResourceUtils.getResourceAsStream("JsonWrapperTest/in.json"));
+        sourceJSONOutput = StreamUtils.getAsString(ResourceUtils.getResourceAsStream("JsonWrapperTest/out.json"));
+        sourceJSONSearchYahoo = StreamUtils.getAsString(ResourceUtils.getResourceAsStream("JsonWrapperTest/yahooSearchIBMJson.json"));
     }
 
     @Test

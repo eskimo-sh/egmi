@@ -264,7 +264,7 @@ h1 small{
 }
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    padding: 10px 8px 0px;
+    padding: 10px 8px 0;
 }
 
 .table-responsive ul.pagination,
@@ -273,7 +273,7 @@ h1 small{
 }
 
 .table {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .status-table {
@@ -425,29 +425,11 @@ body.empty-page-white {
     align-items: center;
 }
 
-
-/** This was an attempt to have scrollable menu (vertically)
-But it breaks  the menu entry title overlay
-.left-panel-container {
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    padding-right: 17px;
-    box-sizing: content-box;
-}
-#hoe-left-panel[hoe-position-type="absolute"] {
-    overflow-y: hidden;
-    overflow-x: visible;
-}
- */
-
 .menu-scroll-button {
     position: absolute;
     text-align: center;
     width: 100%;
     height: 25px;
-    background: inherit;
     background: #384b5f;
     color: #ced4d7;
     border-right: 1px solid #455769;
@@ -462,7 +444,7 @@ But it breaks  the menu entry title overlay
 .left-panel-menu-container {
     position: absolute;
     width: 100%;
-    top: 0px;
+    top: 0;
     z-index: 1;
 }
 .left-panel-container {
@@ -470,7 +452,7 @@ But it breaks  the menu entry title overlay
 }
 
 #menu-scroll-up {
-    top: 0px;
+    top: 0;
     border-bottom: 1px solid #455769;
 }
 #menu-scroll-down {
@@ -522,8 +504,8 @@ But it breaks  the menu entry title overlay
     margin-top: inherit;
 }
 .no-padding {
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 html, body {
     height: 100%;

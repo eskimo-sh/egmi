@@ -38,10 +38,10 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # CHange project root directory
-cd $SCRIPT_DIR/..
+cd $SCRIPT_DIR/.. || exit 1
 
 # See if we have java in the path
-JAVA_VERSION=`java -version`
+java -version >/dev/null 2>&1
 if [[ $? != 0 ]]; then
     # check whether JAVA_HOME is defined
     if [[ $JAVA_HOME != "" ]]; then
@@ -53,7 +53,7 @@ if [[ $? != 0 ]]; then
 fi
 
 # Find out which egmi version we have in lib
-EGMI_WAR=`cd lib; ls -1 egmi*war`
+EGMI_WAR=$(cd lib; ls -1 egmi*war)
 
 java \
     -Xmx300m \

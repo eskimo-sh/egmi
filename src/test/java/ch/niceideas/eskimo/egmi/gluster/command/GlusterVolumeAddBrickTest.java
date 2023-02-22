@@ -39,6 +39,7 @@ import ch.niceideas.eskimo.egmi.model.BrickId;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,7 +70,7 @@ public class GlusterVolumeAddBrickTest extends AbstractCommandTest {
         response.set("success");
 
         GlusterVolumeAddBrick command = new GlusterVolumeAddBrick(mockClient, "test_volume", 1,
-                Arrays.asList(
+                List.of(
                         new BrickId("192.168.10.72", "/var/lib/gluster/bricks/test1_2")));
         SimpleOperationResult result = command.execute("127.0.0.1", context);
         assertNotNull (result);

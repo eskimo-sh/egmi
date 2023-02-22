@@ -181,9 +181,6 @@ public class CommonBusinessException extends Exception {
 
     /**
      * Extract the stack trace from an exception and put it in a string
-     *
-     * @param e the concerned exception
-     * @return a string representing the stack trace.
      */
     public String stackToString() {
         StringWriter sw = new StringWriter();

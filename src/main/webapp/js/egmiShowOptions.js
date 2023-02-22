@@ -57,12 +57,12 @@ egmi.ShowOptions = function() {
 
     };
 
-    let showOptions = function(volume) {
+    function showOptions(volume) {
 
         $("#show-options-content").html($("#volume-options-" + volume).html());
 
         $("#modal-show-options").modal();
-    };
+    }
     this.showOptions = showOptions;
 
 };

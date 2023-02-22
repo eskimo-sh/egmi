@@ -87,7 +87,7 @@ public class GraphPartitionDetector {
         }
 
         // 3. If some node have different counts, flag the all nodes having a lesser count as disconnected
-        List<String> partitionedNodes = new ArrayList<String>();
+        List<String> partitionedNodes = new ArrayList<>();
 
         // find highest and smallest count
         int smallest = Integer.MAX_VALUE, highest = Integer.MIN_VALUE;

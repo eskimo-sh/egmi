@@ -45,13 +45,13 @@ public class NodeBrickNumberComparator implements Comparator<String> {
 
     @Override
     public int compare(String o1, String o2) {
-        int nbrBricks1 = 0;
+        int nbrBricks1;
         try {
             nbrBricks1 = nodeStatus.getNodeBricksAndVolumes(o1).keySet().size();
         } catch (NodeStatusException e) {
             return 1;
         }
-        int nbrBricks2 = 0;
+        int nbrBricks2;
         try {
             nbrBricks2 = nodeStatus.getNodeBricksAndVolumes(o2).keySet().size();
         } catch (NodeStatusException e) {

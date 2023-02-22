@@ -40,25 +40,18 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.regex.Matcher;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HttpClientTest {
 
     @Test
     public void testRequestValidationPattern() {
-        
-        assertEquals(
-                null,
-                getMatch("http://finance.yahoo.com"));
-        
-        assertEquals(
-                null,
-                getMatch("http://finance.yahoo.com/"));
 
-        assertEquals(
-                null,
-                getMatch("https://abs.twimg.com/responsive-web/client-web/vendors~main.95208665.js"));
+        assertNull(getMatch("http://finance.yahoo.com"));
+
+        assertNull(getMatch("http://finance.yahoo.com/"));
+
+        assertNull(getMatch("https://abs.twimg.com/responsive-web/client-web/vendors~main.95208665.js"));
 
         assertEquals(
                 "?",
@@ -67,22 +60,14 @@ public class HttpClientTest {
         assertEquals(
                 "?lang=en&date1=05/01/12&date=05/10/12&date_fmt=us&exch=EUR&expr2=CHF&margin_fixed=0&SUBMIT=Get+Table&format=CSV&redirected=1",
                 getMatch("http://www.oanda.com/convert/fxhistory?lang=en&date1=05/01/12&date=05/10/12&date_fmt=us&exch=EUR&expr2=CHF&margin_fixed=0&SUBMIT=Get+Table&format=CSV&redirected=1"));
-        
-        assertEquals(
-                null,
-                getMatch("https://plus.google.com/_/scs/apps-static/_/ss/koz.home.-pl6beeyj3vcy.L.I7.O/amAGAICGCTiEsAAAAACIU76KYAFYEBAMAO/rsAItRSTMJ_m3XwTkLAaprP2LcqVl9hfPPWg"));
-        
-        assertEquals(
-                null,
-                getMatch("https://plus.google.com/_/scs/apps-static/_/ss/k=oz.home.ahpme8b3foix.L.I7.O/am=AGAIEcAiEZcAAAAAEAo76KYANYEBAMAO/rs=AItRSTMFrY9wDbH9XmmgR6bByzp6RWO22w"));
-        
-        assertEquals(
-                null,
-                getMatch("https://plus.google.com/_/scs/apps-static/_/js/k=oz.home.de.Lqy7UbCaT1Q.O/m=b,prc/am=AGAIEcAiEZcAAAAAEAo76KYANYEBAMAO/rt=h/d=1/rs=AItRSTOW8XKDde-o7cSDfQa6IxcdRrLawA"));
-        
-        assertEquals(
-                null,
-                getMatch("http://slot1.images2.wikia.nocookie.net/__load/-/cb%3D62486%26debug%3Dfalse%26lang%3Den%26only%3Dscripts%26skin%3Doasis/amd|wikia.tracker.stub|wikia.cookies,geo,window"));
+
+        assertNull(getMatch("https://plus.google.com/_/scs/apps-static/_/ss/koz.home.-pl6beeyj3vcy.L.I7.O/amAGAICGCTiEsAAAAACIU76KYAFYEBAMAO/rsAItRSTMJ_m3XwTkLAaprP2LcqVl9hfPPWg"));
+
+        assertNull(getMatch("https://plus.google.com/_/scs/apps-static/_/ss/k=oz.home.ahpme8b3foix.L.I7.O/am=AGAIEcAiEZcAAAAAEAo76KYANYEBAMAO/rs=AItRSTMFrY9wDbH9XmmgR6bByzp6RWO22w"));
+
+        assertNull(getMatch("https://plus.google.com/_/scs/apps-static/_/js/k=oz.home.de.Lqy7UbCaT1Q.O/m=b,prc/am=AGAIEcAiEZcAAAAAEAo76KYANYEBAMAO/rt=h/d=1/rs=AItRSTOW8XKDde-o7cSDfQa6IxcdRrLawA"));
+
+        assertNull(getMatch("http://slot1.images2.wikia.nocookie.net/__load/-/cb%3D62486%26debug%3Dfalse%26lang%3Den%26only%3Dscripts%26skin%3Doasis/amd|wikia.tracker.stub|wikia.cookies,geo,window"));
 
         assertEquals(
                 "?site=143573;size=1x1;e=0;dt=0;category=tt1kyd71;kw=smj6rrvp%202md%20l5nvl7xv6mt%20v5o9;rnd=(1600079281471)",
@@ -124,17 +109,13 @@ public class HttpClientTest {
                 "?r=3&p=4&cp=pubmaticUS&cu=1&&gdpr=0&gdpr_consent=&url=https://simage2.pubmatic.com/AdServer/Pug?vcode=bz0yJnR5cGU9MSZjb2RlPTE5MjgmdGw9NDMyMDA=&piggybackCookie=uid:@@CRITEO_USERID@@",
                 getMatch("https://dis.criteo.com/dis/usersync.aspx?r=3&p=4&cp=pubmaticUS&cu=1&&gdpr=0&gdpr_consent=&url=https://simage2.pubmatic.com/AdServer/Pug?vcode=bz0yJnR5cGU9MSZjb2RlPTE5MjgmdGw9NDMyMDA=&piggybackCookie=uid:@@CRITEO_USERID@@"));
 
-        assertEquals(
-                null,
-                getMatch("https://sync.1rx.io/usersync2/pubmatic&gdpr=0&gdpr_consent="));
+        assertNull(getMatch("https://sync.1rx.io/usersync2/pubmatic&gdpr=0&gdpr_consent="));
 
         assertEquals(
                 "?r=3&p=4&cp=pubmaticUS&cu=1&&gdpr=0&gdpr_consent=&url=https://simage2.pubmatic.com/AdServer/Pug?vcode=bz0yJnR5cGU9MSZjb2RlPTE5MjgmdGw9NDMyMDA=&piggybackCookie=uid:@@CRITEO_USERID@@",
                 getMatch("https://dis.criteo.com/dis/usersync.aspx?r=3&p=4&cp=pubmaticUS&cu=1&&gdpr=0&gdpr_consent=&url=https://simage2.pubmatic.com/AdServer/Pug?vcode=bz0yJnR5cGU9MSZjb2RlPTE5MjgmdGw9NDMyMDA=&piggybackCookie=uid:@@CRITEO_USERID@@"));
 
-        assertEquals(
-                null,
-                getMatch("https://air-soft.gun-evasion.com/blog/wp-content/uploads/2016/11/Capture-d’écran-2016-11-16-à-17.18.09.png"));
+        assertNull(getMatch("https://air-soft.gun-evasion.com/blog/wp-content/uploads/2016/11/Capture-d’écran-2016-11-16-à-17.18.09.png"));
 
     }
 

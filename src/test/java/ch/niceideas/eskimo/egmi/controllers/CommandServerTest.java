@@ -47,14 +47,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CommandServerTest {
 
     private CommandServer commandServer;
-    private ProcessHelper processHelper;
 
     private final List<String> commandList = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
-        processHelper = new ProcessHelper() {
-
+        ProcessHelper processHelper = new ProcessHelper() {
             @Override
             public String exec(String[] cmd, boolean throwExceptions) {
                 commandList.add(String.join(" ", cmd));

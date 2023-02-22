@@ -43,8 +43,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.*;
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
@@ -56,7 +55,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@Data
+@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 @AllArgsConstructor
 public class NodePartitioned extends AbstractProblem implements Problem {
 

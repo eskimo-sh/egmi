@@ -32,12 +32,12 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.UI;
+package ch.niceideas.eskimo.egmi.ui;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class EgmiActionTest extends AbstractWebTest {
+public class EgmiNodeTest extends AbstractWebTest {
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -46,23 +46,31 @@ public class EgmiActionTest extends AbstractWebTest {
         loadScript("vendor/bootstrap-select.js");
         loadScript("utils.js");
 
-        loadScript("egmiAction.js");
+        loadScript("egmiNode.js");
 
-        js("action = new egmi.Action();");
+        js("node = new egmi.Node();");
 
-        js("action.initialize();");
+        js("node.initialize();");
 
-        waitForElementIdInDOM("button-action-confirm");
+        waitForElementIdInDOM("button-create-node");
     }
 
     @Test
     public void testNominal() throws Exception {
 
-        js("action.showActionConfirm(\"test message\", function() {window.actionCalled = true;})");
+        js("node.showNodeEdition();");
 
-        page.getElementById("button-action-confirm").click();
+        js("$('#button-create-node').prop('disabled', false);");
+        js("$('#node').val('192.168.10.75');");
 
-        assertJavascriptEquals("true", "window.actionCalled");
+        js("$.ajaxPost = function(object) {" +
+                "  window.url = object.url;" +
+                "  object.success ( {\"status\" : \"OK\"} )" +
+                "}");
+
+        page.getElementById("button-create-node").click();
+
+        assertJavascriptEquals("node?node=192.168.10.75", "window.url");
     }
 }
 

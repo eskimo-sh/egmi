@@ -36,6 +36,9 @@
 Description=EGMI Application
 Wants=network-online.target
 
+StartLimitBurst=3
+StartLimitIntervalSec=30
+
 [Service]
 TimeoutStartSec=60sec
 RemainAfterExit=false
@@ -55,8 +58,6 @@ ExecStart=/bin/bash -c "{EGMI_PATH}/bin/utils/capsh \
 Type=simple
 
 Restart=always
-StartLimitBurst=3
-StartLimitInterval=30
 
 StandardOutput=syslog
 StandardError=syslog

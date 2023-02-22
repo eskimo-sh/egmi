@@ -78,7 +78,7 @@ public abstract class StreamUtils {
         long count = 0;
         if (output != null) {
             char[] buffer = new char[DEFAULT_BUFFER_SIZE];
-            int n = 0;
+            int n;
             while (-1 != (n = input.read(buffer))) {
                 output.write(buffer, 0, n);
                 count += n;
@@ -160,8 +160,8 @@ public abstract class StreamUtils {
         if (in != null) {
             try {
                 in.close();
-            } catch (Exception ignored) {
-                logger.debug (ignored, ignored);
+            } catch (Exception e) {
+                logger.debug (e, e);
             }
         }
     }
@@ -175,8 +175,8 @@ public abstract class StreamUtils {
         if (out != null) {
             try {
                 out.close();
-            } catch (Exception ignored) {
-                logger.debug (ignored, ignored);
+            } catch (Exception e) {
+                logger.debug (e, e);
             }
         }
     }
@@ -190,8 +190,8 @@ public abstract class StreamUtils {
         if (in != null) {
             try {
                 in.close();
-            } catch (Exception ignored) {
-                logger.debug (ignored, ignored);
+            } catch (Exception e) {
+                logger.debug (e, e);
             }
         }
     }
@@ -205,8 +205,8 @@ public abstract class StreamUtils {
         if (out != null) {
             try {
                 out.close();
-            } catch (Exception ignored) {
-                logger.debug (ignored, ignored);
+            } catch (Exception e) {
+                logger.debug (e, e);
             }
         }
     }

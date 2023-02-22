@@ -51,7 +51,7 @@ public class ZookeeperManager implements Closeable {
 
     private final int zookeeperSessionTimeout;
 
-    private ZooKeeper zooKeeper;
+    private final ZooKeeper zooKeeper;
 
     public ZookeeperManager(final String zookeepersUrl, final int zookeeperSessionTimeout, final ElectionProcess.ProcessNodeWatcher processNodeWatcher) throws IOException {
         this.zookeeperSessionTimeout = zookeeperSessionTimeout;
@@ -104,7 +104,7 @@ public class ZookeeperManager implements Closeable {
                     (ephemeral ? (sequential ? CreateMode.EPHEMERAL_SEQUENTIAL: CreateMode.EPHEMERAL) : CreateMode.PERSISTENT));
 
             if (watch) {
-                zooKeeper.exists(createdNodePath, watch);
+                zooKeeper.exists(createdNodePath, true);
             }
 
         } catch (KeeperException | InterruptedException e) {

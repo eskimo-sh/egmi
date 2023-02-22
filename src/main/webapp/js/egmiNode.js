@@ -49,21 +49,23 @@ egmi.Node = function() {
             if (statusTxt === "success") {
 
                 // clear password on user model everytime it's shown
-                $("#modal-node").on('show.bs.modal', function(){
+                const $modalNode = $("#modal-node");
+                $modalNode.on('show.bs.modal', function(){
                     $('#node').val("");
                     $('#button-create-node').prop('disabled', true);
                 });
 
                 // put focus on user email on user edition modal when shown
-                $("#modal-node").on('shown.bs.modal', function(){
+                $modalNode.on('shown.bs.modal', function(){
                     $("#node").focus();
                 });
 
-                $('#node').keypress(function() {
+                const $node = $('#node');
+                $node.keypress(function() {
                     $('#button-create-node').prop('disabled', false);
                 });
 
-                $('#node').change(function() {
+                $node.change(function() {
                     $('#button-create-node').prop('disabled', false);
                 });
 
@@ -77,19 +79,19 @@ egmi.Node = function() {
 
     };
 
-    let showNodeEdition = function() {
+    function showNodeEdition() {
 
         $('#node').val("");
 
         $("#modal-node").modal();
-    };
+    }
     this.showNodeEdition = showNodeEdition;
 
     let submitNode = function() {
 
         let newNode = $('#node').val();
 
-        if (newNode && !newNode.trim() == "") {
+        if (newNode && newNode.trim() !== "") {
 
             $('#button-create-node').prop('disabled', true);
             $('#node-overlay').css('display', 'block');
