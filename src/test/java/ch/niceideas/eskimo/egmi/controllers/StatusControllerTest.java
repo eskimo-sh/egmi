@@ -35,14 +35,66 @@
 
 package ch.niceideas.eskimo.egmi.controllers;
 
+import ch.niceideas.eskimo.egmi.management.ManagementException;
+import ch.niceideas.eskimo.egmi.management.ManagementService;
+import ch.niceideas.eskimo.egmi.model.SystemStatus;
+import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class StatusControllerTest {
 
+    private final StatusController statusController = new StatusController();
+
     @Test
-    public void testTodo() {
-        fail ("To be Implemented");
+    public void testGetStatus() {
+
+        statusController.setManagementService(new ManagementService() {
+            @Override
+            public SystemStatus getSystemStatus() {
+                return null;
+            }
+        });
+
+        assertEquals ("{\n" +
+                "    \"clear\": \"init\",\n" +
+                "    \"processingPending\": false,\n" +
+                "    \"status\": \"OK\"\n" +
+                "}", statusController.getStatus());
+
+        statusController.setManagementService(new ManagementService() {
+            @Override
+            public SystemStatus getSystemStatus() {
+                return new SystemStatus("{\"test\": \"test\"}");
+            }
+        });
+
+        assertEquals ("{\"test\": \"test\"}", statusController.getStatus());
+    }
+
+    @Test
+    public void testGetMaster() {
+
+        statusController.setZookeeperService(new ZookeeperService(null, "192.168.56.1",0, null, false, null) {
+            @Override
+            public boolean isMaster() {
+                return true;
+            }
+            @Override
+            public String getMasterHostname() {
+                return "192.168.56.21";
+            }
+        });
+
+        statusController.setRedirectURLPattern("test");
+
+        assertEquals("{\n" +
+                "    \"master_url\": \"test\",\n" +
+                "    \"status\": \"OK\",\n" +
+                "    \"master\": true\n" +
+                "}", statusController.getMaster());
     }
 }

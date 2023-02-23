@@ -39,6 +39,8 @@ import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.utils.ReturnStatusHelper;
 import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
+import lombok.AccessLevel;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,6 +62,16 @@ public class StatusController {
     @Autowired
     private ZookeeperService zookeeperService;
 
+    /* For tests */
+    void setManagementService (ManagementService managementService) {
+        this.managementService = managementService;
+    }
+    void setZookeeperService (ZookeeperService zookeeperService) {
+        this.zookeeperService = zookeeperService;
+    }
+
+
+    @Setter(AccessLevel.PACKAGE)
     @Value("${master.redirect.URLPattern:#{null}}")
     private String redirectURLPattern;
 

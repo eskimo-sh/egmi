@@ -35,14 +35,63 @@
 
 package ch.niceideas.eskimo.egmi.controllers;
 
+import ch.niceideas.eskimo.egmi.management.ActionService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class ActionControllerTest {
 
-    @Test
-    public void testTodo() {
-        fail ("To be Implemented");
+    private final ActionController actionController = new ActionController();
+
+    @BeforeEach
+    public void setUp() {
+        ActionService actionService = new ActionService() {
+            @Override
+            public void deleteVolume(String volume) {
+            }
+            @Override
+            public void stopVolume(String volume) {
+            }
+            @Override
+            public void startVolume(String volume) {
+            }
+            @Override
+            public void addVolume(String volume) {
+            }
+            @Override
+            public void addNode(String node) {
+            }
+        };
+        actionController.setActionService(actionService);
     }
+
+    @Test
+    public void testDeleteVolume() {
+        assertEquals ("{\"status\": \"OK\"}", actionController.deleteVolume("test"));
+    }
+
+    @Test
+    public void testStopVolume() {
+        assertEquals ("{\"status\": \"OK\"}", actionController.stopVolume("test"));
+    }
+
+    @Test
+    public void testStartVolume() {
+        assertEquals ("{\"status\": \"OK\"}", actionController.startVolume("test"));
+    }
+
+    @Test
+    public void testAddVolume() {
+        assertEquals ("{\"status\": \"OK\"}", actionController.addVolume("test"));
+    }
+
+    @Test
+    public void testAddNode() {
+        assertEquals ("{\"status\": \"OK\"}", actionController.addNode("192.168.56.1"));
+    }
+
+
 }

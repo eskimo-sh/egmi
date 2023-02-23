@@ -55,23 +55,28 @@ public class ActionController {
     @Autowired
     private ActionService actionService;
 
+    /* For tests */
+    void setActionService (ActionService actionService) {
+        this.actionService = actionService;
+    }
+
     @GetMapping("/remove-volume")
     @ResponseBody
-    public String deleteNode (@RequestParam(name="volume") String volume) {
+    public String deleteVolume(@RequestParam(name="volume") String volume) {
         if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
         return doAction (() -> actionService.deleteVolume (volume));
     }
 
     @GetMapping("/stop-volume")
     @ResponseBody
-    public String stopNode (@RequestParam(name="volume") String volume) {
+    public String stopVolume(@RequestParam(name="volume") String volume) {
         if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
         return doAction (() -> actionService.stopVolume (volume));
     }
 
     @GetMapping("/start-volume")
     @ResponseBody
-    public String startNode (@RequestParam(name="volume") String volume) {
+    public String startVolume(@RequestParam(name="volume") String volume) {
         if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
         return doAction (() -> actionService.startVolume (volume));
     }
