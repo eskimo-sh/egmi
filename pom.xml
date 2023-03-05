@@ -46,7 +46,7 @@ Software.
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.6</version>
+        <version>2.7.9</version>
     </parent>
 
     <repositories>
@@ -75,7 +75,7 @@ Software.
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220924</version>
+            <version>20230227</version>
         </dependency>
 
         <dependency>
@@ -127,7 +127,7 @@ Software.
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>1.18.26</version>
             <scope>provided</scope>
         </dependency>
 
@@ -147,7 +147,7 @@ Software.
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.47.1</version>
+            <version>2.70.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -223,7 +223,7 @@ Software.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.2.1</version>
                 <executions>
                     <execution>
                         <id>enforce-java</id>
@@ -256,7 +256,7 @@ Software.
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.0</version>
                 <executions>
 
                     <execution>
@@ -278,7 +278,7 @@ Software.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>3.0.0-M9</version>
                 <configuration>
                     <includes>
                         <include>**/*Test.class</include>
@@ -300,7 +300,7 @@ Software.
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.4.2</version>
+                <version>2.7.9</version>
                 <executions>
                     <execution>
                         <goals>
@@ -317,25 +317,8 @@ Software.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.5.0</version>
                 <executions>
-
-                    <!-- First: Utility jar
-                    <execution>
-                        <id>egmi-utility-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/assembly/packaged-utility-jar.xml</descriptor>
-                            </descriptors>
-                            <finalName>egmi-utility-${project.version}</finalName>
-                        </configuration>
-                    </execution>
-                    -->
-
                     <!-- Then: egmi Distribution package -->
                     <execution>
                         <id>egmi-distribution</id>
@@ -365,7 +348,7 @@ Software.
                     <!-- Set the JS coverage run flag -->
                     <plugin>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>setFlag</id>
@@ -385,7 +368,7 @@ Software.
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>computeLcov</id>
@@ -405,7 +388,7 @@ Software.
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.6</version>
+                        <version>0.8.8</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
