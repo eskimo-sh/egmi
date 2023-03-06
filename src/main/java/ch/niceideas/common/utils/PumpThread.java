@@ -2,7 +2,7 @@
  * This file is part of the eskimo project referenced at www.eskimo.sh. The licensing information below apply just as
  * well to this individual file than to the Eskimo Project as a whole.
  *
- *  Copyright 2019 - 2023 eskimo.sh / https://www.eskimo.sh - All rights reserved.
+ * Copyright 2019 - 2023 eskimo.sh / https://www.eskimo.sh - All rights reserved.
  * Author : eskimo.sh / https://www.eskimo.sh
  *
  * Eskimo is available under a dual licensing model : commercial and GNU AGPL.
@@ -32,39 +32,58 @@
  * Software.
  */
 
+
 package ch.niceideas.common.utils;
 
+import org.apache.log4j.Logger;
 
-import ch.niceideas.common.exceptions.CommonBusinessException;
-import ch.niceideas.common.exceptions.WrappedRTException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import java.util.function.Function;
+public class PumpThread implements Runnable, AutoCloseable {
 
-@FunctionalInterface
-public interface CheckedFunction<T, R, E extends CommonBusinessException>{
+    private static final Logger logger = Logger.getLogger(PumpThread.class);
 
-    R apply(T t) throws E;
+    private final InputStream in;
+    private final OutputStream out;
+    private final Thread thread;
 
-    static <T, R, E extends CommonBusinessException> Function<T,R> wrap(CheckedFunction<T, R, E> checkedFunction) {
-        return t -> {
-            try {
-                return checkedFunction.apply(t);
-            } catch (Exception e) {
-                throw new WrappedRTException(e.getMessage(), e);
-            }
-        };
+    /**
+     * Instantiates a new Pump thread.
+     *
+     * @param in  the in
+     * @param out the out
+     */
+    public PumpThread(InputStream in, OutputStream out) {
+        thread = new Thread(this, "pump thread");
+        this.in = in;
+        this.out = out;
+        thread.start();
     }
 
-    static <T, R, E extends CommonBusinessException> CheckedFunction<T, R, E> unwrap (Function <T, R> function, Class<E> exceptionClass) throws E {
-        return t -> {
-            try {
-                return function.apply(t);
-            } catch (WrappedRTException e) {
-                CheckedRunnable.unwrapException(exceptionClass, e);
-                return null; // cannot happen
+    @Override
+    public void run() {
+        byte[] buf = new byte[1024];
+        try {
+            while(true) {
+                int len = in.read(buf);
+                if(len<0) {
+                    in.close();
+                    return;
+                }
+                out.write(buf,0,len);
             }
-        };
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+            logger.debug(e, e);
+        }
     }
 
+    @Override
+    public void close() throws InterruptedException {
+        if (thread != null) {
+            thread.join();
+        }
+    }
 }
-

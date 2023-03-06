@@ -280,14 +280,17 @@ Software.
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M9</version>
                 <configuration>
+                    <!--
                     <includes>
                         <include>**/*Test.class</include>
                     </includes>
                     <excludes>
                         <exclude>**/Abstract*</exclude>
-                    </excludes> 
-                    <argLine>-Xmx1400m</argLine>                    
-                    <forkMode>once</forkMode>
+                    </excludes>
+                    -->
+                    <argLine>-Xmx1400m</argLine>
+                    <!-- Activate the use of TCP to transmit events to the plugin -->
+                    <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <environmentVariables>s
                         <LANG>C</LANG>
