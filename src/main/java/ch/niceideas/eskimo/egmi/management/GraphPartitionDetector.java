@@ -53,7 +53,7 @@ public class GraphPartitionDetector {
 
     private static final Logger logger = Logger.getLogger(GraphPartitionDetector.class);
 
-    public static List<Node> detectGraphPartitioning(ProblemManager problemManager, Set<Node> allNodes, List<JSONObject> nodeInfos, Map<Node, NodeStatus> nodesStatus) throws NodeStatusException  {
+    public static void detectGraphPartitioning(ProblemManager problemManager, Set<Node> allNodes, List<JSONObject> nodeInfos, Map<Node, NodeStatus> nodesStatus) throws NodeStatusException  {
 
         // 0. Build data structure
         Map<Node, GraphNode> nodes = buildNodeGraph(allNodes, nodesStatus);
@@ -83,48 +83,41 @@ public class GraphPartitionDetector {
                 break;
             }
         }
-        if (allGood) {
-            return Collections.emptyList();
-        }
 
-        // 3. If some node have different counts, flag the all nodes having a lesser count as disconnected
-        List<Node> partitionedNodes = new ArrayList<>();
+        if (!allGood) {
 
-        // find highest and smallest count
-        int smallest = Integer.MAX_VALUE, highest = Integer.MIN_VALUE;
-        for (Node host : allNodes) {
-            int counter = counters.get(host);
-            if (counter < smallest) {
-                smallest = counter;
-            }
-            if (counter > highest) {
-                highest = counter;
-            }
-        }
+            // 3. If some node have different counts, flag the all nodes having a lesser count as disconnected
 
-        // if highest == smallest, then flag all nodes as PARTITIONED
-        if (highest == smallest) {
+            // find highest and smallest count
+            int smallest = Integer.MAX_VALUE, highest = Integer.MIN_VALUE;
             for (Node host : allNodes) {
-                if (flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host)) {
-                    partitionedNodes.add(host);
+                int counter = counters.get(host);
+                if (counter < smallest) {
+                    smallest = counter;
+                }
+                if (counter > highest) {
+                    highest = counter;
                 }
             }
 
-        }
+            // if highest == smallest, then flag all nodes as PARTITIONED
+            if (highest == smallest) {
+                for (Node host : allNodes) {
+                    flagNodePartitioned(problemManager, nodeInfos, host);
+                }
 
-        // otherwise flag all those different than smallest as PARTITIONED
-        else {
-            for (Node host : allNodes) {
-                int counter = counters.get(host);
-                if (counter != highest) {
-                    if (flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host)) {
-                        partitionedNodes.add(host);
+            }
+
+            // otherwise flag all those different than smallest as PARTITIONED
+            else {
+                for (Node host : allNodes) {
+                    int counter = counters.get(host);
+                    if (counter != highest) {
+                        flagNodePartitioned(problemManager, nodeInfos, host);
                     }
                 }
             }
         }
-
-        return partitionedNodes;
     }
 
     public static Map<Node, Integer> buildPeerTimesVolumeCounters(Set<Node> allNodes, Map<Node, GraphNode> nodes, Map<Node, NodeStatus> nodesStatus) {
@@ -204,18 +197,17 @@ public class GraphPartitionDetector {
         return nodes;
     }
 
-    private static boolean flagNodePartitioned(ProblemManager problemManager, List<JSONObject> nodeInfos, Map<Node, NodeStatus> nodesStatus, Node host) {
+    private static void flagNodePartitioned(ProblemManager problemManager, List<JSONObject> nodeInfos, Node host) {
         for (JSONObject nodeInfo : nodeInfos) {
             if (host.matches(nodeInfo.getString("host"))) {
                 String prevStatus = nodeInfo.getString("status");
                 if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
                     nodeInfo.put("status", "PARTITIONED");
                     problemManager.addProblem(new NodePartitioned(new Date(), host));
-                    return true;
+                    break;
                 }
             }
         }
-        return false;
     }
 
     @RequiredArgsConstructor

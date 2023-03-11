@@ -40,15 +40,8 @@ public class ActionException extends CommonBusinessException {
 
     static final long serialVersionUID = -1287512233112229248L;
 
-    public ActionException() {
-    }
-
     public ActionException(String message) {
         super(message);
-    }
-
-    public ActionException(String message, Throwable cause) {
-        super(message, cause);
     }
 
     public ActionException(Throwable cause) {

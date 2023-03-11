@@ -40,17 +40,6 @@ public class GlusterRemoteException extends CommonBusinessException {
 
     static final long serialVersionUID = -3387512211112229248L;
 
-    public GlusterRemoteException() {
-    }
-
-    public GlusterRemoteException(String message) {
-        super(message);
-    }
-
-    public GlusterRemoteException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public GlusterRemoteException(Throwable cause) {
         super(cause);
     }

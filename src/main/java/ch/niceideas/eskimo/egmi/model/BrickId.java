@@ -61,6 +61,7 @@ public class BrickId implements Comparable<BrickId>{
         return new BrickId(node, path);
     }
 
+    @Override
     public String toString() {
         return node + ":" + path;
     }

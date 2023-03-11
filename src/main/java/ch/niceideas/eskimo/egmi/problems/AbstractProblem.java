@@ -28,7 +28,7 @@ public abstract class AbstractProblem implements Problem{
 
     private static final Logger logger = Logger.getLogger(AbstractProblem.class);
 
-    public static boolean checkHostInPeerPool(CommandContext context, Node host, Node peer) throws HttpClientException, IOException, ResolutionStopException {
+    public static void checkHostInPeerPool(CommandContext context, Node host, Node peer) throws HttpClientException, IOException, ResolutionStopException {
         int attempt;
         for (attempt = 0; attempt < 5; attempt++) {
             context.info("        + checking pool on  " + peer + " - attempt " + attempt);
@@ -40,7 +40,7 @@ public abstract class AbstractProblem implements Problem{
             }
             if (poolListResult.contains (host)) {
                 context.info("        + found  " + host + " in pool on " + peer);
-                return true;
+                return ;
             }
             try {
                 Thread.sleep(500);
@@ -52,7 +52,6 @@ public abstract class AbstractProblem implements Problem{
             context.error ("      ! Failed to confirm peer addition in 5 attempts.");
             throw new ResolutionStopException("! Failed to confirm peer addition in 5 attempts.");
         }
-        return false;
     }
 
     protected static Set<Node> getActiveNodes(Map<Node, NodeStatus> nodesStatus) {
@@ -115,6 +114,7 @@ public abstract class AbstractProblem implements Problem{
         }
     }
 
+    @Override
     public int compareTo(Problem o) {
         if (o == null) {
             throw new NullPointerException();

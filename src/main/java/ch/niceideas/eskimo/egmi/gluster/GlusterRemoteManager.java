@@ -151,9 +151,12 @@ public class GlusterRemoteManager {
             GlusterPoolList poolListCmd = new GlusterPoolList(httpClient);
             GlusterPoolListResult poolResult = poolListCmd.execute(node, context);
             for (int i = 0; i < poolResult.size(); i++) {
-                status.setValueForPath("peers." + i + ".uid", poolResult.getUid(i));
-                status.setValueForPath("peers." + i + ".hostname", resolve (poolResult.getHostname(i), node));
-                status.setValueForPath("peers." + i + ".state", poolResult.getState(i));
+
+                String uid = poolResult.getUid(i);
+                String hostname = resolve (poolResult.getHostname(i), node);
+                String state = poolResult.getState(i);
+
+                status.setPeerInformation (i, uid, hostname, state);
             }
 
             // 2. get volume information
@@ -168,7 +171,7 @@ public class GlusterRemoteManager {
             int counter = 0;
             for (Volume volume : volumeInfo.getAllVolumes()) {
 
-                status.setValueForPath("volumes." + counter + ".name", volume.getName());
+                status.setVolumeName (counter, volume.getName());
 
                 Set<String> volumeOptions = volumeInfo.getVolumeReconfiguredOptions(volume);
                 if (volumeOptions != null && !volumeOptions.isEmpty()) {
@@ -181,7 +184,7 @@ public class GlusterRemoteManager {
                             String optionKey = parsedOption[0].trim().replace(".", "__");
                             String optionValue = parsedOption[1].trim();
 
-                            status.setValueForPath("volumes." + counter + ".options." + optionKey, optionValue);
+                            status.addVolumeOption (counter, optionKey, optionValue);
                         }
                     }
                 }
@@ -196,10 +199,7 @@ public class GlusterRemoteManager {
 
                         BrickId brickId = bricks.get(brickNumber);
 
-                        String brickPrefix = "volumes." + counter + ".bricks." + (brickNumber - 1);
-                        status.setValueForPath(brickPrefix + ".number", brickNumber);
-                        status.setValueForPath(brickPrefix + ".node", brickId.getNode().getAddress());
-                        status.setValueForPath(brickPrefix + ".path", brickId.getPath());
+                        status.setBrickInformaiton (counter, brickNumber, brickId);
 
                         volumeStatus.feedVolumeStatusInStatus (status, counter, (brickNumber - 1), brickId);
                     }

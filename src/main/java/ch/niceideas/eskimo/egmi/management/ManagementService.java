@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PreDestroy;
 import java.io.File;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -244,7 +243,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             SystemStatus newStatus = getSystemStatus(InetAddress.getLocalHost().toString(), nodesStatus, allNodes, allVolumes, nodeInfos);
 
             // 3. Detection connection graph partitioning
-            List<Node> partitionedNodes = GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
+            GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
 
             // 4. Detect peer connection inconsistencies
             detectConnectionInconsistencies (problemManager, allNodes, nodesStatus, nodeInfos);
@@ -291,7 +290,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
-    SystemStatus getSystemStatus(String hostName, Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, Set<Volume> allVolumes, List<JSONObject> nodeInfos) throws UnknownHostException, NodeStatusException {
+    SystemStatus getSystemStatus(String hostName, Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, Set<Volume> allVolumes, List<JSONObject> nodeInfos) throws NodeStatusException {
         SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + hostName + "\"}");
 
         // 1. Build Node status
@@ -481,7 +480,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                             continue;
                         }
 
-                        if (nodeBrickInfo != null && StringUtils.isBlank(volStatus) || !volStatus.contains("TEMP")) {
+                        if (nodeBrickInfo != null && (StringUtils.isBlank(volStatus) || !volStatus.contains("TEMP"))) {
 
                             String effStatus = nodeBrickInfo.getStatus();
                             if (effStatus != null && effStatus.equals("OFFLINE")) {

@@ -225,7 +225,7 @@ egmi.Main = function() {
 
                     brickRow += "</tr>";
 
-                    $("#status-volume-table-body").append($(brickRow));
+                    $statusVolumeTableBody.append($(brickRow));
                 }
 
                 $("#start_" + volume.volume).click(function() {

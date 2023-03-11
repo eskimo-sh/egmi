@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.model;
 
 import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.common.utils.StringUtils;
+import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -331,5 +332,26 @@ public class NodeStatus extends JsonWrapper {
                 );
 
         return retMap;
+    }
+
+    public void setPeerInformation(int peerNumber, String uid, String hostname, String state) {
+        setValueForPath("peers." + peerNumber + ".uid", uid);
+        setValueForPath("peers." + peerNumber + ".hostname", hostname);
+        setValueForPath("peers." + peerNumber + ".state", state);
+    }
+
+    public void setVolumeName(int volumeNumber, String name) {
+        setValueForPath("volumes." + volumeNumber + ".name", name);
+    }
+
+    public void addVolumeOption(int volumeNumber, String optionKey, String optionValue) {
+        setValueForPath("volumes." + volumeNumber + ".options." + optionKey, optionValue);
+    }
+
+    public void setBrickInformaiton(int volumeNumber, Integer brickNumber, BrickId brickId) {
+        String brickPrefix = "volumes." + volumeNumber + ".bricks." + (brickNumber - 1);
+        setValueForPath(brickPrefix + ".number", brickNumber);
+        setValueForPath(brickPrefix + ".node", brickId.getNode().getAddress());
+        setValueForPath(brickPrefix + ".path", brickId.getPath());
     }
 }
