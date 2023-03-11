@@ -2,7 +2,7 @@
  * This file is part of the eskimo project referenced at www.eskimo.sh. The licensing information below apply just as
  * well to this individual file than to the Eskimo Project as a whole.
  *
- *  Copyright 2019 - 2023 eskimo.sh / https://www.eskimo.sh - All rights reserved.
+ * Copyright 2019 - 2023 eskimo.sh / https://www.eskimo.sh - All rights reserved.
  * Author : eskimo.sh / https://www.eskimo.sh
  *
  * Eskimo is available under a dual licensing model : commercial and GNU AGPL.
@@ -32,36 +32,28 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.ui;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+package ch.niceideas.eskimo.egmi.ui.infra;
 
-public class EgmiActionTest extends AbstractWebTest {
+public interface TestResourcesServer {
 
-    @BeforeEach
-    public void setUp() throws Exception {
+    int LOCAL_TEST_SERVER_PORT = 9002;
 
-        loadScript("vendor/bootstrap-5.2.0.js");;
-        loadScript("utils.js");
-
-        loadScript("egmiAction.js");
-
-        js("action = new egmi.Action();");
-
-        js("action.initialize();");
-
-        waitForElementIdInDOM("button-action-confirm");
+    interface JsRunner {
+        Object js (String jsCode);
     }
 
-    @Test
-    public void testNominal() {
-
-        js("action.showActionConfirm(\"test message\", function() {window.actionCalled = true;})");
-
-        getElementById("button-action-confirm").click();
-
-        assertJavascriptEquals("true", "window.actionCalled");
+    static TestResourcesServer getServer(boolean coverage) {
+        if (coverage) {
+            return new CoverageServer();
+        }  else {
+            return new UsualServer();
+        }
     }
+
+    void startServer(String className) throws Exception;
+
+    void stopServer() throws Exception;
+
+    void postTestMethodHook(JsRunner runner) throws Exception;
 }
-

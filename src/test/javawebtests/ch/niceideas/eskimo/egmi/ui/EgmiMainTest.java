@@ -75,9 +75,9 @@ public class EgmiMainTest extends AbstractWebTest {
         String volumesInfo = StreamUtils.getAsString(ResourceUtils.getResourceAsStream("EgmiMainTest/volumesInfo.json"));
         js("main.renderVolumeStatus(" + volumesInfo + ")");
 
-        assertJavascriptEquals("9.0", "$('#status-volume-table * tr').length");
+        assertJavascriptEquals("9", "$('#status-volume-table * tr').length");
 
-        assertJavascriptEquals("63.0", "$('#status-volume-table-body tr td').length");
+        assertJavascriptEquals("63", "$('#status-volume-table-body tr td').length");
 
         assertJavascriptEquals("OK", "$('#status-volume-table-body tr td:eq(2)').html()");
         assertJavascriptEquals("3 / 3", "$('#status-volume-table-body tr td:eq(5)').html()");
@@ -90,9 +90,9 @@ public class EgmiMainTest extends AbstractWebTest {
         String nodesInfo = StreamUtils.getAsString(ResourceUtils.getResourceAsStream("EgmiMainTest/nodesInfo.json"));
         js("main.renderNodeStatus(" + nodesInfo + ")");
 
-        assertJavascriptEquals("5.0", "$('#status-node-table * tr').length");
+        assertJavascriptEquals("5", "$('#status-node-table * tr').length");
 
-        assertJavascriptEquals("16.0", "$('#status-node-table-body tr td').length");
+        assertJavascriptEquals("16", "$('#status-node-table-body tr td').length");
 
         assertJavascriptEquals("test1, test2", "$('#status-node-table-body tr td:eq(2)').html()");
         assertJavascriptEquals("OK", "$('#status-node-table-body tr td:eq(5)').html()");
@@ -109,7 +109,7 @@ public class EgmiMainTest extends AbstractWebTest {
                 "  object.success ( {\"status\" : \"OK\"} )" +
                 "}");
 
-        page.getElementById("stop_test2").click();
+        getElementById("stop_test2").click();
 
         assertJavascriptEquals("stop-volume?volume=test2", "window.url");
     }

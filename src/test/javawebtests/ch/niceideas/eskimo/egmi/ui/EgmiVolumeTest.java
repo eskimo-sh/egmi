@@ -67,7 +67,7 @@ public class EgmiVolumeTest extends AbstractWebTest {
                 "  object.success ( {\"status\" : \"OK\"} )" +
                 "}");
 
-        page.getElementById("button-create-volume").click();
+        getElementById("button-create-volume").click();
 
         assertJavascriptEquals("volume?volume=test-volume", "window.url");
     }

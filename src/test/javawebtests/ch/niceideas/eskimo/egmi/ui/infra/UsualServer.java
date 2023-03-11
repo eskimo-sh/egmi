@@ -2,7 +2,7 @@
  * This file is part of the eskimo project referenced at www.eskimo.sh. The licensing information below apply just as
  * well to this individual file than to the Eskimo Project as a whole.
  *
- *  Copyright 2019 - 2023 eskimo.sh / https://www.eskimo.sh - All rights reserved.
+ * Copyright 2019 - 2023 eskimo.sh / https://www.eskimo.sh - All rights reserved.
  * Author : eskimo.sh / https://www.eskimo.sh
  *
  * Eskimo is available under a dual licensing model : commercial and GNU AGPL.
@@ -32,36 +32,51 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.ui;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+package ch.niceideas.eskimo.egmi.ui.infra;
 
-public class EgmiActionTest extends AbstractWebTest {
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 
-    @BeforeEach
-    public void setUp() throws Exception {
+public class UsualServer implements TestResourcesServer {
 
-        loadScript("vendor/bootstrap-5.2.0.js");;
-        loadScript("utils.js");
+    private Server jetty = null;
 
-        loadScript("egmiAction.js");
+    @Override
+    public void startServer(String className) throws Exception {
 
-        js("action = new egmi.Action();");
+        jetty = new Server(TestResourcesServer.LOCAL_TEST_SERVER_PORT);
 
-        js("action.initialize();");
+        ResourceHandler resource_handler = new ResourceHandler();
+        resource_handler.setDirectoriesListed(true);
+        resource_handler.setWelcomeFiles(new String[] {
+                "index.html"
+        });
 
-        waitForElementIdInDOM("button-action-confirm");
+        resource_handler.setResourceBase(".");
+
+        HandlerList handlers = new HandlerList();
+        handlers.setHandlers(new Handler[] {
+                resource_handler,
+                new DefaultHandler()
+        });
+        jetty.setHandler(handlers);
+
+        jetty.start();
     }
 
-    @Test
-    public void testNominal() {
+    @Override
+    public void stopServer() throws Exception {
+        if (jetty != null) {
+            jetty.stop();
+        }
+    }
 
-        js("action.showActionConfirm(\"test message\", function() {window.actionCalled = true;})");
-
-        getElementById("button-action-confirm").click();
-
-        assertJavascriptEquals("true", "window.actionCalled");
+    @Override
+    public void postTestMethodHook(JsRunner runner) {
+        // nothing to do
     }
 }
-

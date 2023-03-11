@@ -34,91 +34,154 @@
 
 package ch.niceideas.eskimo.egmi.ui;
 
-import ch.niceideas.common.exceptions.CommonRTException;
-import ch.niceideas.common.utils.FileUtils;
-import ch.niceideas.common.utils.ResourceUtils;
-import ch.niceideas.eskimo.egmi.testinfrastructure.GenerateLCOV;
-import com.gargoylesoftware.htmlunit.AjaxController;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import jscover.Main;
-import jscover.report.FileData;
-import jscover.report.JSONDataMerger;
+import ch.niceideas.common.exceptions.CommonBusinessException;
+import ch.niceideas.eskimo.egmi.ui.infra.TestResourcesServer;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import io.github.bonigarcia.wdm.config.WebDriverManagerException;
 import org.apache.log4j.Logger;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.v106.emulation.Emulation;
+import org.openqa.selenium.logging.LogEntries;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.util.Optional;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractWebTest {
 
     private static final Logger logger = Logger.getLogger(AbstractWebTest.class);
 
-    private static final int INCREMENTAL_WAIT_MS = 500;
-    private static final int MAX_WAIT_RETRIES = 50;
-
-    private static Main main = null;
-
     private static final File jsCoverageFlagFile = new File("target/jsCoverageFlag");
 
-    private static final String jsCoverReportDir = "target/jscov-report";
-    private static final String[] jsCoverArgs = new String[]{
-            "-ws",
-            "--document-root=src/main/webapp",
-            "--port=9001",
-            //"--no-branch",
-            //"--no-function",
-            //"--no-instrument=example/lib",
-            "--log=INFO",
-            "--report-dir=" + jsCoverReportDir
-    };
-
     private static String className = null;
-    private static final List<String> coverages = new ArrayList<>();
 
-    private static final JSONDataMerger jsonDataMerger = new JSONDataMerger();
+    private static TestResourcesServer server;
 
-    protected WebClient webClient;
-    protected HtmlPage page;
-
-    Object js (String jsCode) {
-        return page.executeJavaScript (jsCode).getJavaScriptResult();
-    }
+    protected static WebDriver driver;
 
     @BeforeAll
-    public static void setUpOnce() {
-        if (isCoverageRun()) {
-            main = new Main();
-            Thread server = new Thread(() -> main.runMain(jsCoverArgs));
-            server.start();
+    public static void setUpOnce() throws Exception {
+        server = TestResourcesServer.getServer(isCoverageRun());
+        server.startServer(className);
+
+        driver = buildSeleniumDriver();
+
+        driver.get("http://localhost:" + TestResourcesServer.LOCAL_TEST_SERVER_PORT + "/src/test/resources/GenericTestPage.html");
+    }
+
+    public static WebDriver buildSeleniumDriver() throws InterruptedException, CommonBusinessException {
+        ChromeOptions co = new ChromeOptions();
+
+        co.setCapability(CapabilityType.UNHANDLED_PROMPT_BEHAVIOUR, "ignore");
+
+        co.addArguments("--no-sandbox");
+        co.addArguments("--window-position=0,0");
+        co.addArguments("--window-size=1900,1024");
+        co.addArguments("--headless");
+        co.addArguments("--disable-gpu");
+
+        File resolutionCachePath = new File("/tmp/eskimo-selenium-resolution-cache");
+        if (!resolutionCachePath.exists()) {
+            if (!resolutionCachePath.mkdirs()) {
+                throw new CommonBusinessException("Couldn't create selenium resolution cache path " + resolutionCachePath);
+            }
+        }
+
+        File driverCachePath = new File("/tmp/eskimo-selenium-driver-cache");
+        if (!driverCachePath.exists()) {
+            if (!driverCachePath.mkdirs()) {
+                throw new CommonBusinessException("Couldn't create selenium driver cache path " + driverCachePath);
+            }
+        }
+
+        WebDriver driver;
+        for (int i = 0; ; i++) { // 10 attempts
+            try {
+                driver = WebDriverManager.chromedriver()
+                        .capabilities(co)
+                        .resolutionCachePath(resolutionCachePath.getAbsolutePath())
+                        .cachePath(driverCachePath.getAbsolutePath())
+                        .create();
+                break;
+            } catch (WebDriverManagerException e) {
+                if (i < 10) {
+                    logger.error (e, e);
+                    //noinspection BusyWait
+                    Thread.sleep (200);
+                } else {
+                    throw new CommonBusinessException(e);
+                }
+            }
+        }
+
+        DevTools devTools = ((ChromeDriver) driver).getDevTools();
+        devTools.createSession();
+        devTools.send(Emulation.setTimezoneOverride("Europe/Zurich"));
+
+        return driver;
+    }
+
+    protected static void logConsoleLogs() {
+        LogEntries logEntries = driver.manage().logs().get(LogType.BROWSER);
+        for (LogEntry entry : logEntries) {
+            switch (entry.getLevel().intValue()) {
+                case 1000: //Level.SEVERE:
+                    logger.error(entry.getMessage());
+                    break;
+                case 900: //Level.WARNING:
+                    logger.warn(entry.getMessage());
+                    break;
+                case 800: // Level.INFO:
+                    logger.info(entry.getMessage());
+                    break;
+                case 500: //Level.FINE:
+                case 400: //Level.FINER:
+                    logger.debug(entry.getMessage());
+                    break;
+                default:
+                    logger.info(entry.getLevel() + " " + entry.getMessage());
+            }
+        }
+    }
+
+    private static boolean hasQuit(WebDriver driver) {
+        try {
+            if (driver == null) {
+                return true;
+            }
+            driver.getTitle();
+            return false;
+        } catch (WebDriverException e) {
+            return true;
         }
     }
 
     @AfterAll
     public static void tearDownOnce() throws Exception {
-        if (isCoverageRun()) {
-            main.stop();
+        server.stopServer();
 
-            File targetFile = new File(jsCoverReportDir + "/" + className, "jscoverage.json");
-            if (!targetFile.getParentFile().exists()) {
-                if (!targetFile.getParentFile().mkdirs()) {
-                    throw new CommonRTException("Couldn't create " + targetFile.getParentFile());
-                }
+        if (driver != null) {
+            driver.quit();
             }
-            FileUtils.write(targetFile, mergeJSON());
-        }
+
+        // give some time to selenium driver to really shutdown before running next test
+        Awaitility.waitAtMost(Duration.ofSeconds(2)).until(() -> hasQuit(driver));
+        Thread.sleep(100); // give it even a little more time
     }
 
     @BeforeEach
@@ -127,58 +190,34 @@ public abstract class AbstractWebTest {
         className = clazz.getCanonicalName(); //you want to get only class name
     }
 
-    @AfterEach
-    public void tearDown() {
-        if (isCoverageRun()) {
-            js("window.jscoverFinished = false;");
-            js("jscoverage_report('', function(){window.jscoverFinished=true;});");
-
-            await().atMost(MAX_WAIT_RETRIES * 500 * (isCoverageRun() ? 2 : 1)  , TimeUnit.SECONDS).until(
-                    () -> (Boolean) js("window.jscoverFinished"));
-
-            String json = (String) (js("jscoverage_serializeCoverageToJSON();"));
-            coverages.add(json);
-        }
-    }
-
-    private static String mergeJSON() {
-        SortedMap<String, FileData> total = new TreeMap<>();
-        for (String json : coverages) {
-            total = jsonDataMerger.mergeJSONCoverageMaps(total, jsonDataMerger.jsonToMap(json));
-        }
-        return GenerateLCOV.toJSON(total);
-    }
-
-    protected static boolean isCoverageRun() {
-        //return true;
-        return jsCoverageFlagFile.exists();
-    }
-
-    protected final void loadScript (String script) {
-        if (isCoverageRun()) {
-            js("loadScript('http://localhost:9001/js/"+script+"')");
-        } else {
-            js("loadScript('../../src/main/webapp/js/"+script+"')");
-        }
-    }
-
     @BeforeEach
     public void init() throws Exception {
-        init("classpath:GenericTestPage.html");
+
+        Class<?> clazz = this.getClass(); //if you want to get Class object
+        className = clazz.getCanonicalName(); //you want to get only class name
+
+        driver.navigate().refresh();
+
+        // wait for page to load
+        Wait<WebDriver> wait = new WebDriverWait(driver, Duration.ofSeconds(100));
+        wait.until(innerDriver -> String
+                .valueOf(((JavascriptExecutor) innerDriver).executeScript("return document.readyState"))
+                .equals("complete"));
+
+        assertEquals("Generic Test Page", driver.getTitle());
+
+        // create common mocks
+        initDriver();
     }
 
-    protected void init(String target, String ... arguments) throws Exception {
-        webClient = new WebClient();
+    @AfterEach
+    public void tearDown() throws Exception {
+        logConsoleLogs();
+        server.postTestMethodHook(this::js);
+    }
 
-        webClient.setAlertHandler((page, s) -> logger.info(s));
 
-        webClient.setAjaxController(new AjaxController() {
-            // TODO
-        });
-
-        URL testPage = new URL (ResourceUtils.getURL(target).toExternalForm() + "?" + String.join("&", arguments));
-        page = webClient.getPage(testPage);
-        assertEquals("Generic Test Page", page.getTitleText());
+    private void initDriver() {
 
         // 3 attempts
         for (int i = 0; i < 3 ; i++) {
@@ -187,7 +226,7 @@ public abstract class AbstractWebTest {
 
             waitForDefinition("window.$");
 
-            if (!js("typeof window.$").toString().equals ("undefined")) {
+            if (!js("return typeof window.$").toString().equals ("undefined")) {
                 break;
             }
         }
@@ -196,42 +235,116 @@ public abstract class AbstractWebTest {
 
         // override jquery load
         js("$.fn._internalLoad = $.fn.load;");
-        js("$.fn.load = function (resource, callback) { return this._internalLoad ('../../src/main/webapp/'+resource, callback); };");
-
+        js("$.fn.load = function (resource, callback) { return this._internalLoad ('../../../src/main/webapp/'+resource, callback); };");
+        //js("$.fn.load = function (resource, callback) { return this._internalLoad ('file://" + System.getProperty("user.dir") + "/src/main/webapp/'+resource, callback); };");
     }
 
-    @AfterEach
-    public void close() {
-        webClient.close();
+    Object js (String jsCode) {
+        logConsoleLogs();
+        closeAlertIfAny();
+        JavascriptExecutor js = (JavascriptExecutor)driver;
+        Object result = js.executeScript (jsCode);
+
+        closeAlertIfAny();
+
+        return result;
+    }
+
+    void closeAlertIfAny() {
+        try {
+
+            //Switch to alert
+            Alert alert = driver.switchTo().alert();
+
+            //Capture text on alert window
+            String alertMessage = alert.getText();
+            logger.info ("DRIVER ALERT : " + alertMessage);
+
+            //Close alert window
+            alert.accept();
+
+        } catch (NoAlertPresentException e) {
+            // ignore
+        } catch (UnhandledAlertException e) {
+            logger.error (e.getMessage());
+        }
+    }
+
+    WebElement getElementBy (By by) {
+        logConsoleLogs();
+        try {
+            return driver.findElement(by);
+        } catch (org.openqa.selenium.NoSuchElementException e) {
+            logger.debug (e.getMessage());
+            return null;
+        }
+    }
+
+    WebElement getElementById (String elementId) {
+        return getElementBy (By.id(elementId));
+    }
+
+    protected static boolean isCoverageRun() {
+        //return true;
+        return jsCoverageFlagFile.exists();
+    }
+
+    protected final void loadScript (String script) {
+        js("loadScript('http://localhost:" + TestResourcesServer.LOCAL_TEST_SERVER_PORT + "/src/main/webapp/js/"+script+"')");
+        try {
+            waitForElementInDOM(By.cssSelector("script[src=\"http://localhost:" + TestResourcesServer.LOCAL_TEST_SERVER_PORT + "/src/main/webapp/js/" + script + "\"]"));
+            Thread.sleep(20); // give it some more time to actually load script elements
+        } catch (InterruptedException e) {
+            logger.debug(e, e);
+        }
+    }
+
+    protected void assertAttrContains(String selector, String attribute, String value) {
+        logConsoleLogs();
+        String cssValue = js("return $('"+selector+"').attr('"+attribute+"')").toString();
+        assertTrue (cssValue.contains(value));
     }
 
     protected void assertAttrValue(String selector, String attribute, String value) {
-        assertEquals (value, js("$('"+selector+"').attr('"+attribute+"')"));
+        logConsoleLogs();
+        assertEquals (value, js("return $('"+selector+"').attr('"+attribute+"')"));
     }
 
     protected void assertCssValue(String selector, String attribute, String value) {
-        assertEquals (value, js("$('"+selector+"').css('"+attribute+"')"));
+        logConsoleLogs();
+        assertEquals (value, js("return $('"+selector+"').css('"+attribute+"')"));
     }
 
     protected void assertJavascriptEquals(String value, String javascript) {
-        assertEquals (value, js(javascript).toString());
+        logConsoleLogs();
+        Object jsResult = Optional.ofNullable(js("return " + javascript))
+                .orElseThrow(() -> new NullPointerException("javascript execution returned null value."));
+
+        assertEquals (value, jsResult.toString());
     }
 
     protected void assertJavascriptNull(String javascript) {
-        assertNull (js(javascript));
+        logConsoleLogs();
+        assertNull (js("return " + javascript));
     }
 
     protected void assertTagName(String elementId, String tagName) {
-        assertEquals (tagName, page.getElementById(elementId).getTagName());
+        logConsoleLogs();
+        assertEquals (tagName, getElementById(elementId).getTagName());
+    }
+
+    protected void waitForElementInDOM(By by) {
+        Awaitility.waitAtMost(Duration.ofSeconds(10)).until(() -> getElementBy(by) != null);
+        logConsoleLogs();
     }
 
     protected void waitForElementIdInDOM(String elementId) {
-        await().atMost(MAX_WAIT_RETRIES * INCREMENTAL_WAIT_MS * (isCoverageRun() ? 2 : 1) , TimeUnit.SECONDS).until(
-                () -> page.getElementById(elementId) != null);
+        Awaitility.waitAtMost(Duration.ofSeconds(10)).until(() -> getElementById(elementId) != null);
+        logConsoleLogs();
     }
 
     protected void waitForDefinition(String varName) {
-        await().atMost(INCREMENTAL_WAIT_MS * MAX_WAIT_RETRIES * (isCoverageRun() ? 2 : 1) , TimeUnit.SECONDS).until(
-                () -> !js("typeof " + varName).toString().equals ("undefined"));
+        Awaitility.waitAtMost(Duration.ofSeconds(10)).until(() -> !js("return typeof " + varName).toString().equals ("undefined"));
+        logConsoleLogs();
     }
 }

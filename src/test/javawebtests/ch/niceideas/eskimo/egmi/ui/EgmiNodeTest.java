@@ -67,7 +67,7 @@ public class EgmiNodeTest extends AbstractWebTest {
                 "  object.success ( {\"status\" : \"OK\"} )" +
                 "}");
 
-        page.getElementById("button-create-node").click();
+        getElementById("button-create-node").click();
 
         assertJavascriptEquals("node?node=192.168.10.75", "window.url");
     }
