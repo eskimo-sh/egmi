@@ -389,9 +389,7 @@ public class ManagementServiceTest {
 
         Set<Volume> allVolumes = ms.getRuntimeVolumes(nodesStatus);
 
-        List<JSONObject> nodesInfo = ms.buildNodeInfo(nodesStatus, allNodes);
-
-        SystemStatus ss = ms.getSystemStatus("testhost", nodesStatus, allNodes, allVolumes, nodesInfo);
+        SystemStatus ss = ms.getSystemStatus("testhost", nodesStatus, allNodes, allVolumes);
 
         //System.err.println (ss.getFormattedValue());
 

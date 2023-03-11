@@ -61,12 +61,10 @@ public class NodeInconsistentTest extends AbstractProblemTest {
     @Test
     public void testSolve() throws Exception {
 
-        try {
-            problem.solve(grm, new CommandContext(mockClient, 1234, ms));
-            fail ("NodeResolutionStopException expected");
-        } catch (ResolutionStopException e) {
-            assertEquals("! Failed to confirm peer addition in 5 attempts.", e.getMessage());
-        }
+        ResolutionStopException exp = assertThrows(ResolutionStopException.class,
+                () -> problem.solve(grm, new CommandContext(mockClient, 1234, ms)));
+
+        assertEquals("! Failed to confirm peer addition in 5 attempts.", exp.getMessage());
 
         assertEquals("" +
                 "192.168.10.71:1234/command?command=volume&subcommand=remove-brick&options=logstash_data%20replica%202%20192.168.10.72:/var/lib/gluster/volume_bricks/logstash_data%20force%20--mode=script\n" +

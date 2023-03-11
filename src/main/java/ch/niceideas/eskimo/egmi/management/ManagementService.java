@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import java.io.File;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -238,15 +239,13 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             Set<Volume> allVolumes = getRuntimeVolumes (nodesStatus);
 
             // -- problem detection phase
-            List<JSONObject> nodeInfos = buildNodeInfo(nodesStatus, allNodes);
-
-            SystemStatus newStatus = getSystemStatus(InetAddress.getLocalHost().toString(), nodesStatus, allNodes, allVolumes, nodeInfos);
+            SystemStatus newStatus = getSystemStatus(InetAddress.getLocalHost().toString(), nodesStatus, allNodes, allVolumes);
 
             // 3. Detection connection graph partitioning
-            GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
+            GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, newStatus, nodesStatus);
 
             // 4. Detect peer connection inconsistencies
-            detectConnectionInconsistencies (problemManager, allNodes, nodesStatus, nodeInfos);
+            detectConnectionInconsistencies (problemManager, allNodes, nodesStatus, newStatus);
 
             // -- END OF problem detection phase
 
@@ -290,8 +289,11 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
-    SystemStatus getSystemStatus(String hostName, Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, Set<Volume> allVolumes, List<JSONObject> nodeInfos) throws NodeStatusException {
+    SystemStatus getSystemStatus(String hostName, Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, Set<Volume> allVolumes) throws NodeStatusException {
+
         SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + hostName + "\"}");
+
+        List<JSONObject> nodeInfos = buildNodeInfo(nodesStatus, allNodes);
 
         // 1. Build Node status
         newStatus.getJSONObject().put("nodes", new JSONArray(nodeInfos));
@@ -301,7 +303,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return newStatus;
     }
 
-    private void detectConnectionInconsistencies(ProblemManager problemManager, Set<Node> allNodes, Map<Node, NodeStatus> nodesStatus, List<JSONObject> nodeInfos) {
+    private void detectConnectionInconsistencies(ProblemManager problemManager, Set<Node> allNodes, Map<Node, NodeStatus> nodesStatus, SystemStatus newStatus) {
 
         try {
             // 1. Build all nodes neighbours
@@ -323,7 +325,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                         if (otherPeers != null) {
 
                             if (otherPeers.contains(node) && !nodePeers.contains(other)) {
-                                if (flagNodeInconsistent(problemManager, nodeInfos, node, other)) {
+                                if (flagNodeInconsistent(problemManager, newStatus, node, other)) {
                                     break;
                                 }
                             }
@@ -338,19 +340,16 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
     }
 
-    private boolean flagNodeInconsistent(ProblemManager problemManager, List<JSONObject> nodeInfos, Node node, Node other) {
+    private boolean flagNodeInconsistent(ProblemManager problemManager, SystemStatus newStatus, Node node, Node other) {
         // flag node inconsistent
-        for (JSONObject nodeInfo : nodeInfos) {
-            if (node.matches (nodeInfo.getString("host"))) {
-                String prevStatus = nodeInfo.getString("status");
-                if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
-                    nodeInfo.put("status", "INCONSISTENT");
-                    problemManager.addProblem(new NodeInconsistent(new Date(), node, other));
-                    return true;
-                }
-            }
+        String prevStatus =  newStatus.getNodeStatus(node);
+        if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
+            newStatus.overrideNodeStatus (node, "INCONSISTENT");
+            problemManager.addProblem(new NodeInconsistent(new Date(), node, other));
+            return true;
         }
         return false;
+
     }
 
     private List<JSONObject> buildVolumeInfo(Map<Node, NodeStatus> nodesStatus,
@@ -668,29 +667,35 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             JSONObject nodeSystemStatus = new JSONObject();
             nodeSystemStatus.put("host", node.getAddress());
 
+            String status = "KO";
+            String volumes = null;
+            Serializable brickCount = null;
+
             NodeStatus nodeStatus = nodesStatus.get(node);
-            if (nodeStatus == null) {
-                nodeSystemStatus.put("status", "KO");
-            } else {
+            if (nodeStatus != null) {
 
                 if (nodeStatus.isPoolStatusError()) {
-                    nodeSystemStatus.put("status", "KO");
+                    status = "KO";
                 } else {
-                    nodeSystemStatus.put("status", "OK");
+                    status = "OK";
                     Map<String, Object> nodeInfo = nodeStatus.getNodeInformation(node);
 
                     @SuppressWarnings("unchecked")
                     Set<String> nodeVolumes = (Set<String>) nodeInfo.get("volumes");
                     if (nodeVolumes != null) {
-                        nodeSystemStatus.put("volumes", String.join(", ", nodeVolumes));
+                        volumes = String.join(", ", nodeVolumes);
                     } else {
-                        nodeSystemStatus.put("volumes", "?");
+                        volumes = "?";
                     }
 
                     Integer nodeBrickCount =  (Integer) nodeInfo.get("brick_count");
-                    nodeSystemStatus.put("nbr_bricks", Objects.requireNonNullElse(nodeBrickCount, "?"));
+                    brickCount = Objects.requireNonNullElse(nodeBrickCount, "?");
                 }
             }
+
+            nodeSystemStatus.put("status", status);
+            nodeSystemStatus.put("volumes", volumes);
+            nodeSystemStatus.put("nbr_bricks", brickCount);
 
             nodesInfo.add (nodeSystemStatus);
         }

@@ -38,6 +38,7 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.NodeStatusException;
+import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.problems.NodePartitioned;
 import ch.niceideas.eskimo.egmi.problems.ProblemManager;
 import lombok.EqualsAndHashCode;
@@ -53,7 +54,11 @@ public class GraphPartitionDetector {
 
     private static final Logger logger = Logger.getLogger(GraphPartitionDetector.class);
 
-    public static void detectGraphPartitioning(ProblemManager problemManager, Set<Node> allNodes, List<JSONObject> nodeInfos, Map<Node, NodeStatus> nodesStatus) throws NodeStatusException  {
+    public static void detectGraphPartitioning(
+            ProblemManager problemManager,
+            Set<Node> allNodes,
+            SystemStatus newStatus,
+            Map<Node, NodeStatus> nodesStatus) throws NodeStatusException  {
 
         // 0. Build data structure
         Map<Node, GraphNode> nodes = buildNodeGraph(allNodes, nodesStatus);
@@ -103,7 +108,7 @@ public class GraphPartitionDetector {
             // if highest == smallest, then flag all nodes as PARTITIONED
             if (highest == smallest) {
                 for (Node host : allNodes) {
-                    flagNodePartitioned(problemManager, nodeInfos, host);
+                    flagNodePartitioned(problemManager, newStatus, host);
                 }
 
             }
@@ -113,7 +118,7 @@ public class GraphPartitionDetector {
                 for (Node host : allNodes) {
                     int counter = counters.get(host);
                     if (counter != highest) {
-                        flagNodePartitioned(problemManager, nodeInfos, host);
+                        flagNodePartitioned(problemManager, newStatus, host);
                     }
                 }
             }
@@ -197,16 +202,11 @@ public class GraphPartitionDetector {
         return nodes;
     }
 
-    private static void flagNodePartitioned(ProblemManager problemManager, List<JSONObject> nodeInfos, Node host) {
-        for (JSONObject nodeInfo : nodeInfos) {
-            if (host.matches(nodeInfo.getString("host"))) {
-                String prevStatus = nodeInfo.getString("status");
-                if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
-                    nodeInfo.put("status", "PARTITIONED");
-                    problemManager.addProblem(new NodePartitioned(new Date(), host));
-                    break;
-                }
-            }
+    private static void flagNodePartitioned(ProblemManager problemManager, SystemStatus newStatus, Node host) {
+        String prevStatus =  newStatus.getNodeStatus(host);
+        if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
+            newStatus.overrideNodeStatus (host, "PARTITIONED");
+            problemManager.addProblem(new NodePartitioned(new Date(), host));
         }
     }
 

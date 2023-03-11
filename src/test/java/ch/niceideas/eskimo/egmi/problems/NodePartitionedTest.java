@@ -61,12 +61,10 @@ public class NodePartitionedTest extends AbstractProblemTest {
     @Test
     public void testSolve() {
 
-        try {
-            problem.solve(grm, new CommandContext(mockClient, 1234, ms));
-            fail ("NodeResolutionStopException expected");
-        } catch (ResolutionStopException e) {
-            assertEquals("! Failed to confirm peer addition in 5 attempts.", e.getMessage());
-        }
+        ResolutionStopException exp = assertThrows(ResolutionStopException.class,
+                () -> problem.solve(grm, new CommandContext(mockClient, 1234, ms)));
+
+        assertEquals("! Failed to confirm peer addition in 5 attempts.", exp.getMessage());
 
         assertEquals("192.168.10.73:1234/command?command=volume&subcommand=stop&options=test1%20--mode=script\n" +
                 "192.168.10.73:1234/command?command=force-remove-volume-bricks&subcommand=test1&options=192.168.10.73\n" +

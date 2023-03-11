@@ -39,6 +39,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -112,4 +113,17 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
+    public String getNodeStatus(Node host) {
+        JSONObject nodeInfo = Optional.ofNullable(getNodeInfo(host)).orElseThrow(IllegalStateException::new);
+        if (nodeInfo.has("status")) {
+            return nodeInfo.getString("status");
+        } else {
+            return null;
+        }
+    }
+
+    public void overrideNodeStatus(Node host, String partitioned) {
+        JSONObject nodeInfo = Optional.ofNullable(getNodeInfo(host)).orElseThrow(IllegalStateException::new);
+        nodeInfo.put("status", "PARTITIONED");
+    }
 }
