@@ -35,26 +35,23 @@
 package ch.niceideas.eskimo.egmi.problems;
 
 import ch.niceideas.common.http.HttpClientException;
-import ch.niceideas.common.utils.Pair;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
-import ch.niceideas.eskimo.egmi.gluster.command.*;
-import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
-import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
-import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
+import ch.niceideas.eskimo.egmi.gluster.command.GlusterPeerDetach;
+import ch.niceideas.eskimo.egmi.gluster.command.GlusterPeerProbe;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -119,8 +116,8 @@ public class NodeInconsistent extends AbstractProblem implements Problem {
 
             // 2. Remove all node bricks
             Node activeNode = activeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
-            Map<BrickId, String> nodeBricks = nodesStatus.get(activeNode).getNodeBricksAndVolumes(host);
-            for (String volume : nodeBricks.values()) {
+            Map<BrickId, Volume> nodeBricks = nodesStatus.get(activeNode).getNodeBricksAndVolumes(host);
+            for (Volume volume : nodeBricks.values()) {
                 if (!NodeDown.handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {
                     return false;
                 }

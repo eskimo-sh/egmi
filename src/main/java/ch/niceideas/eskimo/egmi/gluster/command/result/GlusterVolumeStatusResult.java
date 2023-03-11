@@ -37,18 +37,18 @@ package ch.niceideas.eskimo.egmi.gluster.command.result;
 import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
+import ch.niceideas.eskimo.egmi.model.BrickId;
 import ch.niceideas.eskimo.egmi.model.BrickInformation;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
-import lombok.*;
-import org.apache.log4j.Logger;
+import ch.niceideas.eskimo.egmi.model.Volume;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolumeStatusResult> {
-
-    private static final Logger logger = Logger.getLogger(GlusterVolumeStatusResult.class);
 
     // parsing stuff
     private static final String SKIP_PREFIX = "Another transaction is in progress for ";
@@ -64,7 +64,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
     public static final String SKIP_TEMP_OP_FLAG = "SKIP_TEMP_OP";
     public static final String VOL_NOT_STARTED_FLAG = "VOL_NOT_STARTED";
 
-    private final Map<String, BrickDetail> brickDetails = new HashMap<>();
+    private final Map<BrickId, BrickDetail> brickDetails = new HashMap<>();
 
     private final GlusterVolumeInfoResult volumeInfo;
 
@@ -72,7 +72,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
         this.volumeInfo = volumeInfo;
     }
 
-    public void feedVolumeStatusInStatus(NodeStatus status, int volumeCounter, int brickCounter, String brickId) {
+    public void feedVolumeStatusInStatus(NodeStatus status, int volumeCounter, int brickCounter, BrickId brickId) {
 
         BrickDetail brickDetail = brickDetails.get(brickId);
         if (brickDetail != null) {
@@ -88,7 +88,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
             String brickResult = response.asString(Charset.defaultCharset());
             //System.err.println(volumeResult);
 
-            String currentBrickId = "UNDEFINED";
+            BrickId currentBrickId = BrickId.UNDEFINED;
 
             for (String line : brickResult.split("\n")) {
 
@@ -100,13 +100,13 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
                  */
 
                 if (line.startsWith(SKIP_PREFIX)) {
-                    String volume = line.substring(SKIP_PREFIX.length(), line.indexOf(".", SKIP_PREFIX.length() + 1)).trim();
+                    Volume volume = Volume.from (line.substring(SKIP_PREFIX.length(), line.indexOf(".", SKIP_PREFIX.length() + 1)).trim());
                     volumeInfo.overrideStatus (volume, SKIP_TEMP_OP_FLAG);
                     continue;
                 }
 
                 if (line.contains(IS_NOT_STARTED)) {
-                    String volume = line.substring(VOLUME_PREFIX.length(), line.indexOf(IS_NOT_STARTED)).trim();
+                    Volume volume = Volume.from (line.substring(VOLUME_PREFIX.length(), line.indexOf(IS_NOT_STARTED)).trim());
                     volumeInfo.overrideStatus (volume, VOL_NOT_STARTED_FLAG);
                     continue;
                 }
@@ -114,10 +114,11 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
                 if (line.startsWith("Brick")) {
                     String[] split = line.split(":");
                     if (split.length >= 3) {
-                        currentBrickId = split[1].trim() + ":" + split[2].trim();
-                        if (currentBrickId.startsWith("Brick ")) {
-                            currentBrickId = currentBrickId.substring("Brick ".length());
+                        String brickIdentifier = split[1].trim() + ":" + split[2].trim();
+                        if (brickIdentifier.startsWith("Brick ")) {
+                            brickIdentifier = brickIdentifier.substring("Brick ".length());
                         }
+                        currentBrickId = BrickId.fromIdentifier (brickIdentifier);
                     }
                 }
 

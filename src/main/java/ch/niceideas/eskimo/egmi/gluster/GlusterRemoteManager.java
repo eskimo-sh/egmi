@@ -50,6 +50,7 @@ import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,9 +166,9 @@ public class GlusterRemoteManager {
 
             // 4. Add it all to brick status
             int counter = 0;
-            for (String volume : volumeInfo.getAllVolumes()) {
+            for (Volume volume : volumeInfo.getAllVolumes()) {
 
-                status.setValueForPath("volumes." + counter + ".name", volume);
+                status.setValueForPath("volumes." + counter + ".name", volume.getName());
 
                 Set<String> volumeOptions = volumeInfo.getVolumeReconfiguredOptions(volume);
                 if (volumeOptions != null && !volumeOptions.isEmpty()) {
@@ -200,7 +201,7 @@ public class GlusterRemoteManager {
                         status.setValueForPath(brickPrefix + ".node", brickId.getNode().getAddress());
                         status.setValueForPath(brickPrefix + ".path", brickId.getPath());
 
-                        volumeStatus.feedVolumeStatusInStatus (status, counter, (brickNumber - 1), brickId.toString());
+                        volumeStatus.feedVolumeStatusInStatus (status, counter, (brickNumber - 1), brickId);
                     }
                 }
 

@@ -36,10 +36,11 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.model.BrickId;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 public class GlusterVolumeReplaceBrick extends AbstractGlusterVolumeOperation {
 
-    public GlusterVolumeReplaceBrick(HttpClient httpClient, String volume, BrickId formerBrick, BrickId newBrick) {
+    public GlusterVolumeReplaceBrick(HttpClient httpClient, Volume volume, BrickId formerBrick, BrickId newBrick) {
         super (httpClient, "replace-brick", volume, formerBrick.toString(), newBrick.toString(), "commit", "force");
     }
 }

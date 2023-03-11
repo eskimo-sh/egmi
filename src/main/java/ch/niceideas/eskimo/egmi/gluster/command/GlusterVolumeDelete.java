@@ -35,10 +35,11 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 public class GlusterVolumeDelete extends AbstractGlusterVolumeOperation {
 
-    public GlusterVolumeDelete(HttpClient httpClient, String volume) {
+    public GlusterVolumeDelete(HttpClient httpClient, Volume volume) {
         super (httpClient, "delete", volume);
     }
 }

@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.controllers;
 
 import ch.niceideas.eskimo.egmi.management.ActionService;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,16 +51,16 @@ public class ActionControllerTest {
     public void setUp() {
         ActionService actionService = new ActionService() {
             @Override
-            public void deleteVolume(String volume) {
+            public void deleteVolume(Volume volume) {
             }
             @Override
-            public void stopVolume(String volume) {
+            public void stopVolume(Volume volume) {
             }
             @Override
-            public void startVolume(String volume) {
+            public void startVolume(Volume volume) {
             }
             @Override
-            public void addVolume(String volume) {
+            public void addVolume(Volume volume) {
             }
             @Override
             public void addNode(Node node) {

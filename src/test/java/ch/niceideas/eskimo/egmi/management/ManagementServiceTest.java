@@ -40,6 +40,7 @@ import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import ch.niceideas.eskimo.egmi.problems.Problem;
 import ch.niceideas.eskimo.egmi.problems.ProblemManager;
 import org.json.JSONObject;
@@ -310,24 +311,24 @@ public class ManagementServiceTest {
             put (Node.from ("192.168.56.24"), node4);
         }};
 
-        Set<String> allVolumes = ms.getRuntimeVolumes(nodesStatus);
+        Set<Volume> allVolumes = ms.getRuntimeVolumes(nodesStatus);
 
         assertNotNull(allVolumes);
         assertEquals(10, allVolumes.size());
 
-        List<String> sortedVolumes = new ArrayList<>(allVolumes);
+        List<Volume> sortedVolumes = new ArrayList<>(allVolumes);
         sortedVolumes.sort(Comparator.naturalOrder());
 
-        assertEquals("flink_completed_jobs", sortedVolumes.get(0));
-        assertEquals("flink_data", sortedVolumes.get(1));
-        assertEquals("kafka_data", sortedVolumes.get(2));
-        assertEquals("kubernetes_registry", sortedVolumes.get(3));
-        assertEquals("kubernetes_shared", sortedVolumes.get(4));
-        assertEquals("logstash_data", sortedVolumes.get(5));
-        assertEquals("spark_data", sortedVolumes.get(6));
-        assertEquals("spark_eventlog", sortedVolumes.get(7));
-        assertEquals("test1", sortedVolumes.get(8));
-        assertEquals("test2", sortedVolumes.get(9));
+        assertEquals(Volume.from("flink_completed_jobs"), sortedVolumes.get(0));
+        assertEquals(Volume.from("flink_data"), sortedVolumes.get(1));
+        assertEquals(Volume.from("kafka_data"), sortedVolumes.get(2));
+        assertEquals(Volume.from("kubernetes_registry"), sortedVolumes.get(3));
+        assertEquals(Volume.from("kubernetes_shared"), sortedVolumes.get(4));
+        assertEquals(Volume.from("logstash_data"), sortedVolumes.get(5));
+        assertEquals(Volume.from("spark_data"), sortedVolumes.get(6));
+        assertEquals(Volume.from("spark_eventlog"), sortedVolumes.get(7));
+        assertEquals(Volume.from("test1"), sortedVolumes.get(8));
+        assertEquals(Volume.from("test2"), sortedVolumes.get(9));
 
         FileUtils.delete(tmp);
     }
@@ -386,7 +387,7 @@ public class ManagementServiceTest {
 
         Set<Node> allNodes = ms.getRuntimeNodes(nodesStatus);
 
-        Set<String> allVolumes = ms.getRuntimeVolumes(nodesStatus);
+        Set<Volume> allVolumes = ms.getRuntimeVolumes(nodesStatus);
 
         List<JSONObject> nodesInfo = ms.buildNodeInfo(nodesStatus, allNodes);
 

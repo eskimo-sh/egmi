@@ -35,14 +35,15 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 public class GlusterVolumeStop extends AbstractGlusterVolumeOperation {
 
-    public GlusterVolumeStop(HttpClient httpClient, String volume, boolean force) {
+    public GlusterVolumeStop(HttpClient httpClient, Volume volume, boolean force) {
         super (httpClient, "stop", volume, force ? new String[]{"force"} : new String[]{""});
     }
 
-    public GlusterVolumeStop(HttpClient httpClient, String volume) {
+    public GlusterVolumeStop(HttpClient httpClient, Volume volume) {
         super (httpClient, "stop", volume);
     }
 }

@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,7 +48,7 @@ public class GlusterVolumeSetTest extends AbstractCommandTest {
 
         response.set("success");
 
-        GlusterVolumeSet command = new GlusterVolumeSet(mockClient, "test_volume", "performance.io-cache", "off");
+        GlusterVolumeSet command = new GlusterVolumeSet(mockClient, Volume.from("test_volume"), "performance.io-cache", "off");
         SimpleOperationResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
         assertTrue(result.isSuccess());

@@ -41,7 +41,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.*;
 import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.NodeStatusException;
-import ch.niceideas.eskimo.egmi.model.VolumeInformation;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import ch.niceideas.eskimo.egmi.problems.AbstractProblem;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 import ch.niceideas.eskimo.egmi.problems.NoVolume;
@@ -75,7 +75,7 @@ public class ActionService {
     @Value("${remote.egmi.port}")
     private int glusterCommandServerPort = 18999;
 
-    public void deleteVolume(String volume) throws ActionException {
+    public void deleteVolume(Volume volume) throws ActionException {
 
         managementService.executeInLock (() -> {
 
@@ -129,7 +129,7 @@ public class ActionService {
         });
     }
 
-    public void stopVolume(String volume) throws ActionException {
+    public void stopVolume(Volume volume) throws ActionException {
 
         managementService.executeInLock (() -> {
 
@@ -154,7 +154,7 @@ public class ActionService {
         });
     }
 
-    public void startVolume(String volume) throws ActionException {
+    public void startVolume(Volume volume) throws ActionException {
 
         managementService.executeInLock (() -> {
 
@@ -179,7 +179,7 @@ public class ActionService {
         });
     }
 
-    public void addVolume(String volume) throws ActionException{
+    public void addVolume(Volume volume) throws ActionException{
 
         managementService.executeInLock (() -> {
 

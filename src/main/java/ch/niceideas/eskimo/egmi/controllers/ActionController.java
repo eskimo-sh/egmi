@@ -38,6 +38,7 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.management.ActionException;
 import ch.niceideas.eskimo.egmi.management.ActionService;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import ch.niceideas.eskimo.egmi.utils.ReturnStatusHelper;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,28 +66,28 @@ public class ActionController {
     @ResponseBody
     public String deleteVolume(@RequestParam(name="volume") String volume) {
         if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
-        return doAction (() -> actionService.deleteVolume (volume));
+        return doAction (() -> actionService.deleteVolume (Volume.from(volume)));
     }
 
     @GetMapping("/stop-volume")
     @ResponseBody
     public String stopVolume(@RequestParam(name="volume") String volume) {
         if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
-        return doAction (() -> actionService.stopVolume (volume));
+        return doAction (() -> actionService.stopVolume (Volume.from(volume)));
     }
 
     @GetMapping("/start-volume")
     @ResponseBody
     public String startVolume(@RequestParam(name="volume") String volume) {
         if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
-        return doAction (() -> actionService.startVolume (volume));
+        return doAction (() -> actionService.startVolume (Volume.from(volume)));
     }
 
     @PostMapping("/volume")
     @ResponseBody
     public String addVolume (@RequestParam(name="volume") String volume) {
         if (StringUtils.isBlank(volume)) return ReturnStatusHelper.createErrorStatus("Passed volume is empty").getFormattedValue();
-        return doAction (() -> actionService.addVolume (volume));
+        return doAction (() -> actionService.addVolume (Volume.from(volume)));
     }
 
     @PostMapping("/node")

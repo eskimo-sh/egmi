@@ -56,7 +56,7 @@ public class VolumeNotStarted extends AbstractProblem implements Problem {
     private static final Logger logger = Logger.getLogger(VolumeNotStarted.class);
 
     private Date date;
-    private final String volume;
+    private final Volume volume;
 
     @Override
     public String getProblemId() {

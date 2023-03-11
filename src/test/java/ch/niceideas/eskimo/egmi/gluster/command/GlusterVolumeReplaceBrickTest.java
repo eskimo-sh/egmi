@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,9 +49,9 @@ public class GlusterVolumeReplaceBrickTest extends AbstractCommandTest {
 
         response.set("success");
 
-        GlusterVolumeReplaceBrick command = new GlusterVolumeReplaceBrick(mockClient, "test_volume",
-                new BrickId(Node.from("192.168.10.71"), "/var/lib/gluster/bricks/test1_1"),
-                        new BrickId(Node.from("192.168.10.72"), "/var/lib/gluster/bricks/test1_1"));
+        GlusterVolumeReplaceBrick command = new GlusterVolumeReplaceBrick(mockClient, Volume.from("test_volume"),
+                BrickId.fromNodeAndPath(Node.from("192.168.10.71"), "/var/lib/gluster/bricks/test1_1"),
+                BrickId.fromNodeAndPath(Node.from("192.168.10.72"), "/var/lib/gluster/bricks/test1_1"));
         SimpleOperationResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
         assertTrue(result.isSuccess());

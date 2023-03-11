@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,14 +44,14 @@ import java.util.stream.Collectors;
 
 public class AbstractGlusterVolumeOperation extends AbstractGlusterSimpleOperation {
 
-    public AbstractGlusterVolumeOperation(HttpClient httpClient, String operation, String volume, String ... options) {
+    public AbstractGlusterVolumeOperation(HttpClient httpClient, String operation, Volume volume, String ... options) {
         super (httpClient, "volume", operation);
         this.options = buildOptions(volume, options);
     }
 
-    private String[] buildOptions(String volume, String[] options) {
+    private String[] buildOptions(Volume volume, String[] options) {
         List<String> tempOptions = new ArrayList<>();
-        tempOptions.add (volume);
+        tempOptions.add (volume.getName());
         tempOptions.addAll(Arrays.stream(options).map(option -> option.replace(" ", "%20")).collect(Collectors.toList()));
         tempOptions.add ("--mode=script");
         return tempOptions.toArray(new String[0]);

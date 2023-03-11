@@ -65,11 +65,11 @@ public class SystemStatus extends JsonWrapper {
                 .collect(Collectors.toList());
     }
 
-    public JSONObject getVolumeInfo(String volume) {
+    public JSONObject getVolumeInfo(Volume volume) {
         JSONArray volumeArray = getVolumes();
         return IntStream.range(0, volumeArray.length())
                 .mapToObj(volumeArray::getJSONObject)
-                .filter(volumeInfo -> volumeInfo.getString("volume").equals(volume))
+                .filter(volumeInfo -> volume.matches(volumeInfo.getString("volume")))
                 .findAny().orElse(null);
     }
 
@@ -81,25 +81,25 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
-    public JSONArray getBrickArray (String volume) {
+    public JSONArray getBrickArray (Volume volume) {
         JSONArray volumeArray = getVolumes();
         return IntStream.range(0, volumeArray.length())
                 .mapToObj(volumeArray::getJSONObject)
-                .filter(volumeInfo -> volumeInfo.getString("volume").equals(volume))
+                .filter(volumeInfo -> volume.matches (volumeInfo.getString("volume")))
                 .map(volumeInfo -> volumeInfo.getJSONArray("bricks"))
                 .findAny().orElse(null);
     }
 
-    public JSONObject getOptions(String volume) {
+    public JSONObject getOptions(Volume volume) {
         JSONArray volumeArray = getVolumes();
         return IntStream.range(0, volumeArray.length())
                 .mapToObj(volumeArray::getJSONObject)
-                .filter(volumeInfo -> volumeInfo.getString("volume").equals(volume))
+                .filter(volumeInfo -> volume.matches(volumeInfo.getString("volume")))
                 .map(volumeInfo -> volumeInfo.getJSONObject("options"))
                 .findAny().orElse(null);
     }
 
-    public JSONObject getBrickInfo (String volume, BrickId brickId) {
+    public JSONObject getBrickInfo (Volume volume, BrickId brickId) {
         JSONArray brickArray = getBrickArray(volume);
 
         if (brickArray == null) {

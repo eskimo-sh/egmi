@@ -41,6 +41,7 @@ import lombok.Data;
 @Data
 public class Node implements Comparable<Node> {
 
+    public static final Node UNDEFINED = new Node ("UNDEFINED");
     private final String address;
 
     private Node (String address) {

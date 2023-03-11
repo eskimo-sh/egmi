@@ -34,6 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +51,7 @@ public class WrongOptionTest extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new WrongOption(new Date(), "test1", "performance.open-behind", null, "off");
+        problem = new WrongOption(new Date(), Volume.from("test1"), "performance.open-behind", null, "off");
     }
 
     @Test

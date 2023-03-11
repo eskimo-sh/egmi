@@ -175,10 +175,10 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                 //    remove all volumes it is currently holding
 
                 NodeStatus nodeStatus = nodesStatus.get(host);
-                Map<BrickId, String> nodeBricksAndVolumes = nodeStatus.getNodeBricksAndVolumes(host);
-                Set<String> nodeVolumes = new HashSet<>(nodeBricksAndVolumes.values());
+                Map<BrickId, Volume> nodeBricksAndVolumes = nodeStatus.getNodeBricksAndVolumes(host);
+                Set<Volume> nodeVolumes = new HashSet<>(nodeBricksAndVolumes.values());
 
-                for (String volume : nodeVolumes) {
+                for (Volume volume : nodeVolumes) {
 
                     VolumeInformation volumeInfo = nodeStatus.getVolumeInformation(volume);
                     context.info ("    - Forcing removal of volume " + volume + " !");

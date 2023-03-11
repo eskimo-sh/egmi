@@ -38,6 +38,7 @@ import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
+import ch.niceideas.eskimo.egmi.model.BrickId;
 import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import org.junit.jupiter.api.Test;
@@ -58,8 +59,8 @@ public class GlusterVolumeStatusTest extends AbstractCommandTest {
 
         NodeStatus nodeStatus = new NodeStatus("{}");
 
-        result.feedVolumeStatusInStatus(nodeStatus, 0, 0, "192.168.10.72:/var/lib/gluster/volume_bricks/test2");
-        result.feedVolumeStatusInStatus(nodeStatus, 0, 1, "192.168.10.72:/var/lib/gluster/volume_bricks/test2_bis_2");
+        result.feedVolumeStatusInStatus(nodeStatus, 0, 0, BrickId.fromIdentifier("192.168.10.72:/var/lib/gluster/volume_bricks/test2"));
+        result.feedVolumeStatusInStatus(nodeStatus, 0, 1, BrickId.fromIdentifier("192.168.10.72:/var/lib/gluster/volume_bricks/test2_bis_2"));
 
         assertEquals ("{\"volumes\": [{\"bricks\": [\n" +
                 "    {\n" +

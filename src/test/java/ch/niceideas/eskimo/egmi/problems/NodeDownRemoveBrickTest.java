@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.problems;
 
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +52,7 @@ public class NodeDownRemoveBrickTest extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new NodeDown(new Date(), "spark_data", Node.from ("192.168.10.72"));
+        problem = new NodeDown(new Date(), Volume.from("spark_data"), Node.from ("192.168.10.72"));
     }
 
     @Test

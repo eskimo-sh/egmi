@@ -155,14 +155,14 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
-    public Set<String> getVolumesPerformanceOff() {
+    public Set<Volume> getVolumesPerformanceOff() {
         if (volumesPerformanceOff == null || StringUtils.isBlank(volumesPerformanceOff.trim())) {
             return Collections.emptySet();
         }
 
-        Set<String> retSet = new HashSet<>();
-        Collections.addAll(retSet, volumesPerformanceOff.split(","));
-        return retSet;
+        return Arrays.stream(volumesPerformanceOff.split(","))
+                .map(Volume::from)
+                .collect(Collectors.toSet());
     }
 
     public Set<String> getPerformanceOffOptions() {
@@ -236,7 +236,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             // 1. Build complete set of nodes and volumes
             Set<Node> allNodes = getRuntimeNodes(nodesStatus);
 
-            Set<String> allVolumes = getRuntimeVolumes (nodesStatus);
+            Set<Volume> allVolumes = getRuntimeVolumes (nodesStatus);
 
             // -- problem detection phase
             List<JSONObject> nodeInfos = buildNodeInfo(nodesStatus, allNodes);
@@ -291,7 +291,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
-    SystemStatus getSystemStatus(String hostName, Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, Set<String> allVolumes, List<JSONObject> nodeInfos) throws UnknownHostException, NodeStatusException {
+    SystemStatus getSystemStatus(String hostName, Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, Set<Volume> allVolumes, List<JSONObject> nodeInfos) throws UnknownHostException, NodeStatusException {
         SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + hostName + "\"}");
 
         // 1. Build Node status
@@ -355,7 +355,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     }
 
     private List<JSONObject> buildVolumeInfo(Map<Node, NodeStatus> nodesStatus,
-                                             Set<Node> allNodes, Set<String> allVolumes, List<JSONObject> nodeInfos)
+                                             Set<Node> allNodes, Set<Volume> allVolumes, List<JSONObject> nodeInfos)
             throws NodeStatusException {
 
         int targetNbrBricks = getTargetNumberOfBricks();
@@ -363,9 +363,9 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         int targetNbrShards = targetNbrBricks / targetNbrReplicas;
 
         List<JSONObject> volumesInfo = new ArrayList<>();
-        for (String volume : allVolumes) {
+        for (Volume volume : allVolumes) {
             JSONObject volumeSystemStatus = new JSONObject();
-            volumeSystemStatus.put("volume", volume);
+            volumeSystemStatus.put("volume", volume.getName());
 
             Set<String> errors = new HashSet<>();
 
@@ -736,20 +736,21 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return nodes;
     }
 
-    public Set<String> getConfiguredVolumes() {
-        Set<String> volumes = new HashSet<>();
+    public Set<Volume> getConfiguredVolumes() {
+        Set<Volume> volumes = new HashSet<>();
 
         // 1. Add all configured volumes
         String[] confVolumes = configuredVolumes.split(",");
         Arrays.stream(confVolumes, 0, confVolumes.length)
+                .map(Volume::from)
                 .forEach(volumes::add);
 
         return volumes;
     }
 
-    public Set<String> getAllVolumes() throws ManagementException {
+    public Set<Volume> getAllVolumes() throws ManagementException {
 
-        Set<String> volumes = getConfiguredVolumes();
+        Set<Volume> volumes = getConfiguredVolumes();
 
         // 2. Add all previously discovered volumes
         JsonWrapper runtimeConfig = loadRuntimeSettings();
@@ -759,6 +760,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 String[] discVolumes = discoveredVolumes.split(",");
                 Arrays.stream(discVolumes, 0, discVolumes.length)
                         .map(String::trim)
+                        .map(Volume::from)
                         .forEach(volumes::add);
             }
         }
@@ -794,8 +796,8 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return allNodes;
     }
 
-    Set<String> getRuntimeVolumes(Map<Node, NodeStatus> nodesStatus) throws ManagementException {
-        Set<String> allVolumes = new TreeSet<>(getAllVolumes());
+    Set<Volume> getRuntimeVolumes(Map<Node, NodeStatus> nodesStatus) throws ManagementException {
+        Set<Volume> allVolumes = new TreeSet<>(getAllVolumes());
 
         nodesStatus.values()
                 .forEach(status -> {
@@ -812,7 +814,9 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         if (!runtimeConfig.isEmpty()) {
             savedVolumes = runtimeConfig.getValueForPathAsString("discovered-volumes");
         }
-        String runtimeVolumes = String.join(",", allVolumes);
+        String runtimeVolumes = allVolumes.stream()
+                .map(Volume::getName)
+                .collect(Collectors.joining(","));
         if (!runtimeVolumes.equals(savedVolumes)) {
             runtimeConfig.setValueForPath("discovered-volumes", runtimeVolumes);
             saveRuntimeSetting(runtimeConfig);

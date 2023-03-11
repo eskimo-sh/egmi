@@ -34,17 +34,32 @@
 
 package ch.niceideas.eskimo.egmi.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class BrickId implements Comparable<BrickId>{
 
-    private Node node;
-    private String path;
+    public static final BrickId UNDEFINED = new BrickId(Node.UNDEFINED, "UNDEFINED");
+
+    private final Node node;
+    private final String path;
+
+    private BrickId (Node node, String path) {
+        this.node = node;
+        this.path = path;
+    }
+
+    public static BrickId fromIdentifier(String brickIdentifier) {
+        if (!brickIdentifier.contains(":")) {
+            throw new IllegalArgumentException("BrickIdentifier : " + brickIdentifier + " - doesn't contain ':'");
+        }
+        String[] split = brickIdentifier.split(":");
+        return new BrickId(Node.from(split[0]), split[1]);
+    }
+
+    public static BrickId fromNodeAndPath(Node node, String path) {
+        return new BrickId(node, path);
+    }
 
     public String toString() {
         return node + ":" + path;

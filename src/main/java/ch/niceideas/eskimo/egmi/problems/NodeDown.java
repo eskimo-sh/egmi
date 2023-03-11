@@ -39,9 +39,11 @@ import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeRemoveBrick;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeReplaceBrick;
-import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -59,7 +61,7 @@ public class NodeDown extends AbstractProblem implements Problem {
     private static final Logger logger = Logger.getLogger(NodeDown.class);
 
     private final Date date;
-    private final String volume;
+    private final Volume volume;
     private final Node host;
 
     @Override
@@ -132,7 +134,7 @@ public class NodeDown extends AbstractProblem implements Problem {
                     return false;
                 }
 
-                Map<BrickId, String> nodeBricks = nodesStatus.get(
+                Map<BrickId, Volume> nodeBricks = nodesStatus.get(
                             getFirstNode(activeNodes).orElseThrow(IllegalStateException::new))
                         .getNodeBricksAndVolumes(host);
 
@@ -153,10 +155,10 @@ public class NodeDown extends AbstractProblem implements Problem {
         }
     }
 
-    public static boolean handleNodeDownBricks(String volume, Node host, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, Map<BrickId, String> nodeBricks) throws NodeStatusException, ResolutionStopException, ResolutionSkipException {
+    public static boolean handleNodeDownBricks(Volume volume, Node host, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, Map<BrickId, Volume> nodeBricks) throws NodeStatusException, ResolutionStopException, ResolutionSkipException {
         for (BrickId brickId : nodeBricks.keySet()) {
 
-            String brickVolume = nodeBricks.get(brickId);
+            Volume brickVolume = nodeBricks.get(brickId);
 
             // only fixing the volume for which I was reported
             if (brickVolume.equals(volume) && host.equals(brickId.getNode())) {
@@ -199,7 +201,7 @@ public class NodeDown extends AbstractProblem implements Problem {
 
                         String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
                         String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
-                        BrickId newBrickId = new BrickId(targetNode, path);
+                        BrickId newBrickId = BrickId.fromNodeAndPath(targetNode, path);
 
                         context.info ("      + Replacing Brick on FREE node " + brickId + " with " + newBrickId);
                         executeSimpleOperation(new GlusterVolumeReplaceBrick(context.getHttpClient(), volume, brickId, newBrickId), context, executionNode);
@@ -229,7 +231,7 @@ public class NodeDown extends AbstractProblem implements Problem {
 
                             String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
                             String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume + "_" + counter;
-                            BrickId newBrickId = new BrickId(targetNode, path);
+                            BrickId newBrickId = BrickId.fromNodeAndPath(targetNode, path);
 
                             context.info ("      + Replacing Brick on BUSY node " + brickId + " with " + newBrickId);
                             executeSimpleOperation(new GlusterVolumeReplaceBrick(context.getHttpClient(), volume, brickId, newBrickId), context, executionNode);
@@ -296,7 +298,7 @@ public class NodeDown extends AbstractProblem implements Problem {
         return executionNode;
     }
 
-    private static Set<Node> listBrickReplicaNodes (String volume, BrickId brickId, VolumeInformation volumeInformation, Map<BrickId, BrickInformation> brickInformations, CommandContext context)
+    private static Set<Node> listBrickReplicaNodes (Volume volume, BrickId brickId, VolumeInformation volumeInformation, Map<BrickId, BrickInformation> brickInformations, CommandContext context)
             throws ResolutionStopException, ResolutionSkipException{
         if (StringUtils.isBlank(volumeInformation.getNbReplicas())) {
             throw new ResolutionStopException("Cannot get volume " + volume + " number of replicas");

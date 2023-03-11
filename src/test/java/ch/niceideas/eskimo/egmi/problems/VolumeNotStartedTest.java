@@ -34,6 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +50,7 @@ public class VolumeNotStartedTest extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new VolumeNotStarted(new Date(), "test1");
+        problem = new VolumeNotStarted(new Date(), Volume.from("test1"));
     }
 
     @Test

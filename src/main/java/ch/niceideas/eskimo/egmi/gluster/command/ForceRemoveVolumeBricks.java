@@ -36,10 +36,11 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 public class ForceRemoveVolumeBricks extends AbstractGlusterSimpleOperation {
 
-    public ForceRemoveVolumeBricks(HttpClient httpClient, String volume, Node node) {
-        super (httpClient, "force-remove-volume-bricks", volume, node.getAddress());
+    public ForceRemoveVolumeBricks(HttpClient httpClient, Volume volume, Node node) {
+        super (httpClient, "force-remove-volume-bricks", volume.getName(), node.getAddress());
     }
 }

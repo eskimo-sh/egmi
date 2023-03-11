@@ -37,17 +37,16 @@ package ch.niceideas.eskimo.egmi.gluster.command.result;
 import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
-import ch.niceideas.eskimo.egmi.model.BrickId;
-import ch.niceideas.eskimo.egmi.model.Node;
-import ch.niceideas.eskimo.egmi.model.NodeStatus;
-import ch.niceideas.eskimo.egmi.model.VolumeInformation;
-import lombok.*;
+import ch.niceideas.eskimo.egmi.model.*;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.apache.log4j.Logger;
 
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolumeInfoResult> {
@@ -62,38 +61,40 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
 
     public static final Pattern BRICKS_REPR_PARSER = Pattern.compile("([0-9]+)( x [(]?([0-9]+)( \\+ ([0-9]+))?[)]? = ([0-9]+))?");
 
-    private final Map<String, VolumeInformationWrapper> volumeInfos = new HashMap<>();
-    private final Map<String, Map<Integer, BrickId>> volumeBricks = new HashMap<>();
-    private final Map<String, Set<String>> reconfiguredOptions = new HashMap<>();
+    private final Map<Volume, VolumeInformationWrapper> volumeInfos = new HashMap<>();
+    private final Map<Volume, Map<Integer, BrickId>> volumeBricks = new HashMap<>();
+    private final Map<Volume, Set<String>> reconfiguredOptions = new HashMap<>();
 
-    public void overrideStatus(String volume, String status) {
+    public void overrideStatus(Volume volume, String status) {
         Optional.ofNullable(volumeInfos.get(volume))
                 .orElseThrow(() -> new IllegalStateException("No GeneralInfo stored for volume " + volume))
                 .setStatus(status);
     }
 
-    public Set<String> getAllVolumes() {
-        return volumeInfos.keySet();
+    public List<Volume> getAllVolumes() {
+        return volumeInfos.keySet().stream()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
-    public Set<String> getVolumeReconfiguredOptions(String volume) {
+    public Set<String> getVolumeReconfiguredOptions(Volume volume) {
         return reconfiguredOptions.get(volume);
     }
 
-    public void feedVolumeInfoInStatus(NodeStatus status, String volume, int counter) {
+    public void feedVolumeInfoInStatus(NodeStatus status, Volume volume, int counter) {
         VolumeInformationWrapper generalInfo = volumeInfos.get(volume);
         generalInfo.feedInStatus (status, counter);
     }
 
-    public boolean hasBrickIds(String volume) {
+    public boolean hasBrickIds(Volume volume) {
         return volumeBricks.get(volume) != null && !volumeBricks.get(volume).isEmpty();
     }
 
-    public Set<BrickId> getBrickIds(String volume) {
+    public Set<BrickId> getBrickIds(Volume volume) {
         return new HashSet<>(volumeBricks.get(volume).values());
     }
 
-    public Map<Integer, BrickId> getNumberedBrickIds (String volume) {
+    public Map<Integer, BrickId> getNumberedBrickIds (Volume volume) {
         return volumeBricks.get(volume);
     }
 
@@ -105,17 +106,17 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
             String volumeResult = response.asString(Charset.defaultCharset());
             //System.err.println(volumeResult);
 
-            String currentVolume = "UNDEFINED";
+            Volume currentVolume = Volume.UNDEFINED;
             boolean parsingOptionsState = false;
 
             for (String line : volumeResult.split("\n")) {
 
                 if (line.startsWith(VOLUME_NAME)) {
-                    currentVolume = line.substring(VOLUME_NAME.length()).trim();
+                    currentVolume = Volume.from(line.substring(VOLUME_NAME.length()).trim());
                     parsingOptionsState = false;
                 }
 
-                if (currentVolume.equals("UNDEFINED")) {
+                if (currentVolume.equals(Volume.UNDEFINED)) {
                     continue;
                 }
 
@@ -170,7 +171,7 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
                         String path = split[1];
 
                         Map<Integer, BrickId> brickMap = volumeBricks.computeIfAbsent(currentVolume, (key) -> new HashMap<>());
-                        brickMap.put(brickNumber, new BrickId(Node.from(nodeAddress), path));
+                        brickMap.put(brickNumber, BrickId.fromNodeAndPath(Node.from(nodeAddress), path));
 
                         //System.err.println (currentVolume +  " - " + node + " - " + path);
                     }

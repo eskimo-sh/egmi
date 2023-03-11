@@ -36,13 +36,14 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.model.BrickId;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class GlusterVolumeSet extends AbstractGlusterVolumeOperation {
 
-    public GlusterVolumeSet(HttpClient httpClient, String volume, String optionKey, String optionValue) {
+    public GlusterVolumeSet(HttpClient httpClient, Volume volume, String optionKey, String optionValue) {
         super (httpClient, "set", volume, optionKey + " " + optionValue);
     }
 }

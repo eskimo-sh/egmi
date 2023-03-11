@@ -89,7 +89,7 @@ public class BrickAllocationHelper {
     }
 
     public static List<BrickId> buildNewShardBrickAllocation(
-            String volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, String volumePath, List<Node> sortedNodes) {
+            Volume volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, String volumePath, List<Node> sortedNodes) {
 
         // find free nodes
         List<Node> freeNodes = sortedNodes.stream()
@@ -103,13 +103,13 @@ public class BrickAllocationHelper {
             Node brickNode = freeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
             freeNodes.remove (brickNode);
             String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
-            brickIds.add (new BrickId (brickNode, path));
+            brickIds.add (BrickId.fromNodeAndPath (brickNode, path));
         }
         return brickIds;
     }
 
     public static List<BrickId> buildNewReplicasBrickAllocation(
-            String volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, int currentNbShards, String volumePath, List<Node> sortedNodes) throws ResolutionStopException {
+            Volume volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, int currentNbShards, String volumePath, List<Node> sortedNodes) throws ResolutionStopException {
 
         // 1. Map for every shards the nodes running them
         List<BrickId> sortedBrickIds = new ArrayList<>(brickInformations.keySet());
@@ -154,14 +154,14 @@ public class BrickAllocationHelper {
         for (int j = 0; j < currentNbShards; j++) {
             Node brickNode = newReplicaNodes.get(shardNumber);
             String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
-            brickIds.add (new BrickId (brickNode, path));
+            brickIds.add (BrickId.fromNodeAndPath (brickNode, path));
 
             shardNumber++;
         }
         return brickIds;
     }
 
-    public static List<BrickId> buildNewVolumeBrickAllocation(String volume, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, RuntimeLayout rl) throws NodeStatusException {
+    public static List<BrickId> buildNewVolumeBrickAllocation(Volume volume, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, RuntimeLayout rl) throws NodeStatusException {
 
         int targetNbrBricks = rl.getTargetNbrBricks();
         int targetNbrReplicas = rl.getTargetNbrReplicas();
@@ -192,7 +192,7 @@ public class BrickAllocationHelper {
             for (int j = 0; j < targetNbrReplicas; j++) {
                 Node brickNode = sortedNodes.remove(0);
                 String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
-                brickIds.add (new BrickId (brickNode, path));
+                brickIds.add (BrickId.fromNodeAndPath (brickNode, path));
             }
         }
         return brickIds;

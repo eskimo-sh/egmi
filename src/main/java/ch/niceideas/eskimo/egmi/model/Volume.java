@@ -32,19 +32,41 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.gluster.command;
 
-import ch.niceideas.common.http.HttpClient;
-import ch.niceideas.eskimo.egmi.model.BrickId;
-import ch.niceideas.eskimo.egmi.model.Volume;
+package ch.niceideas.eskimo.egmi.model;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import ch.niceideas.common.utils.StringUtils;
+import lombok.Data;
 
-public class GlusterVolumeCreate extends AbstractGlusterVolumeOperation {
+@Data
+public class Volume implements Comparable<Volume> {
 
-    public GlusterVolumeCreate(HttpClient httpClient, Volume volume, int replicaCount, List<BrickId> bricks) {
-        super (httpClient, "create", volume, (replicaCount > 1 ? "replica " + replicaCount: ""), "transport tcp",
-                bricks.stream().map(BrickId::toString).collect(Collectors.joining(" ")));
+    public static final Volume UNDEFINED = new Volume ("UNDEFINED");
+
+    private final String name;
+
+    private Volume(String name) {
+        this.name = name;
+    }
+
+    public static Volume from (String address) {
+        if (StringUtils.isBlank(address)) {
+            throw new IllegalArgumentException("Given address is null");
+        }
+        return new Volume(address);
+    }
+
+    @Override
+    public final String toString() {
+        return name;
+    }
+
+    @Override
+    public int compareTo(Volume o) {
+        return this.getName().compareTo(o.getName());
+    }
+
+    public boolean matches(String name) {
+        return StringUtils.isNotBlank(name) && name.equals (this.getName());
     }
 }

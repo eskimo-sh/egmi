@@ -34,6 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +50,7 @@ public class MissingBrickReplicaTest extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new MissingBrick(new Date(), "test2", 4, 2);
+        problem = new MissingBrick(new Date(), Volume.from("test2"), 4, 2);
     }
 
     @Test

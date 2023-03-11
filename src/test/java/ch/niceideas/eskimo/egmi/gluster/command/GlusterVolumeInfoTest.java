@@ -39,6 +39,7 @@ import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -61,14 +62,14 @@ public class GlusterVolumeInfoTest extends AbstractCommandTest {
         GlusterVolumeInfoResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
 
-        String volumes = String.join(",", result.getAllVolumes());
-        assertEquals ("test2,test1", volumes);
+        String volumes = result.getAllVolumes().stream().map(Volume::getName).collect(Collectors.joining(","));
+        assertEquals ("test1,test2", volumes);
 
         assertEquals ("192.168.10.71:/var/lib/gluster/volume_bricks/test2_bis_1," +
                       "192.168.10.72:/var/lib/gluster/volume_bricks/test2_bis_2",
-                String.join (",", result.getBrickIds("test2").stream().map(BrickId::toString).collect(Collectors.toSet())));
+                String.join (",", result.getBrickIds(Volume.from("test2")).stream().map(BrickId::toString).collect(Collectors.toSet())));
 
-        Set<String> test1Options = result.getVolumeReconfiguredOptions("test2");
+        Set<String> test1Options = result.getVolumeReconfiguredOptions(Volume.from("test2"));
         assertNotNull(test1Options);
         assertEquals(3, test1Options.size());
 

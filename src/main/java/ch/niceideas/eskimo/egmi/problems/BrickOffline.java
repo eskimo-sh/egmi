@@ -38,16 +38,17 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.FixStartBrick;
-import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeStart;
 import ch.niceideas.eskimo.egmi.model.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -58,7 +59,7 @@ public class BrickOffline extends AbstractProblem implements Problem {
     private static final Logger logger = Logger.getLogger(BrickOffline.class);
 
     private Date date;
-    private final String volume;
+    private final Volume volume;
     private final BrickId brickId;
 
     @Override

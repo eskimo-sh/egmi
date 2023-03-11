@@ -36,13 +36,14 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.model.BrickId;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class GlusterVolumeAddBrick extends AbstractGlusterVolumeOperation {
 
-    public GlusterVolumeAddBrick(HttpClient httpClient, String volume, int replicaCount, List<BrickId> bricks) {
+    public GlusterVolumeAddBrick(HttpClient httpClient, Volume volume, int replicaCount, List<BrickId> bricks) {
         super (httpClient, "add-brick", volume, (replicaCount > 1 ? "replica " + replicaCount: ""),
                 bricks.stream().map(BrickId::toString).collect(Collectors.joining(" ")));
     }

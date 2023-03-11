@@ -38,10 +38,7 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeSet;
-import ch.niceideas.eskimo.egmi.model.Node;
-import ch.niceideas.eskimo.egmi.model.NodeStatus;
-import ch.niceideas.eskimo.egmi.model.NodeStatusException;
-import ch.niceideas.eskimo.egmi.model.SystemStatus;
+import ch.niceideas.eskimo.egmi.model.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -62,7 +59,7 @@ public class WrongOption extends AbstractProblem implements Problem{
     private static final Logger logger = Logger.getLogger(WrongOption.class);
 
     private Date date;
-    private final String volume;
+    private final Volume volume;
     private final String optionKey;
     private final String wrongValue;
     private final String expectedValue;

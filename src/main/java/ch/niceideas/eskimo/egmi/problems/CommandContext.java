@@ -38,6 +38,7 @@ import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -90,7 +91,7 @@ public class CommandContext implements ResolutionLogger, RuntimeSettingsOwner, C
     }
 
     @Override
-    public Set<String> getConfiguredVolumes() {
+    public Set<Volume> getConfiguredVolumes() {
         return configOwner.getConfiguredVolumes();
     }
 

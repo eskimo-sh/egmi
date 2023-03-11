@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.problems;
 
 import ch.niceideas.eskimo.egmi.model.BrickId;
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -51,7 +52,10 @@ public class BrickOfflineTest  extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new BrickOffline(new Date(), "test2", new BrickId(Node.from ("192.168.10.71"), "/var/lib/gluster/volume_bricks/test2_bis_1"));
+        problem = new BrickOffline(
+                new Date(),
+                Volume.from("test2"),
+                BrickId.fromNodeAndPath(Node.from ("192.168.10.71"), "/var/lib/gluster/volume_bricks/test2_bis_1"));
     }
 
     @Test

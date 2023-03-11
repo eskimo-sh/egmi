@@ -57,7 +57,7 @@ public class NoVolume extends AbstractProblem implements Problem {
     private static final Logger logger = Logger.getLogger(NoVolume.class);
 
     private Date date;
-    private final String volume;
+    private final Volume volume;
 
     @Override
     public String getProblemId() {
@@ -91,7 +91,7 @@ public class NoVolume extends AbstractProblem implements Problem {
 
         context.info ("- Solving " + getProblemId());
 
-        Set<String> configuredVolumes = context.getConfiguredVolumes();
+        Set<Volume> configuredVolumes = context.getConfiguredVolumes();
 
         // 1. If volume is not a managed volume, there's nothing to do, after a while, just remove it from runtime volume
         if (!configuredVolumes.contains(volume)) {
@@ -131,7 +131,7 @@ public class NoVolume extends AbstractProblem implements Problem {
         }
     }
 
-    public static boolean createVolume(String volume, GlusterRemoteManager glusterRemoteManager, CommandContext context) throws GlusterRemoteException, NodeStatusException, ResolutionStopException {
+    public static boolean createVolume(Volume volume, GlusterRemoteManager glusterRemoteManager, CommandContext context) throws GlusterRemoteException, NodeStatusException, ResolutionStopException {
         Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
         Set<Node> activeNodes = getActiveConnectedNodes(nodesStatus);
@@ -161,15 +161,18 @@ public class NoVolume extends AbstractProblem implements Problem {
     }
 
 
-    public static void removeFromRuntimeVolumes(String volume, RuntimeSettingsOwner context) throws ResolutionStopException {
+    public static void removeFromRuntimeVolumes(Volume volume, RuntimeSettingsOwner context) throws ResolutionStopException {
 
         try {
             context.updateSettingsAtomically(runtimeConfig -> {
                 String savedVolumesString = runtimeConfig.getValueForPathAsString("discovered-volumes");
-                Set<String> savedVolumes = new HashSet<>(Arrays.asList(savedVolumesString.split(",")));
+                Set<Volume> savedVolumes = Arrays.stream(savedVolumesString.split(","))
+                        .map(Volume::from).collect(Collectors.toSet());
                 savedVolumes.remove(volume);
 
-                savedVolumesString = String.join(",", savedVolumes);
+                savedVolumesString = savedVolumes.stream()
+                        .map(Volume::getName)
+                        .collect(Collectors.joining(","));
                 runtimeConfig.setValueForPath("discovered-volumes", savedVolumesString);
                 return runtimeConfig;
             });

@@ -59,7 +59,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
     private static final Logger logger = Logger.getLogger(MissingBrick.class);
 
     private Date date;
-    private final String volume;
+    private final Volume volume;
     private final int targetNbrBricks;
     private final int nbrBricks;
 

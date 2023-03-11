@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.problems;
 
 import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.Volume;
 
 import java.util.Set;
 
@@ -42,7 +43,7 @@ public interface ConfigurationOwner {
 
     Set<Node> getConfiguredNodes();
 
-    Set<String> getConfiguredVolumes();
+    Set<Volume> getConfiguredVolumes();
 
     String getEnvironmentProperty (String property);
 
