@@ -126,6 +126,7 @@ public abstract class AbstractProblemTest {
                         return "/var/lib/gluster/volume_bricks/";
                     case "problem.nodeDown.timeout":
                     case "problem.brickOffline.timeout":
+                    case "problem.nodeDownRemoval.timeout":
                         return "0";
                 }
                 return null;

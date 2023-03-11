@@ -110,8 +110,9 @@ public abstract class AbstractScenarioTest {
 
         ms.setProblemManager(new ProblemManager() {
             @Override
-            public void resolutionIteration(SystemStatus newStatus) {
+            public boolean resolutionIteration(SystemStatus newStatus) {
                 // No-Op
+                return false;
             }
         });
 

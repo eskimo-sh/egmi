@@ -217,6 +217,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             return;
         }
 
+        int effectiveStatusUpdatePeriodSeconds = statusUpdatePeriodSeconds;
         try {
             statusUpdateLock.lock();
             logger.info ("  + Got lock - proceeding ...");
@@ -246,7 +247,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             List<String> partitionedNodes = GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
 
             // 4. Detect peer connection inconsistencies
-            detectConnectionInconsistencies (problemManager, allNodes, partitionedNodes, nodesStatus, nodeInfos);
+            detectConnectionInconsistencies (problemManager, allNodes, nodesStatus, nodeInfos);
 
             // -- END OF problem detection phase
 
@@ -263,7 +264,9 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
             // 7. Problem resolution iteration
             try {
-                problemManager.resolutionIteration(newStatus);
+                if (problemManager.resolutionIteration(newStatus)) {
+                    effectiveStatusUpdatePeriodSeconds = statusUpdatePeriodSeconds / 3; // shorten resolution loop if a problem has been solved
+                }
             } catch (Exception e) {
                 error(e);
             }
@@ -283,7 +286,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             statusUpdateLock.unlock();
             // reschedule
             if (statusRefreshScheduler != null) {
-                statusRefreshScheduler.schedule(this::updateSystemStatus, statusUpdatePeriodSeconds, TimeUnit.SECONDS);
+                statusRefreshScheduler.schedule(this::updateSystemStatus, effectiveStatusUpdatePeriodSeconds, TimeUnit.SECONDS);
             }
         }
     }
@@ -299,7 +302,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return newStatus;
     }
 
-    private void detectConnectionInconsistencies(ProblemManager problemManager, Set<String> allNodes, List<String> partitionedNodes, Map<String, NodeStatus> nodesStatus, List<JSONObject> nodeInfos) {
+    private void detectConnectionInconsistencies(ProblemManager problemManager, Set<String> allNodes, Map<String, NodeStatus> nodesStatus, List<JSONObject> nodeInfos) {
 
         try {
             // 1. Build all nodes neighbours
@@ -549,6 +552,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                                 if (StringUtils.isBlank(nodeStatus) || nodeStatus.equals("KO")) {
                                     errors.add(node + " DOWN");
                                     problemManager.addProblem (new NodeDown(new Date(), volume, node));
+                                    problemManager.addProblem (new NodeDownRemoval(new Date(), node));
                                 }
                             }
                         }

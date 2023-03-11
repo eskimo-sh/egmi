@@ -98,15 +98,16 @@ public class ProblemManager {
                 .forEach(problem-> problems.remove(problem.getProblemId()));
     }
 
-    public void resolutionIteration(SystemStatus newStatus) {
+    public boolean resolutionIteration(SystemStatus newStatus) {
         List<Problem> sortedProblems = new ArrayList<>(problems.values());
         Collections.sort(sortedProblems);
+        boolean atLeastAProblemSolved = false;
 
         try {
             boolean zeroPrioritySolved = false;
             for (Problem problem : sortedProblems) {
 
-                // If some zero priority problem has been solved, don't try to solve anything else is same iteration
+                // If some zero priority problem has been solved, don't try to solve anything else in same iteration
                 /*
                 if (problem.getPriority() != 0 && zeroPrioritySolved) {
                     return;
@@ -117,9 +118,11 @@ public class ProblemManager {
                     // always check leadership before moving forward
                     if (!managementService.isMaster()) {
                         problems.clear();
-                        return;
+                        return false;
                     }
                     if (problem.solve(glusterRemoteManager, new CommandContext(httpClient, glusterCommandServerPort, managementService))) {
+
+                        atLeastAProblemSolved = true;
                         problems.remove(problem.getProblemId());
 
                         if (problem.getPriority() == 0) {
@@ -133,5 +136,7 @@ public class ProblemManager {
         } catch (ResolutionStopException e) {
             logger.error (e, e);
         }
+
+        return atLeastAProblemSolved;
     }
 }

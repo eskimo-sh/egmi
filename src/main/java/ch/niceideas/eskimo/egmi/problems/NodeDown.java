@@ -134,25 +134,9 @@ public class NodeDown extends AbstractProblem implements Problem {
 
                 Map<BrickId, String> nodeBricks = nodesStatus.get(activeNodes.stream().findFirst().get()).getNodeBricksAndVolumes(host);
 
-                // 2. if the node doesn't run any brick and is not a managed node (not configured) just remove it from runtime node
-                if (nodeBricks == null || nodeBricks.isEmpty()) {
-
-                    if (context.getConfiguredNodes().contains(host)) {
-                        context.info ("  + Node " + host + " doesn't contain any volume but is a managed node. skipping.");
-                        return false;
-
-                    } else {
-
-                        context.info ("  + Node " + host + " doesn't contain any volume and is not a managed node. removing from tracked nodes.");
-                        removefromRuntimeNodes(context);
-                        return true;
-                    }
-                }
-
-
-                // 3. if the node runs brick, consider them lost, attempt to move them elsewhere
-                // for every of them
-                else {
+                // 2. if the node runs brick, consider them lost, attempt to move them elsewhere
+                //    for every of them
+                if (nodeBricks != null && !nodeBricks.isEmpty()) {
 
                     return handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks);
                 }
@@ -275,25 +259,6 @@ public class NodeDown extends AbstractProblem implements Problem {
             }
         }
         return true;
-    }
-
-    private void removefromRuntimeNodes(CommandContext context) throws ResolutionStopException {
-        try {
-
-            context.updateSettingsAtomically(runtimeConfig -> {
-                String savedNodesString = runtimeConfig.getValueForPathAsString("discovered-nodes");
-                Set<String> savedNodes = new HashSet<>(Arrays.asList(savedNodesString.split(",")));
-                savedNodes.remove(host);
-
-                savedNodesString = String.join(",", savedNodes);
-                runtimeConfig.setValueForPath("discovered-nodes", savedNodesString);
-                return runtimeConfig;
-            });
-
-        } catch (ManagementException e) {
-            logger.error (e, e);
-            throw new ResolutionStopException(e);
-        }
     }
 
     private static String findFreeTargetNode(Set<String> activeNodes, Map<BrickId, BrickInformation> brickInformations) throws ResolutionSkipException {

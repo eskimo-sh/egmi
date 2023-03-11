@@ -45,7 +45,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ElectionProcess implements Runnable, Closeable {
 
@@ -71,14 +70,12 @@ public class ElectionProcess implements Runnable, Closeable {
     private String processNodePath;
     private String leaderNodeWatch;
 
-    private final ProcessNodeWatcher watcher = new ProcessNodeWatcher();
-
     public ElectionProcess(final String id, final boolean dataNode, final boolean masterElection, final String zkURL, final int zkSessionTimeout, final ElectionCallback callback) throws IOException {
         this.dataNode = dataNode;
         this.masterElection = masterElection;
         this.id = id;
         this.callback = callback;
-        zooKeeperManager = new ZookeeperManager(zkURL, zkSessionTimeout, watcher);
+        zooKeeperManager = new ZookeeperManager(zkURL, zkSessionTimeout, new ProcessNodeWatcher());
     }
 
     private void attemptForLeaderPosition() {

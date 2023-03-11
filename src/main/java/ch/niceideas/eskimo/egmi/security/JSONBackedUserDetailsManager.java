@@ -43,30 +43,25 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDetailsPasswordService {
 
     private static final Logger logger = Logger.getLogger(JSONBackedUserDetailsManager.class);
@@ -80,17 +75,13 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
 
     private final String jsonFilePath;
 
-    private BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public JSONBackedUserDetailsManager() throws FileException {
-        this ("/tmp/test");
-    }
-
-    public JSONBackedUserDetailsManager(@Value("${conf.userFilePath:/tmp/test}")  String jsonFilePath) throws FileException {
+    public JSONBackedUserDetailsManager(String jsonFilePath, PasswordEncoder passwordEncoder) throws FileException {
 
         this.jsonFilePath = jsonFilePath;
 
-        passwordEncoder = new BCryptPasswordEncoder(11);
+        this.passwordEncoder = passwordEncoder;
 
         File configFile = new File(jsonFilePath);
         if (!configFile.exists()) {

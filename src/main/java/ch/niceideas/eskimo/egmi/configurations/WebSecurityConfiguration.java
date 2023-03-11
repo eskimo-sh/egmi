@@ -34,12 +34,16 @@
 
 package ch.niceideas.eskimo.egmi.configurations;
 
+import ch.niceideas.common.utils.FileException;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.security.JSONBackedUserDetailsManager;
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -51,6 +55,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.DelegatingAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -64,28 +71,22 @@ import java.util.LinkedHashMap;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfiguration {
 
     private static final Logger logger = Logger.getLogger(WebSecurityConfiguration.class);
-
-    public static final int MAXIMUM_SESSIONS_PER_USER = 10;
 
     public static final String LOGIN_PAGE_URL = "/login.html";
     public static final String INDEX_PAGE_URL = "/index.html";
     public static final String APP_PAGE_URL = "/app.html";
 
-    @Autowired
-    private JSONBackedUserDetailsManager userDetailsManager;
-
-    //@Value("${security.userJsonFile}")
-    //private String userJsonFilePath = "/tmp/egmi-users.json";
-
     @Value("${server.servlet.context-path:#{null}}")
     private String configuredContextPath = "";
 
+    @Value("${conf.userFilePath:/tmp/test}")
+    private String userJsonFilePath;
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         final String contextPath = getContextPath();
 
@@ -94,7 +95,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
                 /*
                 .antMatchers(LOGIN_PAGE_URL).permitAll()
-                .antMatchers(INDEX_PAGE_URL).permitAll()
                 .antMatchers("/css/**").permitAll()
                 .antMatchers("/scripts/**").permitAll()
                 .antMatchers("/js/**").permitAll()
@@ -102,15 +102,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/img/**").permitAll()
                 .antMatchers("/fonts/**").permitAll()
                 .antMatchers("/html/**").permitAll()
-                .antMatchers("/docs/**").permitAll()
-                .antMatchers("/user/register").permitAll()
-                .antMatchers("/user/resend").permitAll()
-                .antMatchers("/user/reset").permitAll()
-                .antMatchers("/user/activate").permitAll()
-                .antMatchers("/user/do-reset").permitAll()
-                .antMatchers("/user/change-password").permitAll()
-                .antMatchers("/eula.html").permitAll()
-                .antMatchers(APP_PAGE_URL).authenticated()
                 .anyRequest().authenticated()
                 */
                 .antMatchers("/*").permitAll() // de-activating entirely authentication
@@ -121,30 +112,27 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     if (isAjax(httpServletRequest)) {
                         httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                     } else {
-                        httpServletResponse.sendRedirect(contextPath + INDEX_PAGE_URL);
+                        httpServletResponse.sendRedirect(contextPath + LOGIN_PAGE_URL);
                     }
+
                 }).and()
             // own login stuff
             .formLogin()
                 .loginPage(LOGIN_PAGE_URL).permitAll()
                 .loginProcessingUrl("/login").permitAll()
-                .defaultSuccessUrl("/app.html",true)
-                .failureHandler(new DelegatingAuthenticationFailureHandler(
-                        new LinkedHashMap<>(){{
-                            put (AccountStatusException.class, (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendRedirect(contextPath + LOGIN_PAGE_URL + "?status"));
-                            put (DisabledException.class, (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendRedirect(contextPath + LOGIN_PAGE_URL + "?status"));
-                            put (BadCredentialsException.class, (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendRedirect(contextPath + LOGIN_PAGE_URL + "?error"));
-                            put (UsernameNotFoundException.class, (httpServletRequest, httpServletResponse, e) -> httpServletResponse.sendRedirect(contextPath + LOGIN_PAGE_URL + "?error"));
-                        }},
-                        new SimpleUrlAuthenticationFailureHandler(contextPath + LOGIN_PAGE_URL + "?error")
-                ))
+                    .usernameParameter("egmi-username")
+                    .passwordParameter("egmi-password")
+                .defaultSuccessUrl("/index.html",true)
                 .and()
+            .userDetailsService(userDetailsService())
             .logout().permitAll()
                 .and()
              // disabling CSRF security as long as not implemented backend side
             .csrf().disable()
             // disabling Same origin policy on iframes (eskimo may use this eventually)
             .headers().frameOptions().disable();
+
+        return http.build();
     }
 
     private String getContextPath() {
@@ -161,28 +149,19 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                  acceptHeader.contains("json") || acceptHeader.contains("javascript"));
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService())
-                .passwordEncoder(new BCryptPasswordEncoder(11));
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(11);
     }
 
-    @Override
-    public UserDetailsService userDetailsService() {
-        return userDetailsManager;
-    }
-
-    public static class SessionTimeoutAuthSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-        public final Duration sessionTimeout;
-
-        public SessionTimeoutAuthSuccessHandler(Duration sessionTimeout) {
-            this.sessionTimeout = sessionTimeout;
-        }
-
-        @Override
-        public void onAuthenticationSuccess(HttpServletRequest req, HttpServletResponse res, Authentication auth) throws ServletException, IOException {
-            req.getSession().setMaxInactiveInterval(Math.toIntExact(sessionTimeout.getSeconds()));
-            super.onAuthenticationSuccess(req, res, auth);
+    @Bean
+    @Profile("!test-security")
+    public UserDetailsManager userDetailsService() {
+        try {
+            return new JSONBackedUserDetailsManager(userJsonFilePath, passwordEncoder());
+        } catch (FileException | JSONException e) {
+            logger.error (e, e);
+            throw new ConfigurationException(e);
         }
     }
 }
