@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.model.BrickId;
+import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -52,9 +53,9 @@ public class GlusterVolumeAddBrickTest extends AbstractCommandTest {
 
         GlusterVolumeAddBrick command = new GlusterVolumeAddBrick(mockClient, "test_volume", 2,
                 Arrays.asList(
-                        new BrickId("192.168.10.72", "/var/lib/gluster/bricks/test1_2"),
-                        new BrickId("192.168.10.73", "/var/lib/gluster/bricks/test1_2")));
-        SimpleOperationResult result = command.execute("127.0.0.1", context);
+                        new BrickId(Node.from("192.168.10.72"), "/var/lib/gluster/bricks/test1_2"),
+                        new BrickId(Node.from("192.168.10.73"), "/var/lib/gluster/bricks/test1_2")));
+        SimpleOperationResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
         assertTrue(result.isSuccess());
 
@@ -71,8 +72,8 @@ public class GlusterVolumeAddBrickTest extends AbstractCommandTest {
 
         GlusterVolumeAddBrick command = new GlusterVolumeAddBrick(mockClient, "test_volume", 1,
                 List.of(
-                        new BrickId("192.168.10.72", "/var/lib/gluster/bricks/test1_2")));
-        SimpleOperationResult result = command.execute("127.0.0.1", context);
+                        new BrickId(Node.from("192.168.10.72"), "/var/lib/gluster/bricks/test1_2")));
+        SimpleOperationResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
         assertTrue(result.isSuccess());
 

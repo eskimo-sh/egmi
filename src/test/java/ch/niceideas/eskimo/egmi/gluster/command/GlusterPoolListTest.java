@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,7 +51,7 @@ public class GlusterPoolListTest extends AbstractCommandTest {
         response.set(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("command/GlusterPoolListResult.txt")));
 
         GlusterPoolList command = new GlusterPoolList(mockClient);
-        GlusterPoolListResult result = command.execute("127.0.0.1", context);
+        GlusterPoolListResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
 
         assertEquals (4, result.size());

@@ -37,17 +37,21 @@ package ch.niceideas.eskimo.egmi.problems;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
-import ch.niceideas.eskimo.egmi.gluster.command.ForceRemoveBrick;
-import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeAddBrick;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeSet;
-import ch.niceideas.eskimo.egmi.model.*;
-import lombok.*;
+import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.NodeStatus;
+import ch.niceideas.eskimo.egmi.model.NodeStatusException;
+import ch.niceideas.eskimo.egmi.model.SystemStatus;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -102,9 +106,9 @@ public class WrongOption extends AbstractProblem implements Problem{
         try {
 
             // 1. Get active nodes
-            Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+            Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-            Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
+            Set<Node> activeNodes = getActiveConnectedNodes(nodesStatus);
 
             if (activeNodes.size() == 0) {
                 context.info ("  !! no active node. skipping");
@@ -112,7 +116,7 @@ public class WrongOption extends AbstractProblem implements Problem{
             }
 
             // 2. Run solving command on fist node available
-            String firstActiveNode = activeNodes.stream().findFirst().get();
+            Node firstActiveNode = getFirstNode(activeNodes).orElseThrow(IllegalStateException::new);
 
             executeSimpleOperation (
                     new GlusterVolumeSet(context.getHttpClient(), volume, optionKey, expectedValue),

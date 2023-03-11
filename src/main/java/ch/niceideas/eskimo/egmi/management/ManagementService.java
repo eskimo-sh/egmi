@@ -175,7 +175,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return retSet;
     }
 
-    public String getRTConfiguredNodes() {
+    protected String getRTConfiguredNodes() {
         if (StringUtils.isBlank(runtimeConfiguredNodes)) {
             if (StringUtils.isNotBlank(testConfiguredNodes)) {
                 runtimeConfiguredNodes = testConfiguredNodes;
@@ -231,10 +231,10 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 runtimeConfiguredNodes = zookeeperService.getConfiguredNodes();
             }
 
-            Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+            Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
             // 1. Build complete set of nodes and volumes
-            Set<String> allNodes = getRuntimeNodes(nodesStatus);
+            Set<Node> allNodes = getRuntimeNodes(nodesStatus);
 
             Set<String> allVolumes = getRuntimeVolumes (nodesStatus);
 
@@ -244,7 +244,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             SystemStatus newStatus = getSystemStatus(InetAddress.getLocalHost().toString(), nodesStatus, allNodes, allVolumes, nodeInfos);
 
             // 3. Detection connection graph partitioning
-            List<String> partitionedNodes = GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
+            List<Node> partitionedNodes = GraphPartitionDetector.detectGraphPartitioning (problemManager, allNodes, nodeInfos, nodesStatus);
 
             // 4. Detect peer connection inconsistencies
             detectConnectionInconsistencies (problemManager, allNodes, nodesStatus, nodeInfos);
@@ -291,7 +291,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
-    SystemStatus getSystemStatus(String hostName, Map<String, NodeStatus> nodesStatus, Set<String> allNodes, Set<String> allVolumes, List<JSONObject> nodeInfos) throws UnknownHostException, NodeStatusException {
+    SystemStatus getSystemStatus(String hostName, Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, Set<String> allVolumes, List<JSONObject> nodeInfos) throws UnknownHostException, NodeStatusException {
         SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + hostName + "\"}");
 
         // 1. Build Node status
@@ -302,12 +302,12 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return newStatus;
     }
 
-    private void detectConnectionInconsistencies(ProblemManager problemManager, Set<String> allNodes, Map<String, NodeStatus> nodesStatus, List<JSONObject> nodeInfos) {
+    private void detectConnectionInconsistencies(ProblemManager problemManager, Set<Node> allNodes, Map<Node, NodeStatus> nodesStatus, List<JSONObject> nodeInfos) {
 
         try {
             // 1. Build all nodes neighbours
-            Map<String, Set<String>> nodesPeeers = new HashMap<>();
-            for (String node : allNodes) {
+            Map<Node, Set<Node>> nodesPeeers = new HashMap<>();
+            for (Node node : allNodes) {
 
                 NodeStatus nodeStatus = nodesStatus.get(node);
                 if (nodeStatus != null) { // don't act on node down
@@ -316,11 +316,11 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             }
 
             // 2. Find inconsistencies
-            for (String node : allNodes) {
-                Set<String> nodePeers = nodesPeeers.get(node);
+            for (Node node : allNodes) {
+                Set<Node> nodePeers = nodesPeeers.get(node);
                 if (nodePeers != null) {
-                    for (String other : allNodes) {
-                        Set<String> otherPeers = nodesPeeers.get(other);
+                    for (Node other : allNodes) {
+                        Set<Node> otherPeers = nodesPeeers.get(other);
                         if (otherPeers != null) {
 
                             if (otherPeers.contains(node) && !nodePeers.contains(other)) {
@@ -339,10 +339,10 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
     }
 
-    private boolean flagNodeInconsistent(ProblemManager problemManager, List<JSONObject> nodeInfos, String node, String other) {
+    private boolean flagNodeInconsistent(ProblemManager problemManager, List<JSONObject> nodeInfos, Node node, Node other) {
         // flag node inconsistent
         for (JSONObject nodeInfo : nodeInfos) {
-            if (nodeInfo.getString("host").equals(node)) {
+            if (node.matches (nodeInfo.getString("host"))) {
                 String prevStatus = nodeInfo.getString("status");
                 if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
                     nodeInfo.put("status", "INCONSISTENT");
@@ -354,8 +354,8 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return false;
     }
 
-    private List<JSONObject> buildVolumeInfo(Map<String, NodeStatus> nodesStatus,
-                                             Set<String> allNodes, Set<String> allVolumes, List<JSONObject> nodeInfos)
+    private List<JSONObject> buildVolumeInfo(Map<Node, NodeStatus> nodesStatus,
+                                             Set<Node> allNodes, Set<String> allVolumes, List<JSONObject> nodeInfos)
             throws NodeStatusException {
 
         int targetNbrBricks = getTargetNumberOfBricks();
@@ -375,7 +375,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
             List<Pair<BrickId, JSONObject>> bricksInfo = new ArrayList<>();
 
-            for (String node : allNodes) {
+            for (Node node : allNodes) {
 
                 NodeStatus nodeStatus = nodesStatus.get(node);
                 if (nodeStatus != null) {
@@ -464,7 +464,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
                         setInBrickInfo(brickInfo, "number", effNumber, prevNumber, errors, "NBR");
 
-                        String effNode = brickId.getNode();
+                        String effNode = brickId.getNode().getAddress();
                         String prevNode = brickInfo.has("node") ? brickInfo.getString("node") : null;
 
                         setInBrickInfo(brickInfo, "node", effNode, prevNode, errors, "NODE");
@@ -542,12 +542,13 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 JSONObject brickInfoObj = brickInfo.getValue();
                 String status = brickInfoObj.has("status") ? brickInfoObj.getString("status") : null;
                 if (StringUtils.isBlank(status)) {
-                    String node = brickInfoObj.getString("node");
-                    if (StringUtils.isNotBlank(node)) {
+                    String nodeAddress = brickInfoObj.getString("node");
+                    if (StringUtils.isNotBlank(nodeAddress)) {
+                        Node node = Node.from(nodeAddress);
                         // find nodeInfo
                         for (JSONObject nodeInfo : nodeInfos) {
                             String nodeInfoNode = nodeInfo.getString("host");
-                            if (nodeInfoNode.equals(node)) {
+                            if (node.matches(nodeInfoNode)) {
                                 String nodeStatus = nodeInfo.has ("status") ? nodeInfo.getString("status") : null;
                                 if (StringUtils.isBlank(nodeStatus) || nodeStatus.equals("KO")) {
                                     errors.add(node + " DOWN");
@@ -661,12 +662,12 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         messagingService.addLine(getMessageDate() + " - WARN: " + s);
     }
 
-    List<JSONObject> buildNodeInfo(Map<String, NodeStatus> nodesStatus, Set<String> allNodes) throws NodeStatusException {
+    List<JSONObject> buildNodeInfo(Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes) throws NodeStatusException {
 
         List<JSONObject> nodesInfo = new ArrayList<>();
-        for (String node : allNodes) {
+        for (Node node : allNodes) {
             JSONObject nodeSystemStatus = new JSONObject();
-            nodeSystemStatus.put("host", node);
+            nodeSystemStatus.put("host", node.getAddress());
 
             NodeStatus nodeStatus = nodesStatus.get(node);
             if (nodeStatus == null) {
@@ -697,9 +698,9 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return nodesInfo;
     }
 
-    public Set<String> getAllNodes() throws ManagementException {
+    public Set<Node> getAllNodes() throws ManagementException {
 
-        Set<String> nodes = getConfiguredNodes();
+        Set<Node> nodes = getConfiguredNodes();
 
         // 2. Add all previously discovered nodes
         JsonWrapper runtimeConfig = loadRuntimeSettings();
@@ -711,23 +712,25 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return nodes;
     }
 
-    private void injectRuntimeNodes(Set<String> nodes, String runtimeNodes) {
+    private void injectRuntimeNodes(Set<Node> nodes, String runtimeNodes) {
         if (StringUtils.isNotBlank(runtimeNodes)) {
             String[] discNodes = runtimeNodes.split(",");
             Arrays.stream(discNodes)
                     .filter(StringUtils::isNotBlank)
                     .map(String::trim)
+                    .map(Node::from)
                     .forEach(nodes::add);
         }
     }
 
-    public Set<String> getConfiguredNodes() {
-        Set<String> nodes = new HashSet<>();
+    public Set<Node> getConfiguredNodes() {
+        Set<Node> nodes = new HashSet<>();
 
         // 1. Add all configured nodes
         String[] confNodes = getRTConfiguredNodes().split(",");
         Arrays.stream(confNodes, 0, confNodes.length)
                 .filter(StringUtils::isNotBlank)
+                .map(Node::from)
                 .forEach(nodes::add);
 
         return nodes;
@@ -763,14 +766,14 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return volumes;
     }
 
-    Set<String> getRuntimeNodes(Map<String, NodeStatus> nodesStatus) throws ManagementException {
-        Set<String> allNodes = new TreeSet<>(getAllNodes());
+    Set<Node> getRuntimeNodes(Map<Node, NodeStatus> nodesStatus) throws ManagementException {
+        Set<Node> allNodes = new TreeSet<>(getAllNodes());
 
         nodesStatus.values()
                 .forEach(status -> {
                     try {
                         status.getAllPeers().stream()
-                                .filter(host -> !host.equals("localhost"))
+                                .filter(host -> !host.matches("localhost"))
                                 .forEach(allNodes::add);
                     } catch (NodeStatusException e) {
                         // ignored here.
@@ -783,7 +786,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         if (!runtimeConfig.isEmpty()) {
             savedNodes = runtimeConfig.getValueForPathAsString("discovered-nodes");
         }
-        String runtimeNodes = String.join(",", allNodes);
+        String runtimeNodes = allNodes.stream().map(Node::getAddress).collect(Collectors.joining(","));
         if (!runtimeNodes.equals(savedNodes)) {
             runtimeConfig.setValueForPath("discovered-nodes", runtimeNodes);
             saveRuntimeSetting(runtimeConfig);
@@ -791,7 +794,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return allNodes;
     }
 
-    Set<String> getRuntimeVolumes(Map<String, NodeStatus> nodesStatus) throws ManagementException {
+    Set<String> getRuntimeVolumes(Map<Node, NodeStatus> nodesStatus) throws ManagementException {
         Set<String> allVolumes = new TreeSet<>(getAllVolumes());
 
         nodesStatus.values()

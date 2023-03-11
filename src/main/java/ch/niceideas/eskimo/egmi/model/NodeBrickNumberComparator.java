@@ -39,12 +39,12 @@ import lombok.RequiredArgsConstructor;
 import java.util.Comparator;
 
 @RequiredArgsConstructor
-public class NodeBrickNumberComparator implements Comparator<String> {
+public class NodeBrickNumberComparator implements Comparator<Node> {
 
     private final NodeStatus nodeStatus;
 
     @Override
-    public int compare(String o1, String o2) {
+    public int compare(Node o1, Node o2) {
         int nbrBricks1;
         try {
             nbrBricks1 = nodeStatus.getNodeBricksAndVolumes(o1).keySet().size();

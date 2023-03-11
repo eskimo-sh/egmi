@@ -102,11 +102,11 @@ public class BrickOffline extends AbstractProblem implements Problem {
             if (age >= brickOfflineTimeout) {
 
                 // 1. Confirm a brick is offline
-                Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+                Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-                String node = brickId.getNode();
+                Node node = brickId.getNode();
 
-                Set<String> activeNodes = getActiveNodes(nodesStatus);
+                Set<Node> activeNodes = getActiveNodes(nodesStatus);
 
                 if (!activeNodes.contains(node)) {
                     context.info ("  !! Node " + node + " is not active");

@@ -44,6 +44,7 @@ import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.management.MessagingService;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -142,10 +143,14 @@ public abstract class AbstractProblemTest {
         grm = new GlusterRemoteManager() {
 
             @Override
-            public Map<String, NodeStatus> getAllNodeStatus() throws GlusterRemoteException {
+            public Map<Node, NodeStatus> getAllNodeStatus() throws GlusterRemoteException {
                 try {
-                    Map<String, NodeStatus> retMap = new HashMap<>();
-                    for (String node : new String[]{"192.168.10.71", "192.168.10.72", "192.168.10.73", "192.168.10.74"}) {
+                    Map<Node, NodeStatus> retMap = new HashMap<>();
+                    for (Node node : new Node[]{
+                            Node.from ("192.168.10.71"),
+                            Node.from ("192.168.10.72"),
+                            Node.from ("192.168.10.73"),
+                            Node.from ("192.168.10.74")}) {
                         InputStream nodeStatusIs = ResourceUtils.getResourceAsStream("problems/" + getTestRoot() + "/" + node + ".json");
                         if (nodeStatusIs != null) {
                             retMap.put(node, new NodeStatus(StreamUtils.getAsString(nodeStatusIs)));

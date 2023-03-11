@@ -65,8 +65,8 @@ public class NodeInconsistent extends AbstractProblem implements Problem {
     private static final Logger logger = Logger.getLogger(NodeInconsistent.class);
 
     private Date date;
-    private final String host;
-    private final String other;
+    private final Node host;
+    private final Node other;
 
 
     @Override
@@ -104,10 +104,10 @@ public class NodeInconsistent extends AbstractProblem implements Problem {
         try {
 
             // 1. find out if node can be added to a larger cluster
-            Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+            Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
             // 1.1 Find all nodes in Nodes Status not being KO
-            Set<String> activeNodes = getActiveNodes(nodesStatus);
+            Set<Node> activeNodes = getActiveNodes(nodesStatus);
 
             if (!activeNodes.contains(host)) {
                 context.info ("  !! Node " + host + " is not active");
@@ -118,7 +118,7 @@ public class NodeInconsistent extends AbstractProblem implements Problem {
             activeNodes.remove(host);
 
             // 2. Remove all node bricks
-            String activeNode = activeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
+            Node activeNode = activeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
             Map<BrickId, String> nodeBricks = nodesStatus.get(activeNode).getNodeBricksAndVolumes(host);
             for (String volume : nodeBricks.values()) {
                 if (!NodeDown.handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {

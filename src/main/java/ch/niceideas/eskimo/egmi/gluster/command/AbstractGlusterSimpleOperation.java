@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 
 public class AbstractGlusterSimpleOperation extends AbstractGlusterSimpleCommand<SimpleOperationResult>{
@@ -52,8 +53,8 @@ public class AbstractGlusterSimpleOperation extends AbstractGlusterSimpleCommand
     }
 
     @Override
-    protected final String buildCommandUrl(String ip, CommandContext context) {
-        return buildSimpleCommandUrl(ip, context, command, subCommand, options);
+    protected final String buildCommandUrl(Node node, CommandContext context) {
+        return buildSimpleCommandUrl(node, context, command, subCommand, options);
     }
 
     @Override

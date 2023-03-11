@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.problems;
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
+import ch.niceideas.eskimo.egmi.model.Node;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -84,7 +85,7 @@ public class CommandContext implements ResolutionLogger, RuntimeSettingsOwner, C
     }
 
     @Override
-    public Set<String> getConfiguredNodes() {
+    public Set<Node> getConfiguredNodes() {
         return configOwner.getConfiguredNodes();
     }
 

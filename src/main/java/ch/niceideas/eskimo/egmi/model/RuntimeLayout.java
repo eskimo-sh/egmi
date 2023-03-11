@@ -46,7 +46,7 @@ public class RuntimeLayout {
     private int targetNbrReplicas;
     private int targetNbrShards;
 
-    public RuntimeLayout (CommandContext context, Set<String> activeNodes) {
+    public RuntimeLayout (CommandContext context, Set<Node> activeNodes) {
         targetNbrBricks = context.getTargetNumberOfBricks();
         targetNbrReplicas = context.getTargetNumberOfReplicas();
         targetNbrShards = targetNbrBricks / targetNbrReplicas;

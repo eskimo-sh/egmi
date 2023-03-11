@@ -35,10 +35,11 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.eskimo.egmi.model.Node;
 
 public class GlusterPeerProbe extends AbstractGlusterSimpleOperation {
 
-    public GlusterPeerProbe(HttpClient httpClient, String peer) {
-        super (httpClient, "peer", "probe", peer);
+    public GlusterPeerProbe(HttpClient httpClient, Node peer) {
+        super (httpClient, "peer", "probe", peer.getAddress());
     }
 }

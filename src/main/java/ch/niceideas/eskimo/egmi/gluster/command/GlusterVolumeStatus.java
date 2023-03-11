@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 
 public class GlusterVolumeStatus extends AbstractGlusterSimpleCommand<GlusterVolumeStatusResult>{
@@ -49,8 +50,8 @@ public class GlusterVolumeStatus extends AbstractGlusterSimpleCommand<GlusterVol
     }
 
     @Override
-    protected String buildCommandUrl(String ip, CommandContext context) {
-        return buildSimpleCommandUrl(ip, context, "volume", "status", "all", "detail");
+    protected String buildCommandUrl(Node node, CommandContext context) {
+        return buildSimpleCommandUrl(node, context, "volume", "status", "all", "detail");
     }
 
     @Override

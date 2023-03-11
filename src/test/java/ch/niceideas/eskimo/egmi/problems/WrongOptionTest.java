@@ -62,6 +62,8 @@ public class WrongOptionTest extends AbstractProblemTest {
     public void testSolve() throws Exception {
         problem.solve(grm, new CommandContext(mockClient, 1234, ms));
 
-        assertEquals("192.168.10.73:1234/command?command=volume&subcommand=set&options=test1%20performance.open-behind%20off%20--mode=script", String.join("\n", urls));
+        assertEquals("" +
+                        "192.168.10.71:1234/command?command=volume&subcommand=set&options=test1%20performance.open-behind%20off%20--mode=script",
+                String.join("\n", urls));
     }
 }

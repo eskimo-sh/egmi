@@ -32,38 +32,39 @@
  * Software.
  */
 
-package ch.niceideas.eskimo.egmi.problems;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+package ch.niceideas.eskimo.egmi.model;
 
-import java.util.Date;
+import ch.niceideas.common.utils.StringUtils;
+import lombok.Data;
 
-import static org.junit.jupiter.api.Assertions.*;
+@Data
+public class Node implements Comparable<Node> {
 
-public class NoVolumeTest extends AbstractProblemTest {
+    private final String address;
 
-    private NoVolume problem;
+    private Node (String address) {
+        this.address = address;
+    }
+
+    public static Node from (String address) {
+        if (StringUtils.isBlank(address)) {
+            throw new IllegalArgumentException("Given address is null");
+        }
+        return new Node (address);
+    }
 
     @Override
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        problem = new NoVolume(new Date(), "flink_data");
+    public final String toString() {
+        return address;
     }
 
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
+    public boolean matches(String address) {
+        return StringUtils.isNotBlank(address) && address.equalsIgnoreCase(this.address);
     }
 
-    @Test
-    public void testSolve() throws Exception {
-        problem.solve(grm, new CommandContext(mockClient, 1234, ms));
-
-        assertEquals("" +
-                "192.168.10.74:1234/command?command=volume&subcommand=create&options=flink_data%20replica%203%20transport%20tcp%20192.168.10.74:/var/lib/gluster/volume_bricks/flink_data%20192.168.10.71:/var/lib/gluster/volume_bricks/flink_data%20192.168.10.72:/var/lib/gluster/volume_bricks/flink_data%20--mode=script\n" +
-                "192.168.10.74:1234/command?command=volume&subcommand=start&options=flink_data%20--mode=script", String.join("\n", urls));
+    @Override
+    public int compareTo(Node o) {
+        return this.getAddress().compareTo(o.getAddress());
     }
-
 }

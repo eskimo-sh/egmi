@@ -48,6 +48,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.result.PingResult;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.model.BrickId;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 import org.apache.log4j.Logger;
@@ -95,12 +96,12 @@ public class GlusterRemoteManager {
         this.managementService = managementService;
     }
 
-    public Map<String, NodeStatus> getAllNodeStatus() throws GlusterRemoteException {
+    public Map<Node, NodeStatus> getAllNodeStatus() throws GlusterRemoteException {
 
-        Map<String, NodeStatus> retMap = new HashMap<>();
+        Map<Node, NodeStatus> retMap = new HashMap<>();
 
         try {
-            for (String node : managementService.getAllNodes()) {
+            for (Node node : managementService.getAllNodes()) {
                 try {
                     retMap.put(node, getNodeStatus(node));
                 } catch (GlusterRemoteException e) {
@@ -116,14 +117,14 @@ public class GlusterRemoteManager {
         return retMap;
     }
 
-    public String resolve (String hostname, String ipAddress) throws IOException, HttpClientException {
+    public String resolve (String hostname, Node node) throws IOException, HttpClientException {
 
         if (StringUtils.isBlank(hostname)) {
             return "";
         }
 
         if (hostname.trim().equalsIgnoreCase("localhost")) {
-            return ipAddress;
+            return node.getAddress();
         }
 
         Matcher ipAddressMatcher = IP_ADDRESS_REGEX.matcher(hostname);
@@ -133,11 +134,11 @@ public class GlusterRemoteManager {
 
         CommandContext context = new CommandContext(httpClient, glusterCommandServerPort, managementService);
 
-        PingResult pingResult = new Ping(httpClient, hostname).execute(ipAddress, context);
+        PingResult pingResult = new Ping(httpClient, hostname).execute(node, context);
         return pingResult.getResolvedIP();
     }
 
-    public NodeStatus getNodeStatus (String ipAddress) throws GlusterRemoteException {
+    public NodeStatus getNodeStatus (Node node) throws GlusterRemoteException {
 
         NodeStatus status = new NodeStatus("{}");
 
@@ -147,20 +148,20 @@ public class GlusterRemoteManager {
 
             // 1. get peer list
             GlusterPoolList poolListCmd = new GlusterPoolList(httpClient);
-            GlusterPoolListResult poolResult = poolListCmd.execute(ipAddress, context);
+            GlusterPoolListResult poolResult = poolListCmd.execute(node, context);
             for (int i = 0; i < poolResult.size(); i++) {
                 status.setValueForPath("peers." + i + ".uid", poolResult.getUid(i));
-                status.setValueForPath("peers." + i + ".hostname", resolve (poolResult.getHostname(i), ipAddress));
+                status.setValueForPath("peers." + i + ".hostname", resolve (poolResult.getHostname(i), node));
                 status.setValueForPath("peers." + i + ".state", poolResult.getState(i));
             }
 
             // 2. get volume information
             GlusterVolumeInfo volumeInfoCmd = new GlusterVolumeInfo(httpClient);
-            GlusterVolumeInfoResult volumeInfo = volumeInfoCmd.execute(ipAddress, context);
+            GlusterVolumeInfoResult volumeInfo = volumeInfoCmd.execute(node, context);
 
             // 3. Fetch brick details
             GlusterVolumeStatus volumeStatusCmd = new GlusterVolumeStatus(httpClient, volumeInfo);
-            GlusterVolumeStatusResult volumeStatus = volumeStatusCmd.execute(ipAddress, context);
+            GlusterVolumeStatusResult volumeStatus = volumeStatusCmd.execute(node, context);
 
             // 4. Add it all to brick status
             int counter = 0;
@@ -196,7 +197,7 @@ public class GlusterRemoteManager {
 
                         String brickPrefix = "volumes." + counter + ".bricks." + (brickNumber - 1);
                         status.setValueForPath(brickPrefix + ".number", brickNumber);
-                        status.setValueForPath(brickPrefix + ".node", brickId.getNode());
+                        status.setValueForPath(brickPrefix + ".node", brickId.getNode().getAddress());
                         status.setValueForPath(brickPrefix + ".path", brickId.getPath());
 
                         volumeStatus.feedVolumeStatusInStatus (status, counter, (brickNumber - 1), brickId.toString());

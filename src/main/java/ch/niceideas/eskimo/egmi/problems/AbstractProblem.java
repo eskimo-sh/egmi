@@ -6,6 +6,7 @@ import ch.niceideas.eskimo.egmi.gluster.command.GlusterPoolList;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
 import ch.niceideas.eskimo.egmi.management.GraphPartitionDetector;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.NodeStatusException;
 import lombok.EqualsAndHashCode;
@@ -15,6 +16,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,7 +28,7 @@ public abstract class AbstractProblem implements Problem{
 
     private static final Logger logger = Logger.getLogger(AbstractProblem.class);
 
-    public static boolean checkHostInPeerPool(CommandContext context, String host, String peer) throws HttpClientException, IOException, ResolutionStopException {
+    public static boolean checkHostInPeerPool(CommandContext context, Node host, Node peer) throws HttpClientException, IOException, ResolutionStopException {
         int attempt;
         for (attempt = 0; attempt < 5; attempt++) {
             context.info("        + checking pool on  " + peer + " - attempt " + attempt);
@@ -36,7 +38,7 @@ public abstract class AbstractProblem implements Problem{
                 context.error("      ! Failed checking pool on  " + peer + " - " + poolListResult.getError());
                 throw new ResolutionStopException("! Failed checking pool on  " + peer + " - " + poolListResult.getError());
             }
-            if (poolListResult.getAllHosts().contains(host)) {
+            if (poolListResult.contains (host)) {
                 context.info("        + found  " + host + " in pool on " + peer);
                 return true;
             }
@@ -53,26 +55,33 @@ public abstract class AbstractProblem implements Problem{
         return false;
     }
 
-    protected static Set<String> getActiveNodes(Map<String, NodeStatus> nodesStatus) {
+    protected static Set<Node> getActiveNodes(Map<Node, NodeStatus> nodesStatus) {
         return nodesStatus.keySet().stream()
                 .filter(node -> nodesStatus.get(node) != null)
                 .filter(node -> !nodesStatus.get(node).isPoolStatusError())
                 .collect(Collectors.toSet());
     }
 
-    protected static Set<String> getActiveConnectedNodes(Map<String, NodeStatus> nodesStatus) throws NodeStatusException {
+    protected static Optional<Node> getFirstNode(Set<Node> nodes) {
+        return nodes.stream()
+                .sorted()
+                .findFirst();
 
-        Set<String> activeNodes = getActiveNodes(nodesStatus);
+    }
+
+    protected static Set<Node> getActiveConnectedNodes(Map<Node, NodeStatus> nodesStatus) throws NodeStatusException {
+
+        Set<Node> activeNodes = getActiveNodes(nodesStatus);
         if (activeNodes.size() == 0) {
             return Collections.emptySet();
         }
 
-        Map<String, GraphPartitionDetector.Node> nodeNetwork = GraphPartitionDetector.buildNodeGraph(activeNodes, nodesStatus);
+        Map<Node, GraphPartitionDetector.GraphNode> nodeNetwork = GraphPartitionDetector.buildNodeGraph(activeNodes, nodesStatus);
 
-        Map<String, Integer> counters = GraphPartitionDetector.buildPeerTimesVolumeCounters(activeNodes, nodeNetwork, nodesStatus);
+        Map<Node, Integer> counters = GraphPartitionDetector.buildPeerTimesVolumeCounters(activeNodes, nodeNetwork, nodesStatus);
 
         AtomicInteger currentCount = new AtomicInteger(Integer.MIN_VALUE);
-        AtomicReference<String> host = new AtomicReference<>();
+        AtomicReference<Node> host = new AtomicReference<>();
         counters.keySet().forEach( node -> {
                     if (counters.get(node) > currentCount.get()) {
                         currentCount.set(counters.get(node));
@@ -80,12 +89,12 @@ public abstract class AbstractProblem implements Problem{
                     }
                 });
 
-        Set<String> retSet = GraphPartitionDetector.buildPeerNetwork(nodeNetwork, host.get());
+        Set<Node> retSet = GraphPartitionDetector.buildPeerNetwork(nodeNetwork, host.get());
         retSet.retainAll(activeNodes);
         return retSet;
     }
 
-    public static void executeSimpleOperation(AbstractGlusterSimpleOperation operation, CommandContext context, String host)
+    public static void executeSimpleOperation(AbstractGlusterSimpleOperation operation, CommandContext context, Node host)
             throws ResolutionStopException {
         try {
             SimpleOperationResult result = operation.execute(host, context);

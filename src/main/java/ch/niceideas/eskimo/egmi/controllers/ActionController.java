@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.controllers;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.management.ActionException;
 import ch.niceideas.eskimo.egmi.management.ActionService;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.utils.ReturnStatusHelper;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +93,7 @@ public class ActionController {
     @ResponseBody
     public String addNode (@RequestParam(name="node") String node) {
         if (StringUtils.isBlank(node)) return ReturnStatusHelper.createErrorStatus("Passed node is empty").getFormattedValue();
-        return doAction (() -> actionService.addNode (node));
+        return doAction (() -> actionService.addNode (Node.from(node)));
     }
 
     private String doAction (Action action) {

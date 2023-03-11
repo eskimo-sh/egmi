@@ -38,6 +38,7 @@ import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.model.BrickId;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.VolumeInformation;
 import lombok.*;
@@ -165,11 +166,11 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
                     if (StringUtils.isNotBlank(brickDef)) {
 
                         String[] split = brickDef.split(":");
-                        String node = split[0];
+                        String nodeAddress = split[0];
                         String path = split[1];
 
                         Map<Integer, BrickId> brickMap = volumeBricks.computeIfAbsent(currentVolume, (key) -> new HashMap<>());
-                        brickMap.put(brickNumber, new BrickId(node, path));
+                        brickMap.put(brickNumber, new BrickId(Node.from(nodeAddress), path));
 
                         //System.err.println (currentVolume +  " - " + node + " - " + path);
                     }

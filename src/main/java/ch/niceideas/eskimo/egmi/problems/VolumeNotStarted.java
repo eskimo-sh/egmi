@@ -39,10 +39,7 @@ import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeStart;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
-import ch.niceideas.eskimo.egmi.model.NodeStatus;
-import ch.niceideas.eskimo.egmi.model.NodeStatusException;
-import ch.niceideas.eskimo.egmi.model.SystemStatus;
-import ch.niceideas.eskimo.egmi.model.VolumeInformation;
+import ch.niceideas.eskimo.egmi.model.*;
 import lombok.*;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -95,10 +92,10 @@ public class VolumeNotStarted extends AbstractProblem implements Problem {
         try {
 
             // 1. Confirm volume is not started
-            String host = null;
+            Node host = null;
 
-            Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
-            for (String node : nodesStatus.keySet()) {
+            Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+            for (Node node : nodesStatus.keySet()) {
 
                 NodeStatus nodeStatus = nodesStatus.get(node);
                 if (nodeStatus != null) {

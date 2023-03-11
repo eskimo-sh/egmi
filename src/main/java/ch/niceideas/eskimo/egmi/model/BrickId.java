@@ -43,7 +43,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BrickId implements Comparable<BrickId>{
 
-    private String node;
+    private Node node;
     private String path;
 
     public String toString() {

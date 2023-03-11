@@ -38,21 +38,23 @@ import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.GlusterPeerDetach;
-import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeRemoveBrick;
-import ch.niceideas.eskimo.egmi.gluster.command.GlusterVolumeReplaceBrick;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
-import ch.niceideas.eskimo.egmi.model.*;
+import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.NodeStatus;
+import ch.niceideas.eskimo.egmi.model.NodeStatusException;
+import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -63,7 +65,7 @@ public class NodeDownRemoval extends AbstractProblem implements Problem {
     private static final Logger logger = Logger.getLogger(NodeDownRemoval.class);
 
     private final Date date;
-    private final String host;
+    private final Node host;
 
     @Override
     public String getProblemId() {
@@ -109,10 +111,10 @@ public class NodeDownRemoval extends AbstractProblem implements Problem {
             if (age >= nodeDeadTimeout) {
 
                 // 1. Find out if node is still down
-                Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+                Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
                 // 1.1 Find all nodes in Nodes Status not being KO
-                Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
+                Set<Node> activeNodes = getActiveConnectedNodes(nodesStatus);
 
                 if (activeNodes.contains(host)) {
                     context.info ("  + Node " + host + " is back up");
@@ -124,7 +126,7 @@ public class NodeDownRemoval extends AbstractProblem implements Problem {
                     return false;
                 }
 
-                String other = activeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
+                Node other = getFirstNode(activeNodes).orElseThrow(IllegalStateException::new);
 
                 // 2. Force remove host from peer reporting it
                 context.info ("  + Force detaching " + host + " from " + other + " peer pool.");
@@ -156,10 +158,14 @@ public class NodeDownRemoval extends AbstractProblem implements Problem {
 
             context.updateSettingsAtomically(runtimeConfig -> {
                 String savedNodesString = runtimeConfig.getValueForPathAsString("discovered-nodes");
-                Set<String> savedNodes = new HashSet<>(Arrays.asList(savedNodesString.split(",")));
+                Set<Node> savedNodes = Arrays.stream(savedNodesString.split(","))
+                        .map(Node::from)
+                        .collect(Collectors.toSet());
                 savedNodes.remove(host);
 
-                savedNodesString = String.join(",", savedNodes);
+                savedNodesString = savedNodes.stream()
+                        .map(Node::getAddress)
+                        .collect(Collectors.joining(","));
                 runtimeConfig.setValueForPath("discovered-nodes", savedNodesString);
                 return runtimeConfig;
             });

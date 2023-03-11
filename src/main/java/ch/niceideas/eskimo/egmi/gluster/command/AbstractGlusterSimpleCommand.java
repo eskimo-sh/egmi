@@ -39,6 +39,7 @@ import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.AbstractGlusterResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 
 import java.io.IOException;
@@ -52,10 +53,10 @@ public abstract class AbstractGlusterSimpleCommand<T extends AbstractGlusterResu
         this.httpClient = httpClient;
     }
 
-    protected abstract String buildCommandUrl (String ip, CommandContext context);
+    protected abstract String buildCommandUrl (Node node, CommandContext context);
 
-    protected final String buildSimpleCommandUrl (String ip, CommandContext context, String command, String subCommand, String... options) {
-        StringBuilder sb = new StringBuilder (ip + ":" + context.getGlusterCommandServerPort());
+    protected final String buildSimpleCommandUrl (Node node, CommandContext context, String command, String subCommand, String... options) {
+        StringBuilder sb = new StringBuilder (node + ":" + context.getGlusterCommandServerPort());
         if (StringUtils.isNotBlank(context.getContextRoot())) {
             sb.append(context.getContextRoot().startsWith("/") ? context.getContextRoot() : ("/" + context.getContextRoot()));
         }
@@ -74,9 +75,9 @@ public abstract class AbstractGlusterSimpleCommand<T extends AbstractGlusterResu
 
     protected abstract T buildResponse();
 
-    public T execute (String ip, CommandContext context) throws HttpClientException, IOException {
+    public T execute (Node node, CommandContext context) throws HttpClientException, IOException {
         try (HttpClientResponse response = httpClient.sendRequest(
-                buildCommandUrl(ip, context))) {
+                buildCommandUrl(node, context))) {
             return buildResponse().buildFromResponse(response);
         }
     }

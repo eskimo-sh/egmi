@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.eskimo.egmi.gluster.command.result.PingResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Matcher;
@@ -81,7 +82,7 @@ public class PingTest extends AbstractCommandTest {
                 "rtt min/avg/max/mdev = 1.579/1.579/1.579/0.000 ms\n");
 
         Ping command = new Ping(mockClient, "marathon.registry");
-        PingResult result = command.execute("127.0.0.1", context);
+        PingResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
 
         assertEquals("192.168.10.74", result.getResolvedIP());

@@ -38,6 +38,7 @@ import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +53,7 @@ public class GlusterVolumeStatusTest extends AbstractCommandTest {
         response.set(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("command/GlusterVolumeStatusResult.txt")));
 
         GlusterVolumeStatus command = new GlusterVolumeStatus(mockClient, new GlusterVolumeInfoResult());
-        GlusterVolumeStatusResult result = command.execute("127.0.0.1", context);
+        GlusterVolumeStatusResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
 
         NodeStatus nodeStatus = new NodeStatus("{}");

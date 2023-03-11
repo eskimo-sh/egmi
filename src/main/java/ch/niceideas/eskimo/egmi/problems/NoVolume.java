@@ -132,9 +132,9 @@ public class NoVolume extends AbstractProblem implements Problem {
     }
 
     public static boolean createVolume(String volume, GlusterRemoteManager glusterRemoteManager, CommandContext context) throws GlusterRemoteException, NodeStatusException, ResolutionStopException {
-        Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+        Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-        Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
+        Set<Node> activeNodes = getActiveConnectedNodes(nodesStatus);
 
         if (activeNodes.size() == 0) {
             context.info ("    !! no active node. skipping");
@@ -147,7 +147,7 @@ public class NoVolume extends AbstractProblem implements Problem {
         List<BrickId> brickIds = BrickAllocationHelper.buildNewVolumeBrickAllocation(
                 volume, context, nodesStatus, activeNodes, rl);
 
-        String lastNode = brickIds.stream().map(BrickId::getNode).findAny().orElseThrow(IllegalStateException::new);
+        Node lastNode = brickIds.stream().map(BrickId::getNode).findAny().orElseThrow(IllegalStateException::new);
 
         context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
 

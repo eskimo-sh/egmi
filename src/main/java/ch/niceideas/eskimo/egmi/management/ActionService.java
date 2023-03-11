@@ -38,12 +38,13 @@ import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.*;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.NodeStatusException;
 import ch.niceideas.eskimo.egmi.model.VolumeInformation;
 import ch.niceideas.eskimo.egmi.problems.AbstractProblem;
-import ch.niceideas.eskimo.egmi.problems.NoVolume;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
+import ch.niceideas.eskimo.egmi.problems.NoVolume;
 import ch.niceideas.eskimo.egmi.problems.ResolutionStopException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,17 +85,15 @@ public class ActionService {
 
                 managementService.info("Deleting Volume " + volume);
 
-                Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+                Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-                String actionNode = nodesStatus.keySet().stream()
+                Node actionNode = nodesStatus.keySet().stream()
                         .filter(node -> nodesStatus.get(node) != null && !nodesStatus.get(node).isPoolStatusError())
                         .findAny().orElseThrow(() -> new ResolutionStopException("Couldn't find any active node"));
 
                 NodeStatus nodeStatus = nodesStatus.get(actionNode);
 
-                VolumeInformation volumeInfo = nodeStatus.getVolumeInformation(volume);
-
-                Set<String> volumeNodes = nodeStatus.getVolumeNodes(volume);
+                Set<Node> volumeNodes = nodeStatus.getVolumeNodes(volume);
 
                 // 1. Force Stop volume
                 try {
@@ -106,7 +105,7 @@ public class ActionService {
 
                 // 2. Force delete bricks
                 managementService.info("  - Force-removing bricks for " + volume);
-                for (String brickNode : volumeNodes) {
+                for (Node brickNode : volumeNodes) {
                     managementService.info("    + Removing bricks for " + volume + " on " + brickNode);
                     AbstractProblem.executeSimpleOperation(new ForceRemoveVolumeBricks(httpClient, volume, brickNode), context, brickNode);
                 }
@@ -140,7 +139,7 @@ public class ActionService {
 
                 CommandContext context = new CommandContext(httpClient, glusterCommandServerPort, managementService);
 
-                List<String> lastNodes = managementService.getSystemStatus().getNodeList();
+                List<Node> lastNodes = managementService.getSystemStatus().getNodeList();
                 if (lastNodes.size() <= 0) {
                     throw new ActionException("No existing peer to stop the volume on.");
                 }
@@ -165,7 +164,7 @@ public class ActionService {
 
                 CommandContext context = new CommandContext(httpClient, glusterCommandServerPort, managementService);
 
-                List<String> lastNodes = managementService.getSystemStatus().getNodeList();
+                List<Node> lastNodes = managementService.getSystemStatus().getNodeList();
                 if (lastNodes.size() <= 0) {
                     throw new ActionException("No existing peer to start the volume on.");
                 }
@@ -201,7 +200,7 @@ public class ActionService {
         });
     }
 
-    public void addNode(String node) throws ActionException{
+    public void addNode(Node node) throws ActionException{
 
         managementService.executeInLock (() -> {
 
@@ -211,7 +210,7 @@ public class ActionService {
 
                 CommandContext context = new CommandContext(httpClient, glusterCommandServerPort, managementService);
 
-                List<String> lastNodes = managementService.getSystemStatus().getNodeList();
+                List<Node> lastNodes = managementService.getSystemStatus().getNodeList();
                 if (lastNodes.size() <= 0) {
                     throw new ActionException("No existing peer to add the new node to.");
                 }

@@ -34,6 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
+import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +50,7 @@ public class NodeDownTest extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new NodeDown(new Date(), "spark_data", "192.168.10.72");
+        problem = new NodeDown(new Date(), "spark_data", Node.from ("192.168.10.72"));
     }
 
     @Test
@@ -61,6 +62,6 @@ public class NodeDownTest extends AbstractProblemTest {
     public void testSolve() throws Exception {
         problem.solve(grm, new CommandContext(mockClient, 1234, ms));
 
-        assertEquals("192.168.10.73:1234/command?command=volume&subcommand=replace-brick&options=spark_data%20192.168.10.72:/var/lib/gluster/volume_bricks/spark_data%20192.168.10.74:/var/lib/gluster/volume_bricks/spark_data%20commit%20force%20--mode=script", String.join("\n", urls));
+        assertEquals("192.168.10.71:1234/command?command=volume&subcommand=replace-brick&options=spark_data%20192.168.10.72:/var/lib/gluster/volume_bricks/spark_data%20192.168.10.74:/var/lib/gluster/volume_bricks/spark_data%20commit%20force%20--mode=script", String.join("\n", urls));
     }
 }

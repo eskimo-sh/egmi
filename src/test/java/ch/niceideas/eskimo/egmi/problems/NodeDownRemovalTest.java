@@ -34,6 +34,7 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
+import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +51,7 @@ public class NodeDownRemovalTest extends AbstractProblemTest {
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
-        problem = new NodeDownRemoval(new Date(), "192.168.10.72");
+        problem = new NodeDownRemoval(new Date(), Node.from ("192.168.10.72"));
     }
 
     @Test
@@ -62,6 +63,8 @@ public class NodeDownRemovalTest extends AbstractProblemTest {
     public void testSolve() throws Exception {
         problem.solve(grm, new CommandContext(mockClient, 1234, ms));
 
-        assertEquals("192.168.10.73:1234/command?command=peer&subcommand=detach&options=192.168.10.72%20force", String.join("\n", urls));
+        assertEquals("" +
+                "192.168.10.71:1234/command?command=peer&subcommand=detach&options=192.168.10.72%20force",
+                String.join("\n", urls));
     }
 }

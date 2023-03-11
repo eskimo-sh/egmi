@@ -64,7 +64,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
     private static final Logger logger = Logger.getLogger(NodePartitioned.class);
 
     private Date date;
-    private final String host;
+    private final Node host;
 
 
     @Override
@@ -102,10 +102,10 @@ public class NodePartitioned extends AbstractProblem implements Problem {
         try {
 
             // 1. find out if node can be added to a larger cluster
-            Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+            Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
             // 1.1 Find all nodes in Nodes Status not being KO
-            Set<String> activeNodes = getActiveNodes(nodesStatus);
+            Set<Node> activeNodes = getActiveNodes(nodesStatus);
 
             if (!activeNodes.contains(host)) {
                 context.info ("  !! Node " + host + " is not active");
@@ -114,25 +114,27 @@ public class NodePartitioned extends AbstractProblem implements Problem {
 
             // 1.2 Find those that are not partitioned => candidates
             // 1.3 if none, find those that have the highest connection count => candidates
-            Map<String, GraphPartitionDetector.Node> nodeNetwork = GraphPartitionDetector.buildNodeGraph(activeNodes, nodesStatus);
+            Map<Node, GraphPartitionDetector.GraphNode> nodeNetwork = GraphPartitionDetector.buildNodeGraph(activeNodes, nodesStatus);
 
-            Map<String, Integer> counters = GraphPartitionDetector.buildPeerTimesVolumeCounters(activeNodes, nodeNetwork, nodesStatus);
+            Map<Node, Integer> counters = GraphPartitionDetector.buildPeerTimesVolumeCounters(activeNodes, nodeNetwork, nodesStatus);
 
             final AtomicInteger highestCount = new AtomicInteger(Integer.MIN_VALUE);
-            for (String current : counters.keySet()) {
+            for (Node current : counters.keySet()) {
                 if (counters.get(current) > highestCount.get()) {
                     highestCount.set (counters.get(current));
                 }
             }
 
-            Set<String> hostPeers = GraphPartitionDetector.buildPeerNetwork(nodeNetwork, host);
+            Set<Node> hostPeers = GraphPartitionDetector.buildPeerNetwork(nodeNetwork, host);
 
-            Set<String> candidates = counters.keySet().stream()
+            Set<Node> candidates = counters.keySet().stream()
                     .filter (curHost -> counters.get(curHost) == highestCount.get())
                     .filter (curHost -> !hostPeers.contains(curHost))
                     .collect(Collectors.toSet());
 
-            context.info ("  + Candidates " + String.join(", ", candidates));
+            context.info ("  + Candidates " + candidates.stream()
+                    .map(Node::getAddress)
+                    .collect(Collectors.joining(", ")));
 
 
             // 2. If no candidates are found, stop here (return false, no resolution possible)
@@ -144,7 +146,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
             // 3. Find out if current cluster is different from best candidate cluster
 
             // find a candidate with no intersection with own peers
-            Set<String> isolatedCandidates = candidates.stream()
+            Set<Node> isolatedCandidates = candidates.stream()
                     .map(candidate -> new Pair<>(candidate, GraphPartitionDetector.buildPeerNetwork(nodeNetwork, candidate)))
                     .filter(pair -> {
                         pair.getValue().retainAll(hostPeers);
@@ -153,7 +155,9 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                     .map(Pair::getKey)
                     .collect(Collectors.toSet());
 
-            context.info ("  + Isolated Candidates " + String.join(", ", candidates));
+            context.info ("  + Isolated Candidates " + String.join(", ", candidates.stream()
+                    .map(Node::getAddress)
+                    .collect(Collectors.joining(", "))));
 
             // 3.1 If cluster is the same, stop here (return false, no resolution possible)
             if (isolatedCandidates.size() == 0) {
@@ -179,7 +183,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                     VolumeInformation volumeInfo = nodeStatus.getVolumeInformation(volume);
                     context.info ("    - Forcing removal of volume " + volume + " !");
 
-                    Set<String> volumeNodes = nodeStatus.getVolumeNodes(volume);
+                    Set<Node> volumeNodes = nodeStatus.getVolumeNodes(volume);
 
                     // 4.2.1 Stop volume
                     // only if volume is started
@@ -189,7 +193,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                     }
 
                     // 4.2.2 Force delete bricks
-                    for (String brickNode : volumeNodes) {
+                    for (Node brickNode : volumeNodes) {
                         executeSimpleOperation(new ForceRemoveVolumeBricks(context.getHttpClient(), volume, brickNode), context, brickNode);
                     }
 
@@ -205,7 +209,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
 
                 // 5. Handle disconnection from cluster, peer parts
                 boolean peerDetached = false;
-                for (String peer : hostPeers.stream().filter(peer -> !peer.equals(host)).collect(Collectors.toSet()) ) {
+                for (Node peer : hostPeers.stream().filter(peer -> !peer.equals(host)).collect(Collectors.toSet()) ) {
 
                     context.info ("    - Detaching peer " + peer);
 
@@ -244,7 +248,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
 
             context.info ("  + Attaching to new cluster");
 
-            for (String candidate : isolatedCandidates) {
+            for (Node candidate : isolatedCandidates) {
 
                 context.info ("    - Trying to attach to candidate " + candidate);
 

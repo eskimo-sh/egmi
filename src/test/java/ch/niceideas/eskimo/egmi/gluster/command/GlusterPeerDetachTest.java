@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.eskimo.egmi.gluster.command.result.SimpleOperationResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,8 +47,8 @@ public class GlusterPeerDetachTest extends AbstractCommandTest {
 
         response.set("success");
 
-        GlusterPeerDetach command = new GlusterPeerDetach(mockClient, "192.168.10.75");
-        SimpleOperationResult result = command.execute("127.0.0.1", context);
+        GlusterPeerDetach command = new GlusterPeerDetach(mockClient, Node.from("192.168.10.75"));
+        SimpleOperationResult result = command.execute(Node.from("127.0.0.1"), context);
         assertNotNull (result);
         assertTrue(result.isSuccess());
 

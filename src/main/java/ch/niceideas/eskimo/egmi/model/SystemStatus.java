@@ -48,19 +48,20 @@ public class SystemStatus extends JsonWrapper {
         super (jsonString);
     }
 
-    public JSONArray getVolumes() {
+    private JSONArray getVolumes() {
         return getJSONObject().getJSONArray("volumes");
     }
 
-    public JSONArray getNodes() {
+    private JSONArray getNodes() {
         return getJSONObject().getJSONArray("nodes");
     }
 
-    public List<String> getNodeList() {
+    public List<Node> getNodeList() {
         JSONArray nodeArray = getNodes();
         return IntStream.range(0, nodeArray.length())
                 .mapToObj(nodeArray::getJSONObject)
                 .map(nodeInfo -> nodeInfo.getString("host"))
+                .map(Node::from)
                 .collect(Collectors.toList());
     }
 
@@ -72,11 +73,11 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
-    public JSONObject getNodeInfo(String host) {
+    public JSONObject getNodeInfo(Node host) {
         JSONArray nodeArray = getNodes();
         return IntStream.range(0, nodeArray.length())
                 .mapToObj(nodeArray::getJSONObject)
-                .filter(nodeInfo -> nodeInfo.getString("host").equals(host))
+                .filter(nodeInfo -> host.matches (nodeInfo.getString("host")))
                 .findAny().orElse(null);
     }
 

@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 
 public class GlusterPoolList extends AbstractGlusterSimpleCommand<GlusterPoolListResult>{
@@ -45,8 +46,8 @@ public class GlusterPoolList extends AbstractGlusterSimpleCommand<GlusterPoolLis
     }
 
     @Override
-    protected String buildCommandUrl(String ip, CommandContext context) {
-        return buildSimpleCommandUrl(ip, context, "pool", "list");
+    protected String buildCommandUrl(Node node, CommandContext context) {
+        return buildSimpleCommandUrl(node, context, "pool", "list");
     }
 
     @Override

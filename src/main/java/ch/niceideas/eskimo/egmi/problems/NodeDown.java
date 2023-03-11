@@ -60,7 +60,7 @@ public class NodeDown extends AbstractProblem implements Problem {
 
     private final Date date;
     private final String volume;
-    private final String host;
+    private final Node host;
 
     @Override
     public String getProblemId() {
@@ -91,7 +91,7 @@ public class NodeDown extends AbstractProblem implements Problem {
 
         return IntStream.range(0, brickArray.length())
                 .mapToObj(brickArray::getJSONObject)
-                .anyMatch(brickInfo -> brickInfo.getString("id").contains(host));
+                .anyMatch(brickInfo -> brickInfo.getString("id").contains(host.getAddress()));
     }
 
     @Override
@@ -117,10 +117,10 @@ public class NodeDown extends AbstractProblem implements Problem {
             if (age >= nodeDeadTimeout) {
 
                 // 1. Find out if node is still down
-                Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+                Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
                 // 1.1 Find all nodes in Nodes Status not being KO
-                Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
+                Set<Node> activeNodes = getActiveConnectedNodes(nodesStatus);
 
                 if (activeNodes.contains(host)) {
                     context.info ("  + Node " + host + " is back up");
@@ -132,7 +132,9 @@ public class NodeDown extends AbstractProblem implements Problem {
                     return false;
                 }
 
-                Map<BrickId, String> nodeBricks = nodesStatus.get(activeNodes.stream().findFirst().get()).getNodeBricksAndVolumes(host);
+                Map<BrickId, String> nodeBricks = nodesStatus.get(
+                            getFirstNode(activeNodes).orElseThrow(IllegalStateException::new))
+                        .getNodeBricksAndVolumes(host);
 
                 // 2. if the node runs brick, consider them lost, attempt to move them elsewhere
                 //    for every of them
@@ -151,13 +153,13 @@ public class NodeDown extends AbstractProblem implements Problem {
         }
     }
 
-    public static boolean handleNodeDownBricks(String volume, String host, CommandContext context, Map<String, NodeStatus> nodesStatus, Set<String> activeNodes, Map<BrickId, String> nodeBricks) throws NodeStatusException, ResolutionStopException, ResolutionSkipException {
+    public static boolean handleNodeDownBricks(String volume, Node host, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, Map<BrickId, String> nodeBricks) throws NodeStatusException, ResolutionStopException, ResolutionSkipException {
         for (BrickId brickId : nodeBricks.keySet()) {
 
             String brickVolume = nodeBricks.get(brickId);
 
             // only fixing the volume for which I was reported
-            if (brickVolume.equals(volume) && brickId.getNode().equals(host)) {
+            if (brickVolume.equals(volume) && host.equals(brickId.getNode())) {
 
                 context.info ("  + Handling Brick " + brickId);
 
@@ -181,19 +183,19 @@ public class NodeDown extends AbstractProblem implements Problem {
                     // use "replace-brick" command
                     // e.g. gluster volume replace-brick r2 Server1:/home/gfs/r2_0 Server1:/home/gfs/r2_5 commit force
 
-                    Set<String> brickNodes = brickInformations.keySet().stream().map(BrickId::getNode).collect(Collectors.toSet());
-                    Set<String> candidateNodes = new HashSet<>(activeNodes);
+                    Set<Node> brickNodes = brickInformations.keySet().stream().map(BrickId::getNode).collect(Collectors.toSet());
+                    Set<Node> candidateNodes = new HashSet<>(activeNodes);
                     candidateNodes.removeAll(brickNodes);
 
-                    Set<String> replicaNodes = listBrickReplicaNodes(volume, brickId, volumeInformation, brickInformations, context);
+                    Set<Node> replicaNodes = listBrickReplicaNodes(volume, brickId, volumeInformation, brickInformations, context);
 
                     // gluster commands need to be run on a node running a brick
-                    String executionNode = findExecutionNode(brickId, brickInformations, replicaNodes, activeNodes);
+                    Node executionNode = findExecutionNode(brickId, brickInformations, replicaNodes, activeNodes);
 
                     if (candidateNodes.size() > 0) {
 
                         // find node where there is no brick yet
-                        String targetNode = findFreeTargetNode(activeNodes, brickInformations);
+                        Node targetNode = findFreeTargetNode(activeNodes, brickInformations);
 
                         String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
                         String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
@@ -218,7 +220,7 @@ public class NodeDown extends AbstractProblem implements Problem {
                         // 3.1.2.3 if such a node is found, replace the brick there
                         if (candidateNodes.size() > 0 ) {
 
-                            String targetNode = candidateNodes.stream().findAny().get();
+                            Node targetNode = candidateNodes.stream().findAny().get();
 
                             // count how many bricks this node is already running for this volume
                             int counter = (int) (brickInformations.keySet().stream()
@@ -261,9 +263,9 @@ public class NodeDown extends AbstractProblem implements Problem {
         return true;
     }
 
-    private static String findFreeTargetNode(Set<String> activeNodes, Map<BrickId, BrickInformation> brickInformations) throws ResolutionSkipException {
-        String targetNode = null;
-        for (String candidateNode : activeNodes) {
+    private static Node findFreeTargetNode(Set<Node> activeNodes, Map<BrickId, BrickInformation> brickInformations) throws ResolutionSkipException {
+        Node targetNode = null;
+        for (Node candidateNode : activeNodes) {
             boolean found = false;
             for (BrickId brickIdOther : brickInformations.keySet()) {
                 if (brickIdOther.getNode().equals(candidateNode)) {
@@ -276,25 +278,25 @@ public class NodeDown extends AbstractProblem implements Problem {
                 break;
             }
         }
-        if (StringUtils.isBlank(targetNode)) {
+        if (targetNode == null) {
             throw new ResolutionSkipException("Impossible to find a free node. this shouldn't have happened.");
         }
         return targetNode;
     }
 
-    public static String findExecutionNode(BrickId brickId, Map<BrickId, BrickInformation> brickInformations, Set<String> replicaNodes, Set<String> activeNodes) throws ResolutionSkipException {
-        String executionNode = brickInformations.keySet().stream()
+    public static Node findExecutionNode(BrickId brickId, Map<BrickId, BrickInformation> brickInformations, Set<Node> replicaNodes, Set<Node> activeNodes) throws ResolutionSkipException {
+        Node executionNode = brickInformations.keySet().stream()
                 .map(BrickId::getNode)
                 .filter(replicaNodes::contains)
                 .filter(activeNodes::contains)
                 .findAny().orElse(null);
-        if (StringUtils.isBlank(executionNode)) {
+        if (executionNode == null) {
             throw new ResolutionSkipException("Impossible to find a node running a replica of brick " + brickId);
         }
         return executionNode;
     }
 
-    private static Set<String> listBrickReplicaNodes (String volume, BrickId brickId, VolumeInformation volumeInformation, Map<BrickId, BrickInformation> brickInformations, CommandContext context)
+    private static Set<Node> listBrickReplicaNodes (String volume, BrickId brickId, VolumeInformation volumeInformation, Map<BrickId, BrickInformation> brickInformations, CommandContext context)
             throws ResolutionStopException, ResolutionSkipException{
         if (StringUtils.isBlank(volumeInformation.getNbReplicas())) {
             throw new ResolutionStopException("Cannot get volume " + volume + " number of replicas");
@@ -313,7 +315,7 @@ public class NodeDown extends AbstractProblem implements Problem {
 
         context.info ("      + Brick " + brickId + " is among replica set [" + replicaSetFirstBrickNbr + "-" + replicaSetLastBrickNbr + "]");
 
-        Set<String> replicaNodes = new HashSet<>();
+        Set<Node> replicaNodes = new HashSet<>();
         for (BrickId otherBrickId : brickInformations.keySet()) {
             BrickInformation brickInformationOther = brickInformations.get(otherBrickId);
             if (brickInformationOther.getNumber() == null) {

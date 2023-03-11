@@ -37,6 +37,7 @@ package ch.niceideas.eskimo.egmi.management;
 import ch.niceideas.common.utils.FileUtils;
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.problems.Problem;
@@ -267,26 +268,26 @@ public class ManagementServiceTest {
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 
-        Map<String, NodeStatus> nodesStatus = new HashMap<>(){{
-            put ("192.169.56.21", node1);
-            put ("192.169.56.22", node2);
-            put ("192.169.56.23", node3);
-            put ("192.169.56.24", node4);
+        Map<Node, NodeStatus> nodesStatus = new HashMap<>(){{
+            put (Node.from ("192.169.56.21"), node1);
+            put (Node.from ("192.169.56.22"), node2);
+            put (Node.from ("192.169.56.23"), node3);
+            put (Node.from ("192.169.56.24"), node4);
         }};
 
-        Set<String> allNodes = ms.getRuntimeNodes(nodesStatus);
+        Set<Node> allNodes = ms.getRuntimeNodes(nodesStatus);
 
         assertNotNull(allNodes);
         assertEquals(5, allNodes.size());
 
-        List<String> sortedNodes = new ArrayList<>(allNodes);
-        sortedNodes.sort(Comparator.naturalOrder());
+        List<Node> sortedNodes = new ArrayList<>(allNodes);
+        sortedNodes.sort(Comparator.comparing(Node::getAddress));
 
-        assertEquals("192.168.56.20", sortedNodes.get(0));
-        assertEquals("192.168.56.21", sortedNodes.get(1));
-        assertEquals("192.168.56.22", sortedNodes.get(2));
-        assertEquals("192.168.56.23", sortedNodes.get(3));
-        assertEquals("192.168.56.24", sortedNodes.get(4));
+        assertEquals("192.168.56.20", sortedNodes.get(0).getAddress());
+        assertEquals("192.168.56.21", sortedNodes.get(1).getAddress());
+        assertEquals("192.168.56.22", sortedNodes.get(2).getAddress());
+        assertEquals("192.168.56.23", sortedNodes.get(3).getAddress());
+        assertEquals("192.168.56.24", sortedNodes.get(4).getAddress());
 
         FileUtils.delete(tmp);
     }
@@ -302,11 +303,11 @@ public class ManagementServiceTest {
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 
-        Map<String, NodeStatus> nodesStatus = new HashMap<>(){{
-            put ("192.168.56.21", node1);
-            put ("192.168.56.22", node2);
-            put ("192.168.56.23", node3);
-            put ("192.168.56.24", node4);
+        Map<Node, NodeStatus> nodesStatus = new HashMap<>(){{
+            put (Node.from ("192.168.56.21"), node1);
+            put (Node.from ("192.168.56.22"), node2);
+            put (Node.from ("192.168.56.23"), node3);
+            put (Node.from ("192.168.56.24"), node4);
         }};
 
         Set<String> allVolumes = ms.getRuntimeVolumes(nodesStatus);
@@ -342,14 +343,14 @@ public class ManagementServiceTest {
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 
-        Map<String, NodeStatus> nodesStatus = new HashMap<>(){{
-            put ("192.168.56.21", node1);
-            put ("192.168.56.22", node2);
-            put ("192.168.56.23", node3);
-            put ("192.168.56.24", node4);
+        Map<Node, NodeStatus> nodesStatus = new HashMap<>(){{
+            put (Node.from ("192.168.56.21"), node1);
+            put (Node.from ("192.168.56.22"), node2);
+            put (Node.from ("192.168.56.23"), node3);
+            put (Node.from ("192.168.56.24"), node4);
         }};
 
-        Set<String> allNodes = ms.getRuntimeNodes(nodesStatus);
+        Set<Node> allNodes = ms.getRuntimeNodes(nodesStatus);
 
         List<JSONObject> nodesInfo = ms.buildNodeInfo(nodesStatus, allNodes);
 
@@ -376,14 +377,14 @@ public class ManagementServiceTest {
 
         ms.setTestConfigStoragePath (tmp.getAbsolutePath());
 
-        Map<String, NodeStatus> nodesStatus = new HashMap<>(){{
-            put ("192.168.56.21", node1);
-            put ("192.168.56.22", node2);
-            put ("192.168.56.23", node3);
-            put ("192.168.56.24", node4);
+        Map<Node, NodeStatus> nodesStatus = new HashMap<>(){{
+            put (Node.from ("192.168.56.21"), node1);
+            put (Node.from ("192.168.56.22"), node2);
+            put (Node.from ("192.168.56.23"), node3);
+            put (Node.from ("192.168.56.24"), node4);
         }};
 
-        Set<String> allNodes = ms.getRuntimeNodes(nodesStatus);
+        Set<Node> allNodes = ms.getRuntimeNodes(nodesStatus);
 
         Set<String> allVolumes = ms.getRuntimeVolumes(nodesStatus);
 
@@ -393,10 +394,10 @@ public class ManagementServiceTest {
 
         //System.err.println (ss.getFormattedValue());
 
-        SystemStatus result = new SystemStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/options/resultSystemStatus.json")));
+        SystemStatus expected = new SystemStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/options/resultSystemStatus.json")));
 
-        //assertEquals (result.getFormattedValue(), ss.getFormattedValue());
-        assertTrue (result.getJSONObject().similar(ss.getJSONObject()));
+        //assertEquals (expected.getFormattedValue(), ss.getFormattedValue());
+        assertTrue (expected.getJSONObject().similar(ss.getJSONObject()));
     }
 
 }

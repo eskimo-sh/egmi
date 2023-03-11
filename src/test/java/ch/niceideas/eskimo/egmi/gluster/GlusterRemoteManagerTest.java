@@ -41,6 +41,7 @@ import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeInfoResult;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -142,7 +143,7 @@ public class GlusterRemoteManagerTest {
             }
         });
 
-        NodeStatus nodeStatus = grm.getNodeStatus("192.168.10.71");
+        NodeStatus nodeStatus = grm.getNodeStatus(Node.from("192.168.10.71"));
         assertNotNull(nodeStatus);
 
         //System.err.println (nodeStatus.getFormattedValue());
@@ -150,9 +151,8 @@ public class GlusterRemoteManagerTest {
         String expectedStatusString = StreamUtils.getAsString(ResourceUtils.getResourceAsStream("GlusterRemoteManagerTest/NodeStatusResult.txt"));
         NodeStatus expectedStatus = new NodeStatus(expectedStatusString);
 
+        //assertEquals(expectedStatus.getFormattedValue(), nodeStatus.getFormattedValue());
         assertTrue (expectedStatus.getJSONObject().similar(nodeStatus.getJSONObject()));
-
-        //assertEquals(expectedStatusString, nodeStatus.getFormattedValue());
 
     }
 

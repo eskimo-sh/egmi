@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.management;
 
 import ch.niceideas.common.utils.StringUtils;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.NodeStatusException;
 import ch.niceideas.eskimo.egmi.problems.NodePartitioned;
@@ -52,10 +53,10 @@ public class GraphPartitionDetector {
 
     private static final Logger logger = Logger.getLogger(GraphPartitionDetector.class);
 
-    public static List<String> detectGraphPartitioning(ProblemManager problemManager, Set<String> allNodes, List<JSONObject> nodeInfos, Map<String, NodeStatus> nodesStatus) throws NodeStatusException  {
+    public static List<Node> detectGraphPartitioning(ProblemManager problemManager, Set<Node> allNodes, List<JSONObject> nodeInfos, Map<Node, NodeStatus> nodesStatus) throws NodeStatusException  {
 
         // 0. Build data structure
-        Map<String, Node> nodes = buildNodeGraph(allNodes, nodesStatus);
+        Map<Node, GraphNode> nodes = buildNodeGraph(allNodes, nodesStatus);
 
         // Find total number of volumes
         int totalVolumesCounter = nodesStatus.values().stream()
@@ -71,11 +72,11 @@ public class GraphPartitionDetector {
                 .orElse(1);
 
         // 1. For every node, count number of nodes reachable on the connection graph from the node
-        Map<String, Integer> counters = buildPeerTimesVolumeCounters(allNodes, nodes, nodesStatus);
+        Map<Node, Integer> counters = buildPeerTimesVolumeCounters(allNodes, nodes, nodesStatus);
 
         // 2. If every node, has same count as total number of nodes, there is no partitioning, we're good
         boolean allGood = true;
-        for (String host : allNodes) {
+        for (Node host : allNodes) {
             int counter = counters.get(host);
             if (counter != allNodes.size() * totalVolumesCounter) {
                 allGood = false;
@@ -87,11 +88,11 @@ public class GraphPartitionDetector {
         }
 
         // 3. If some node have different counts, flag the all nodes having a lesser count as disconnected
-        List<String> partitionedNodes = new ArrayList<>();
+        List<Node> partitionedNodes = new ArrayList<>();
 
         // find highest and smallest count
         int smallest = Integer.MAX_VALUE, highest = Integer.MIN_VALUE;
-        for (String host : allNodes) {
+        for (Node host : allNodes) {
             int counter = counters.get(host);
             if (counter < smallest) {
                 smallest = counter;
@@ -103,7 +104,7 @@ public class GraphPartitionDetector {
 
         // if highest == smallest, then flag all nodes as PARTITIONED
         if (highest == smallest) {
-            for (String host : allNodes) {
+            for (Node host : allNodes) {
                 if (flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host)) {
                     partitionedNodes.add(host);
                 }
@@ -113,7 +114,7 @@ public class GraphPartitionDetector {
 
         // otherwise flag all those different than smallest as PARTITIONED
         else {
-            for (String host : allNodes) {
+            for (Node host : allNodes) {
                 int counter = counters.get(host);
                 if (counter != highest) {
                     if (flagNodePartitioned(problemManager, nodeInfos, nodesStatus, host)) {
@@ -126,7 +127,7 @@ public class GraphPartitionDetector {
         return partitionedNodes;
     }
 
-    public static Map<String, Integer> buildPeerTimesVolumeCounters(Set<String> allNodes, Map<String, Node> nodes, Map<String, NodeStatus> nodesStatus) {
+    public static Map<Node, Integer> buildPeerTimesVolumeCounters(Set<Node> allNodes, Map<Node, GraphNode> nodes, Map<Node, NodeStatus> nodesStatus) {
 
         // if at least one node has volumes configured, then I need to account volumes as well
         boolean alsoAccountVolumes = nodesStatus.values().stream()
@@ -138,9 +139,9 @@ public class GraphPartitionDetector {
                     }
                 });
 
-        Map<String, Integer> counters = new HashMap<>();
-        for (String host : allNodes) {
-            Set<String> visited = buildPeerNetwork(nodes, host);
+        Map<Node, Integer> counters = new HashMap<>();
+        for (Node host : allNodes) {
+            Set<Node> visited = buildPeerNetwork(nodes, host);
 
             int peerCounter = visited.size();
             int targetCounter = peerCounter;
@@ -164,17 +165,17 @@ public class GraphPartitionDetector {
         return counters;
     }
 
-    public static Set<String> buildPeerNetwork(Map<String, Node> nodes, String host) {
-        Stack<Node> stack = new Stack<>();
-        Node current = nodes.get(host);
+    public static Set<Node> buildPeerNetwork(Map<Node, GraphNode> nodes, Node host) {
+        Stack<GraphNode> stack = new Stack<>();
+        GraphNode current = nodes.get(host);
         stack.push (current);
 
-        Set<Node> visited = new HashSet<>();
+        Set<GraphNode> visited = new HashSet<>();
         visited.add(current);
 
         while (!stack.isEmpty()) {
             current = stack.pop();
-            for (Node peer : current.getPeers()) {
+            for (GraphNode peer : current.getPeers()) {
                 if (!visited.contains(peer)) {
                     stack.push (peer);
                     visited.add(peer);
@@ -182,19 +183,19 @@ public class GraphPartitionDetector {
             }
         }
         return visited.stream()
-                .map(Node::getHost)
+                .map(GraphNode::getHost)
                 .collect(Collectors.toSet());
     }
 
-    public static Map<String, Node> buildNodeGraph(Set<String> allNodes, Map<String, NodeStatus> nodesStatus) throws NodeStatusException {
-        Map<String, Node> nodes = new HashMap<>();
-        for (String host : allNodes) {
-            Node hostNode = nodes.computeIfAbsent(host, (key) -> new Node(host));
+    public static Map<Node, GraphNode> buildNodeGraph(Set<Node> allNodes, Map<Node, NodeStatus> nodesStatus) throws NodeStatusException {
+        Map<Node, GraphNode> nodes = new HashMap<>();
+        for (Node host : allNodes) {
+            GraphNode hostNode = nodes.computeIfAbsent(host, (key) -> new GraphNode(host));
             NodeStatus status = nodesStatus.get(host);
             if (status != null) {
-                for (String peer : status.getAllPeers()) {
-                    if (!peer.equals("localhost")) {
-                        Node peerNode = nodes.computeIfAbsent(peer, (key) -> new Node(peer));
+                for (Node peer : status.getAllPeers()) {
+                    if (!peer.matches("localhost")) {
+                        GraphNode peerNode = nodes.computeIfAbsent(peer, (key) -> new GraphNode(peer));
                         hostNode.addPeer(peerNode);
                     }
                 }
@@ -203,9 +204,9 @@ public class GraphPartitionDetector {
         return nodes;
     }
 
-    private static boolean flagNodePartitioned(ProblemManager problemManager, List<JSONObject> nodeInfos, Map<String, NodeStatus> nodesStatus, String host) {
+    private static boolean flagNodePartitioned(ProblemManager problemManager, List<JSONObject> nodeInfos, Map<Node, NodeStatus> nodesStatus, Node host) {
         for (JSONObject nodeInfo : nodeInfos) {
-            if (nodeInfo.getString("host").equals(host)) {
+            if (host.matches(nodeInfo.getString("host"))) {
                 String prevStatus = nodeInfo.getString("status");
                 if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
                     nodeInfo.put("status", "PARTITIONED");
@@ -219,19 +220,19 @@ public class GraphPartitionDetector {
 
     @RequiredArgsConstructor
     @EqualsAndHashCode
-    public static class Node {
+    public static class GraphNode {
 
         @Getter
-        private final String host;
+        private final Node host;
 
         @EqualsAndHashCode.Exclude
-        private final Map<String, Node> peers = new HashMap<>();
+        private final Map<Node, GraphNode> peers = new HashMap<>();
 
-        public void addPeer (Node node) {
+        public void addPeer (GraphNode node) {
             peers.put (node.getHost(), node);
         }
 
-        public Collection<Node> getPeers () {
+        public Collection<GraphNode> getPeers () {
             return peers.values();
         }
 

@@ -53,7 +53,7 @@ public class NodeStatus extends JsonWrapper {
         return StringUtils.isNotBlank(poolError) && poolError.equals("KO");
     }
 
-    public Set<String> getAllPeers () throws NodeStatusException {
+    public Set<Node> getAllPeers () throws NodeStatusException {
         if (isPoolStatusError()) {
             throw new NodeStatusException("Pool status fetching failed.");
         }
@@ -61,10 +61,11 @@ public class NodeStatus extends JsonWrapper {
         JSONArray peerArray = getJSONObject().getJSONArray("peers");
         return peerArray.toList().stream()
                 .map(map -> (String) ((Map<?, ?>)map).get("hostname"))
+                .map(Node::from)
                 .collect(Collectors.toSet());
     }
 
-    public Map<String, Object> getNodeInformation (String hostname) throws NodeStatusException{
+    public Map<String, Object> getNodeInformation (Node node) throws NodeStatusException{
         if (isPoolStatusError()) {
             throw new NodeStatusException("Pool status fetching failed.");
         }
@@ -77,7 +78,7 @@ public class NodeStatus extends JsonWrapper {
                 .filter(map -> {
                     String host = (String) ((Map<?, ?>)map).get("hostname");
                     return StringUtils.isNotBlank(host) &&
-                            (host.equals ("localhost") || host.equalsIgnoreCase(hostname));
+                            (host.equals ("localhost") || node.matches(host));
                 })
                 .map(map -> (String) ((Map<?, ?>)map).get("state"))
                 .forEach(state -> retMap.put("state", state));
@@ -99,8 +100,8 @@ public class NodeStatus extends JsonWrapper {
 
                         JSONObject brick = brickArray.getJSONObject(j);
 
-                        String node = brick.getString("node");
-                        if (StringUtils.isNotBlank(node) && node.equals(hostname)) {
+                        String brickNode = brick.getString("node");
+                        if (StringUtils.isNotBlank(brickNode) && node.matches(brickNode)) {
                             nodeVolumes.add(volumeName);
                             brickCounter++;
                         }
@@ -140,7 +141,7 @@ public class NodeStatus extends JsonWrapper {
                 .collect(Collectors.toSet());
     }
 
-    public Set<String> getVolumeNodes (String volume) throws NodeStatusException {
+    public Set<Node> getVolumeNodes (String volume) throws NodeStatusException {
         return getVolumeBrickIds(volume).stream()
                 .map(BrickId::getNode)
                 .collect(Collectors.toSet());
@@ -173,7 +174,7 @@ public class NodeStatus extends JsonWrapper {
 
                     String node = brick.getString("node");
                     String path = brick.getString("path");
-                    retSet.add(new BrickId(node, path));
+                    retSet.add(new BrickId(Node.from(node), path));
                 }
             }
         }
@@ -181,7 +182,7 @@ public class NodeStatus extends JsonWrapper {
         return retSet;
     }
 
-    public Map<BrickId, String> getNodeBricksAndVolumes(String host) throws NodeStatusException{
+    public Map<BrickId, String> getNodeBricksAndVolumes(Node host) throws NodeStatusException{
 
         Map<BrickId, String> retMap = new HashMap<>();
 
@@ -208,9 +209,9 @@ public class NodeStatus extends JsonWrapper {
 
                     String node = brick.getString("node");
 
-                    if (node.equals(host)) {
+                    if (host.matches(node)) {
                         String path = brick.getString("path");
-                        retMap.put(new BrickId (node, path), volumeName);
+                        retMap.put(new BrickId (Node.from(node), path), volumeName);
                     }
                 }
             }
@@ -313,7 +314,7 @@ public class NodeStatus extends JsonWrapper {
                                     for (Map<?, ?> brickInformation : brickInformations) {
                                         String node = (String) brickInformation.get("node");
                                         String path = (String) brickInformation.get("path");
-                                        BrickId brickId = new BrickId(node, path);
+                                        BrickId brickId = new BrickId(Node.from(node), path);
                                         if (StringUtils.isNotBlank(node) && StringUtils.isNotBlank(path)) {
 
                                             BrickInformation brickInfo = retMap.computeIfAbsent(brickId, (key) -> new BrickInformation());

@@ -34,7 +34,6 @@
 
 package ch.niceideas.eskimo.egmi.model;
 
-import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 import ch.niceideas.eskimo.egmi.problems.ResolutionStopException;
 
@@ -43,7 +42,7 @@ import java.util.stream.Collectors;
 
 public class BrickAllocationHelper {
 
-    public static List<BrickId> buildReplicaUnallocation (Map<BrickId, BrickInformation> brickInformations, String vanishedNode, int currentNbReplicas, int currentNbShards ) {
+    public static List<BrickId> buildReplicaUnallocation (Map<BrickId, BrickInformation> brickInformations, Node vanishedNode, int currentNbReplicas, int currentNbShards ) {
 
         // Sort BrickIds to have replicas collocated, removing
         List<BrickId> sortedBrickIds = new ArrayList<>(brickInformations.keySet());
@@ -90,10 +89,10 @@ public class BrickAllocationHelper {
     }
 
     public static List<BrickId> buildNewShardBrickAllocation(
-            String volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, String volumePath, List<String> sortedNodes) {
+            String volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, String volumePath, List<Node> sortedNodes) {
 
         // find free nodes
-        List<String> freeNodes = sortedNodes.stream()
+        List<Node> freeNodes = sortedNodes.stream()
                 .filter(node -> !brickInformations.keySet().stream().map(BrickId::getNode).collect(Collectors.toSet()).contains(node))
                 .collect(Collectors.toList());
 
@@ -101,7 +100,7 @@ public class BrickAllocationHelper {
         List<BrickId> brickIds = new ArrayList<>();
         for (int i = 0; i < currentNbReplicas; i++) {
 
-            String brickNode = freeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
+            Node brickNode = freeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
             freeNodes.remove (brickNode);
             String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
             brickIds.add (new BrickId (brickNode, path));
@@ -110,12 +109,12 @@ public class BrickAllocationHelper {
     }
 
     public static List<BrickId> buildNewReplicasBrickAllocation(
-            String volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, int currentNbShards, String volumePath, List<String> sortedNodes) throws ResolutionStopException {
+            String volume, Map<BrickId, BrickInformation> brickInformations, int currentNbReplicas, int currentNbShards, String volumePath, List<Node> sortedNodes) throws ResolutionStopException {
 
         // 1. Map for every shards the nodes running them
         List<BrickId> sortedBrickIds = new ArrayList<>(brickInformations.keySet());
         sortedBrickIds.sort(new BrickIdNumberComparator(brickInformations));
-        Map<Integer, Set<String>> brickNodesMap = new HashMap<>();
+        Map<Integer, Set<Node>> brickNodesMap = new HashMap<>();
         int brickCounter = 0;
         for (BrickId brickId : sortedBrickIds) {
 
@@ -126,23 +125,23 @@ public class BrickAllocationHelper {
         }
 
         // 2. Then for every shards, find ideally a free node or else a node not running it
-        Map<Integer, String> newReplicaNodes = new HashMap<>();
+        Map<Integer, Node> newReplicaNodes = new HashMap<>();
         for (int shardNbr : brickNodesMap.keySet()) {
 
-            String targetNode;
+            Node targetNode;
 
-            String freeNode = sortedNodes.stream()
+            Node freeNode = sortedNodes.stream()
                     .filter(node -> !brickInformations.keySet().stream().map(BrickId::getNode).collect(Collectors.toSet()).contains(node))
                     .filter(node -> !newReplicaNodes.containsValue(node))
                     .findFirst().orElse(null);
-            if (StringUtils.isNotBlank(freeNode)) {
+            if (freeNode != null) {
                 targetNode = freeNode;
             } else {
                 targetNode = sortedNodes.stream()
                         .filter(node -> !brickNodesMap.get(shardNbr).contains(node))
                         .filter(node -> !newReplicaNodes.containsValue(node))
                         .findFirst().orElseThrow(() -> new ResolutionStopException("Impossible to find a node not running shard " + shardNbr + " replicas"));
-                if (StringUtils.isBlank(targetNode)) {
+                if (targetNode == null) {
                     throw new ResolutionStopException("In the end couldn't find another free node !!");
                 }
             }
@@ -153,7 +152,7 @@ public class BrickAllocationHelper {
         List<BrickId> brickIds = new ArrayList<>();
         int shardNumber = 0;
         for (int j = 0; j < currentNbShards; j++) {
-            String brickNode = newReplicaNodes.get(shardNumber);
+            Node brickNode = newReplicaNodes.get(shardNumber);
             String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
             brickIds.add (new BrickId (brickNode, path));
 
@@ -162,15 +161,15 @@ public class BrickAllocationHelper {
         return brickIds;
     }
 
-    public static List<BrickId> buildNewVolumeBrickAllocation(String volume, CommandContext context, Map<String, NodeStatus> nodesStatus, Set<String> activeNodes, RuntimeLayout rl) throws NodeStatusException {
+    public static List<BrickId> buildNewVolumeBrickAllocation(String volume, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, RuntimeLayout rl) throws NodeStatusException {
 
         int targetNbrBricks = rl.getTargetNbrBricks();
         int targetNbrReplicas = rl.getTargetNbrReplicas();
         int targetNbrShards = rl.getTargetNbrShards();
 
         // 1. build per node brick counter
-        Map<String, Integer> nodesBrickCount = new HashMap<>();
-        for (String node : activeNodes) {
+        Map<Node, Integer> nodesBrickCount = new HashMap<>();
+        for (Node node : activeNodes) {
 
             NodeStatus nodeStatus = nodesStatus.get(node);
 
@@ -179,7 +178,7 @@ public class BrickAllocationHelper {
             Integer nodeBrickCount =  (Integer) nodeInfo.get("brick_count");
             nodesBrickCount.put(node, Objects.requireNonNullElse(nodeBrickCount, 0));
         }
-        List<String> sortedNodes = new ArrayList<>(activeNodes);
+        List<Node> sortedNodes = new ArrayList<>(activeNodes);
         sortedNodes.sort(Comparator.comparing(nodesBrickCount::get));
 
         // 2. Build brick allocation, assemble replicas continuously
@@ -191,7 +190,7 @@ public class BrickAllocationHelper {
         List<BrickId> brickIds = new ArrayList<>();
         for (int i = 0; i < targetNbrShards; i++) {
             for (int j = 0; j < targetNbrReplicas; j++) {
-                String brickNode = sortedNodes.remove(0);
+                Node brickNode = sortedNodes.remove(0);
                 String path = volumePath + (volumePath.endsWith("/") ? "" : "/") + volume;
                 brickIds.add (new BrickId (brickNode, path));
             }

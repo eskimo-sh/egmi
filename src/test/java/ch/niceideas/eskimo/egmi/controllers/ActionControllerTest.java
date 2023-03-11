@@ -36,11 +36,11 @@
 package ch.niceideas.eskimo.egmi.controllers;
 
 import ch.niceideas.eskimo.egmi.management.ActionService;
+import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class ActionControllerTest {
 
@@ -62,7 +62,7 @@ public class ActionControllerTest {
             public void addVolume(String volume) {
             }
             @Override
-            public void addNode(String node) {
+            public void addNode(Node node) {
             }
         };
         actionController.setActionService(actionService);

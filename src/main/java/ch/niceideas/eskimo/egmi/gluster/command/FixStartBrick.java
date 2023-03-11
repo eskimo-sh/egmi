@@ -35,10 +35,11 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.eskimo.egmi.model.Node;
 
 public class FixStartBrick extends AbstractGlusterSimpleOperation {
 
-    public FixStartBrick(HttpClient httpClient, String volume, String node) {
-        super (httpClient, "fix-start-brick", volume, node);
+    public FixStartBrick(HttpClient httpClient, String volume, Node node) {
+        super (httpClient, "fix-start-brick", volume, node.getAddress());
     }
 }

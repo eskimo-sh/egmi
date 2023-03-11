@@ -35,10 +35,11 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.eskimo.egmi.model.Node;
 
 public class ForceRemoveBrick extends AbstractGlusterSimpleOperation {
 
-    public ForceRemoveBrick(HttpClient httpClient, String path, String node) {
-        super (httpClient, "force-remove-brick", path, node);
+    public ForceRemoveBrick(HttpClient httpClient, String path, Node node) {
+        super (httpClient, "force-remove-brick", path, node.getAddress());
     }
 }

@@ -36,6 +36,7 @@ package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
 import ch.niceideas.eskimo.egmi.gluster.command.result.PingResult;
+import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 
 public class Ping extends AbstractGlusterSimpleCommand<PingResult>{
@@ -48,8 +49,8 @@ public class Ping extends AbstractGlusterSimpleCommand<PingResult>{
     }
 
     @Override
-    protected String buildCommandUrl(String ip, CommandContext context) {
-        return buildSimpleCommandUrl(ip, context, "ping", targetHost, "-c", "1");
+    protected String buildCommandUrl(Node node, CommandContext context) {
+        return buildSimpleCommandUrl(node, context, "ping", targetHost, "-c", "1");
     }
 
     @Override

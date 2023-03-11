@@ -92,9 +92,9 @@ public class MissingBrick extends AbstractProblem implements Problem{
         try {
 
             // 1. Get active nodes
-            Map<String, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
+            Map<Node, NodeStatus> nodesStatus = glusterRemoteManager.getAllNodeStatus();
 
-            Set<String> activeNodes = getActiveConnectedNodes(nodesStatus);
+            Set<Node> activeNodes = getActiveConnectedNodes(nodesStatus);
 
             if (activeNodes.size() == 0) {
                 context.info ("  !! no active node. skipping");
@@ -104,7 +104,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
             // 2. Get volume and bricks information
 
             // 2.1 get volume info
-            String firstActiveNode = activeNodes.stream().findFirst().get();
+            Node firstActiveNode = getFirstNode(activeNodes).orElseThrow(IllegalStateException::new);
             VolumeInformation volumeInformation = nodesStatus.get(firstActiveNode).getVolumeInformation(volume);
             if (volumeInformation == null || StringUtils.isBlank(volumeInformation.getStatus())) {
                 context.info ("  !! Cannot get volume information");
@@ -116,7 +116,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
 
             // 2.2 Get existing bricks layout
 
-            Set<String> volumeNodes = nodesStatus.get(firstActiveNode).getVolumeNodes(volume);
+            Set<Node> volumeNodes = nodesStatus.get(firstActiveNode).getVolumeNodes(volume);
 
             Map<BrickId, BrickInformation> brickInformations =
                     nodesStatus.get(firstActiveNode).getVolumeBricksInformation(volume);
@@ -143,7 +143,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
             // 3. Add missing bricks
             String volumePath = context.getEnvironmentProperty("target.glusterVolumes.path");
 
-            List<String> sortedNodes = new ArrayList<>(activeNodes);
+            List<Node> sortedNodes = new ArrayList<>(activeNodes);
             sortedNodes.sort(new NodeBrickNumberComparator (nodesStatus.get(firstActiveNode)));
 
             // 3.1 If enough room Add replicas until target number of replicas is reached
@@ -167,7 +167,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
             // in this case I want free nodes, makes no sense to add shards on busy nodes
             // just get currentNbReplicas free nodes
 
-            List<String> freeNodes = sortedNodes.stream()
+            List<Node> freeNodes = sortedNodes.stream()
                     .filter(node -> !volumeNodes.contains(node))
                     .collect(Collectors.toList());
             if (freeNodes.size() >= currentNbReplicas && currentNbShards < targetNbrShards) {
@@ -194,7 +194,7 @@ public class MissingBrick extends AbstractProblem implements Problem{
     }
 
     private void addShard(List<BrickId> brickIds, CommandContext context, int currentNbReplicas) throws ResolutionStopException {
-        String lastNode = brickIds.stream().map(BrickId::getNode).findAny().orElseThrow(IllegalStateException::new);
+        Node lastNode = brickIds.stream().map(BrickId::getNode).findAny().orElseThrow(IllegalStateException::new);
 
         context.info ("    - Bricks are " + brickIds.stream().map(BrickId::toString).collect(Collectors.joining(", ")));
 

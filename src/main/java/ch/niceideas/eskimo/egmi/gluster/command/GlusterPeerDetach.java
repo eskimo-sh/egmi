@@ -35,10 +35,11 @@
 package ch.niceideas.eskimo.egmi.gluster.command;
 
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.eskimo.egmi.model.Node;
 
 public class GlusterPeerDetach extends AbstractGlusterSimpleOperation {
 
-    public GlusterPeerDetach(HttpClient httpClient, String peer) {
-        super (httpClient, "peer", "detach", peer, "force");
+    public GlusterPeerDetach(HttpClient httpClient, Node peer) {
+        super (httpClient, "peer", "detach", peer.getAddress(), "force");
     }
 }
