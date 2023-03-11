@@ -42,8 +42,7 @@ public class EgmiVolumeTest extends AbstractWebTest {
     @BeforeEach
     public void setUp() throws Exception {
 
-        loadScript("vendor/bootstrap.js");
-        loadScript("vendor/bootstrap-select.js");
+        loadScript("vendor/bootstrap-5.2.0.js");
         loadScript("utils.js");
 
         loadScript("egmiVolume.js");
