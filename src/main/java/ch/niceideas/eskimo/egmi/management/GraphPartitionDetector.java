@@ -150,7 +150,7 @@ public class GraphPartitionDetector {
                 if (nodeStatus != null) {
                     try {
                         nodeVolumesCounter = nodeStatus.getAllVolumes().size();
-                    } catch (NodeStatusException e) {
+                    } catch (NodeStatusException ignored) {
                         // ignored here
                     }
                 }

@@ -298,11 +298,6 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 error(e);
             }
 
-            // FIXME : in addition, a node being down for more than a few hours, once all bricks have been recreated elsewhere,
-            // should be removed from runtime node list.
-            // (such case wouldn0t be tracked by NodeDown problem since it owns no bricks anymore so I need to come up with something here !)
-
-
         } catch (Exception e) {
             error(e);
 
@@ -742,7 +737,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                         status.getAllPeers().stream()
                                 .filter(host -> !host.matches("localhost"))
                                 .forEach(allNodes::add);
-                    } catch (NodeStatusException e) {
+                    } catch (NodeStatusException ignored) {
                         // ignored here.
                     }
                 });
@@ -768,7 +763,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 .forEach(status -> {
                     try {
                         allVolumes.addAll (status.getAllVolumes());
-                    } catch (NodeStatusException e) {
+                    } catch (NodeStatusException ignored) {
                         // ignored here.
                     }
                 });
