@@ -82,7 +82,7 @@ egmi.Volume = function() {
 
         // TODO
 
-        $("#modal-volume").modal();
+        $("#modal-volume").modal("show");
     }
     this.showVolumeEdition = showVolumeEdition;
 

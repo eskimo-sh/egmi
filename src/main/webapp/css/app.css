@@ -252,10 +252,6 @@ h1 small{
     overflow-y: auto;
 }
 
-.modal-header .close {
-    margin-top: -20px;
-}
-
 .modal-title {
     font-weight: bold;
 }

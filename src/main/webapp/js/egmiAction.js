@@ -67,7 +67,7 @@ egmi.Action = function() {
 
         that.callback = callback;
 
-        $("#modal-action").modal();
+        $("#modal-action").modal("show");
     }
     this.showActionConfirm = showActionConfirm;
 

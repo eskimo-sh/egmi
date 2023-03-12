@@ -83,7 +83,7 @@ egmi.Node = function() {
 
         $('#node').val("");
 
-        $("#modal-node").modal();
+        $("#modal-node").modal("show");
     }
     this.showNodeEdition = showNodeEdition;
 

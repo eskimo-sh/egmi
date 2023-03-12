@@ -61,7 +61,7 @@ egmi.ShowOptions = function() {
 
         $("#show-options-content").html($("#volume-options-" + volume).html());
 
-        $("#modal-show-options").modal();
+        $("#modal-show-options").modal("show");
     }
     this.showOptions = showOptions;
 
