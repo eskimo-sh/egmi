@@ -191,7 +191,7 @@ public abstract class AbstractWebTest {
     }
 
     @BeforeEach
-    public void init() throws Exception {
+    public void init() {
 
         Class<?> clazz = this.getClass(); //if you want to get Class object
         className = clazz.getCanonicalName(); //you want to get only class name

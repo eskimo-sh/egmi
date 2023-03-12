@@ -42,8 +42,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StringUtilsTest  {
 
-    private static final String SOURCE = "abc erd ohd the ad lazy fox jumps over ad my beautiful self again and is'nt that just sad nope ?";
-
     @Test
     public void testIsIntegerValue() {
 

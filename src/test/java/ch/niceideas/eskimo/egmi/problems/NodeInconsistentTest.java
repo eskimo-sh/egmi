@@ -59,7 +59,7 @@ public class NodeInconsistentTest extends AbstractProblemTest {
     }
 
     @Test
-    public void testSolve() throws Exception {
+    public void testSolve() {
 
         ResolutionStopException exp = assertThrows(ResolutionStopException.class,
                 () -> problem.solve(grm, new CommandContext(mockClient, 1234, ms)));

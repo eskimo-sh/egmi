@@ -40,8 +40,7 @@ import ch.niceideas.eskimo.egmi.configurations.WebSecurityConfiguration;
 import ch.niceideas.eskimo.egmi.configurations.WebServerConfiguration;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
-import ch.niceideas.eskimo.egmi.model.Node;
-import ch.niceideas.eskimo.egmi.model.NodeStatus;
+import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -76,17 +75,9 @@ public class Tester implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-
-        NodeStatus status = glusterRemoteManager.getNodeStatus(Node.from("192.168.10.71"));
-        System.err.println (status.getFormattedValue());
-
-
-        /*
         managementService.updateSystemStatus();
         SystemStatus status = managementService.getSystemStatus();
         System.err.println (status.getFormattedValue());
-        */
-
 
         managementService.destroy();
     }

@@ -46,12 +46,4 @@ public class ResolutionSkipException extends CommonBusinessException {
     public ResolutionSkipException(String message) {
         super(message);
     }
-
-    public ResolutionSkipException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ResolutionSkipException(Throwable cause) {
-        super(cause);
-    }
 }

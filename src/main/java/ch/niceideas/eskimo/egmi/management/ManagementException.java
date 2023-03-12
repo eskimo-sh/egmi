@@ -40,17 +40,6 @@ public class ManagementException extends CommonBusinessException {
 
     static final long serialVersionUID = -3387512233112229248L;
 
-    public ManagementException() {
-    }
-
-    public ManagementException(String message) {
-        super(message);
-    }
-
-    public ManagementException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public ManagementException(Throwable cause) {
         super(cause);
     }

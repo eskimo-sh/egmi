@@ -148,13 +148,8 @@ public class HttpClient implements Closeable {
 
     }
 
-    private static void setEntity(Object content, ClassicHttpRequest httpEntityOwner, ContentType type) throws HttpClientException {
-        try {
-            httpEntityOwner.setEntity(buildEntity(content, type));
-        } catch (IOException e) {
-            logger.error(e, e);
-            throw new HttpClientException (e.getMessage(), e);
-        }
+    private static void setEntity(Object content, ClassicHttpRequest httpEntityOwner, ContentType type) {
+        httpEntityOwner.setEntity(buildEntity(content, type));
     }
 
     /** Simulate IE 7.0 behaviour */
@@ -417,7 +412,7 @@ public class HttpClient implements Closeable {
         return new HttpClientResponse(response, targetHost != null ? targetHost.toString() : null);
     }
 
-    private static HttpEntity buildEntity(Object content, ContentType type) throws IOException {
+    private static HttpEntity buildEntity(Object content, ContentType type) {
         if (content instanceof InputStream) {
             return new InputStreamEntity((InputStream) content, type);
         } else if (content instanceof byte[]) {

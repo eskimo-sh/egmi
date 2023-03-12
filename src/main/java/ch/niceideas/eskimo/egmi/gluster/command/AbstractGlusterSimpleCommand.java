@@ -75,7 +75,7 @@ public abstract class AbstractGlusterSimpleCommand<T extends AbstractGlusterResu
 
     protected abstract T buildResponse();
 
-    public T execute (Node node, CommandContext context) throws HttpClientException, IOException {
+    public T execute (Node node, CommandContext context) throws HttpClientException {
         try (HttpClientResponse response = httpClient.sendRequest(
                 buildCommandUrl(node, context))) {
             return buildResponse().buildFromResponse(response);

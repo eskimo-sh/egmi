@@ -55,5 +55,5 @@ public interface TestResourcesServer {
 
     void stopServer() throws Exception;
 
-    void postTestMethodHook(JsRunner runner) throws Exception;
+    void postTestMethodHook(JsRunner runner);
 }

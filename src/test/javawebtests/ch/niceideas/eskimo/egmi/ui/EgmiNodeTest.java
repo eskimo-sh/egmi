@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 public class EgmiNodeTest extends AbstractWebTest {
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         loadScript("vendor/bootstrap-5.2.0.js");
         loadScript("utils.js");
@@ -55,7 +55,7 @@ public class EgmiNodeTest extends AbstractWebTest {
     }
 
     @Test
-    public void testNominal() throws Exception {
+    public void testNominal() {
 
         js("node.showNodeEdition();");
 

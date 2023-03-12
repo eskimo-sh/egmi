@@ -53,8 +53,6 @@ public abstract class StringUtils {
 
     public static final String DEFAULT_ENCODING = "ISO-8859-1";
 
-    private static final int LARGEST_FIELD_LENGTH = 100;
-
     private static final Pattern INTEGER_VALUE = Pattern.compile(" *[\\-+]? *[0-9]+(\\.(0)*)?");
 
     private StringUtils() {}

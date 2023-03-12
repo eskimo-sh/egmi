@@ -106,11 +106,6 @@ public abstract class AbstractProblem implements Problem{
             logger.debug (e, e);
             logger.error (e.getCompleteMessage());
             throw new ResolutionStopException(e.getCompleteMessage(), e);
-
-        } catch (IOException e) {
-            logger.debug (e, e);
-            logger.error (e.getMessage());
-            throw new ResolutionStopException(e);
         }
     }
 

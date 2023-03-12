@@ -45,13 +45,6 @@ public class HttpClientException extends CommonBusinessException {
 
     /**
      * Create a new instance of HttpClientException
-     */
-    public HttpClientException() {
-        super();
-    }
-
-    /**
-     * Create a new instance of HttpClientException
      * 
      * @param code the initial error code to set
      */

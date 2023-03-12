@@ -226,11 +226,6 @@ public class NodePartitioned extends AbstractProblem implements Problem {
                         logger.error (e.getCompleteMessage());
                         throw new ResolutionStopException(e.getCompleteMessage(), e);
                     }
-                    catch (IOException e) {
-                        logger.debug (e, e);
-                        logger.error (e.getMessage());
-                        throw new ResolutionStopException(e);
-                    }
                 }
 
                 // 5.2 Stop if host couldn't be detached from peers

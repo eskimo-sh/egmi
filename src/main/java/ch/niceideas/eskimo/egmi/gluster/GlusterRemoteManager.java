@@ -118,7 +118,7 @@ public class GlusterRemoteManager {
         return retMap;
     }
 
-    public String resolve (String hostname, Node node) throws IOException, HttpClientException {
+    private String resolve (String hostname, Node node) throws IOException, HttpClientException {
 
         if (StringUtils.isBlank(hostname)) {
             return "";
@@ -139,7 +139,7 @@ public class GlusterRemoteManager {
         return pingResult.getResolvedIP();
     }
 
-    public NodeStatus getNodeStatus (Node node) throws GlusterRemoteException {
+    NodeStatus getNodeStatus (Node node) throws GlusterRemoteException {
 
         NodeStatus status = new NodeStatus("{}");
 

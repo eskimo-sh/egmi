@@ -45,7 +45,7 @@ public abstract class AbstractGlusterResult<T extends AbstractGlusterResult<T>> 
     public abstract T buildFromResponse (HttpClientResponse response) throws HttpClientException;
 
     public final boolean isError() {
-        return StringUtils.isBlank(errorMessage);
+        return StringUtils.isNotBlank(errorMessage);
     }
 
     public final String getError() {

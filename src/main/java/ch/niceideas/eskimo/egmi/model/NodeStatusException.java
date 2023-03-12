@@ -40,15 +40,8 @@ public class NodeStatusException extends CommonBusinessException {
 
     static final long serialVersionUID = -3381512211112229248L;
 
-    public NodeStatusException() {
-    }
-
     public NodeStatusException(String message) {
         super(message);
-    }
-
-    public NodeStatusException(String message, Throwable cause) {
-        super(message, cause);
     }
 
     public NodeStatusException(Throwable cause) {

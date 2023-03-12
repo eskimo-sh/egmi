@@ -137,7 +137,7 @@ public class HttpClientResponse implements Closeable {
      */
     public String asString(Charset encoding) throws HttpClientException {
         if (respBytes == null) {
-            this.asByteArray();
+            this.resolveContent();
         }
         if (respBytes == null) {
             StringBuilder responseInformation = buildResponseInformation();
@@ -183,27 +183,22 @@ public class HttpClientResponse implements Closeable {
         }
     }
 
-    /**
-     * @return the response as an array of bytes
-     * @throws HttpClientException if anything goes wrong
-     */
-    public byte[] asByteArray() throws HttpClientException {
+    public void resolveContent() throws HttpClientException {
         if (respBytes == null) {
             if (responseEntity == null) {
                 StringBuilder responseInformation = buildResponseInformation();
                 responseInformation.append("No response has been provided by target server.");
                 String errorMessage = responseInformation.toString();
                 logger.error(errorMessage);
-                return null;
-            }
-            try {
-                respBytes = StreamUtils.getBytes(responseEntity.getContent());
-            } catch (IOException e) {
-                logger.error(e, e);
-                throw new HttpClientException(e.getMessage(), e);
+            } else {
+                try {
+                    respBytes = StreamUtils.getBytes(responseEntity.getContent());
+                } catch (IOException e) {
+                    logger.error(e, e);
+                    throw new HttpClientException(e.getMessage(), e);
+                }
             }
         }
-        return respBytes;
     }
 
     public String getContentType() {

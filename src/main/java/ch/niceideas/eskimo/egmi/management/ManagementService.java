@@ -525,7 +525,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 }
             }
 
-            // Check if a brick could not be build at all
+            // Check if a brick could not be built at all
             for (BrickId brickId: bricksInfo.keySet()) {
                 SystemBrickInformation brickInfo = bricksInfo.get(brickId);
                 String status = brickInfo.getStatus();

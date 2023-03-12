@@ -91,7 +91,9 @@ public class GenerateLCOV {
 
             String merged = GenerateLCOV.toJSON(total);
             File targetFile = new File (mergedJsCoverReportDir, "jscoverage.json");
-            targetFile.getParentFile().mkdirs();
+            if (!targetFile.getParentFile().mkdirs()) {
+                logger.debug ("Couldn't mkdirs " + targetFile.getParentFile());
+            }
             FileUtils.write(targetFile, merged);
 
 

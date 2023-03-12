@@ -77,7 +77,6 @@ public class WebSecurityConfiguration {
 
     public static final String LOGIN_PAGE_URL = "/login.html";
     public static final String INDEX_PAGE_URL = "/index.html";
-    public static final String APP_PAGE_URL = "/app.html";
 
     @Value("${server.servlet.context-path:#{null}}")
     private String configuredContextPath = "";
@@ -122,7 +121,7 @@ public class WebSecurityConfiguration {
                 .loginProcessingUrl("/login").permitAll()
                     .usernameParameter("egmi-username")
                     .passwordParameter("egmi-password")
-                .defaultSuccessUrl("/index.html",true)
+                .defaultSuccessUrl(INDEX_PAGE_URL,true)
                 .and()
             .userDetailsService(userDetailsService())
             .logout().permitAll()

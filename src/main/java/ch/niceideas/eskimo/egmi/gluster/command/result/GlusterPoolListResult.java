@@ -114,7 +114,7 @@ public class GlusterPoolListResult extends AbstractGlusterResult<GlusterPoolList
     }
 
     public boolean isSuccess() {
-        return StringUtils.isBlank(getError());
+        return !isError();
     }
 
     public boolean contains(Node host) {

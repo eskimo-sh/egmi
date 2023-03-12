@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
 public class EgmiShowOptionsTest extends AbstractWebTest {
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
 
         loadScript("vendor/bootstrap-5.2.0.js");
         loadScript("utils.js");
@@ -55,7 +55,7 @@ public class EgmiShowOptionsTest extends AbstractWebTest {
     }
 
     @Test
-    public void testNominal() throws Exception {
+    public void testNominal() {
 
         js ("$(\"body\").append ($('<div id=\"volume-options-testvol\">TEST</div>'));");
 

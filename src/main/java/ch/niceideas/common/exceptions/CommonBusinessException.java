@@ -179,20 +179,6 @@ public class CommonBusinessException extends Exception {
         messageBuilder.append(message);
     }
 
-    /**
-     * Extract the stack trace from an exception and put it in a string
-     */
-    public String stackToString() {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        printStackTrace(pw);
-        return sw.toString();
-    }
-
-    public String getStackTraceString() {
-        return stackToString();
-    }
-
     @SuppressWarnings("unchecked")
     public <T extends CommonBusinessException> void throwIfAny() throws T {
         if (underlyingExceptions != null && underlyingExceptions.size() > 0) {

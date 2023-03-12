@@ -34,18 +34,12 @@
 
 package ch.niceideas.common.http;
 
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpHead;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
 import org.apache.hc.client5.http.protocol.RedirectStrategy;
-import org.apache.hc.client5.http.utils.URIUtils;
-import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class LaxRedirectStrategy extends DefaultRedirectStrategy implements RedirectStrategy {
 
