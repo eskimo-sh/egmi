@@ -194,7 +194,7 @@ public class GlusterVolumeInfoResult extends AbstractGlusterResult<GlusterVolume
 
     @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor
-    private static class VolumeInformationWrapper extends VolumeInformation {
+    private static class VolumeInformationWrapper extends NodeVolumeInformation {
 
         public void feedInStatus(NodeStatus nodeStatus, int counter) {
             nodeStatus.setValueForPath("volumes." + counter + ".status", getStatus());

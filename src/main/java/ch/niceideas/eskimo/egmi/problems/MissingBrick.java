@@ -105,11 +105,11 @@ public class MissingBrick extends AbstractProblem implements Problem{
 
             // 2.1 get volume info
             Node firstActiveNode = getFirstNode(activeNodes).orElseThrow(IllegalStateException::new);
-            VolumeInformation volumeInformation = nodesStatus.get(firstActiveNode).getVolumeInformation(volume);
-            if (volumeInformation == null || StringUtils.isBlank(volumeInformation.getStatus())) {
+            NodeVolumeInformation nodeVolumeInformation = nodesStatus.get(firstActiveNode).getVolumeInformation(volume);
+            if (nodeVolumeInformation == null || StringUtils.isBlank(nodeVolumeInformation.getStatus())) {
                 context.info ("  !! Cannot get volume information");
                 throw new ResolutionSkipException();
-            } else if (!volumeInformation.getStatus().equals("OK")) {
+            } else if (!nodeVolumeInformation.getStatus().equals("OK")) {
                 context.info ("  !! Volume status is not OK ");
                 throw new ResolutionSkipException();
             }
@@ -118,10 +118,10 @@ public class MissingBrick extends AbstractProblem implements Problem{
 
             Set<Node> volumeNodes = nodesStatus.get(firstActiveNode).getVolumeNodes(volume);
 
-            Map<BrickId, BrickInformation> brickInformations =
+            Map<BrickId, NodeBrickInformation> brickInformations =
                     nodesStatus.get(firstActiveNode).getVolumeBricksInformation(volume);
-            int currentNbReplicas = Integer.parseInt(StringUtils.isBlank(volumeInformation.getNbReplicas()) ? "1" : volumeInformation.getNbReplicas());
-            int currentNbShards = Integer.parseInt(volumeInformation.getNbShards());
+            int currentNbReplicas = Integer.parseInt(StringUtils.isBlank(nodeVolumeInformation.getNbReplicas()) ? "1" : nodeVolumeInformation.getNbReplicas());
+            int currentNbShards = Integer.parseInt(nodeVolumeInformation.getNbShards());
             int currentNbrBricks = currentNbShards * currentNbReplicas;
 
             RuntimeLayout rl = new RuntimeLayout(context, activeNodes);

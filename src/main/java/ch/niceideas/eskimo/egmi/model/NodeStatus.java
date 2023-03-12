@@ -36,7 +36,6 @@ package ch.niceideas.eskimo.egmi.model;
 
 import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.common.utils.StringUtils;
-import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterPoolListResult;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -222,7 +221,7 @@ public class NodeStatus extends JsonWrapper {
         return retMap;
     }
 
-    public VolumeInformation getVolumeInformation(Volume volume) throws NodeStatusException {
+    public NodeVolumeInformation getVolumeInformation(Volume volume) throws NodeStatusException {
         if (isVolumeStatusError()) {
             throw new NodeStatusException("Volume status fetching failed.");
         }
@@ -233,7 +232,7 @@ public class NodeStatus extends JsonWrapper {
 
         JSONArray volumeArray = getJSONObject().getJSONArray("volumes");
 
-        VolumeInformation retInfo = new VolumeInformation();
+        NodeVolumeInformation retInfo = new NodeVolumeInformation();
 
         volumeArray.toList().stream()
                 .filter(map -> {
@@ -287,7 +286,7 @@ public class NodeStatus extends JsonWrapper {
 
     }
 
-    public Map<BrickId, BrickInformation> getVolumeBricksInformation(Volume volume) throws NodeStatusException {
+    public Map<BrickId, NodeBrickInformation> getVolumeBricksInformation(Volume volume) throws NodeStatusException {
         if (isBrickStatusError()) {
             throw new NodeStatusException("Brick status fetching failed.");
         }
@@ -298,7 +297,7 @@ public class NodeStatus extends JsonWrapper {
 
         JSONArray volumeArray = getJSONObject().getJSONArray("volumes");
 
-        Map<BrickId, BrickInformation> retMap = new HashMap<>();
+        Map<BrickId, NodeBrickInformation> retMap = new HashMap<>();
 
         volumeArray.toList().stream()
                 .filter(map -> {
@@ -319,7 +318,7 @@ public class NodeStatus extends JsonWrapper {
                                         BrickId brickId = BrickId.fromNodeAndPath(Node.from(node), path);
                                         if (StringUtils.isNotBlank(node) && StringUtils.isNotBlank(path)) {
 
-                                            BrickInformation brickInfo = retMap.computeIfAbsent(brickId, (key) -> new BrickInformation());
+                                            NodeBrickInformation brickInfo = retMap.computeIfAbsent(brickId, (key) -> new NodeBrickInformation());
 
                                             //noinspection unchecked
                                             brickInfo.setAll ((Map<? extends String, ?>) brickInformation);

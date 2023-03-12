@@ -34,27 +34,14 @@
 
 package ch.niceideas.eskimo.egmi.model;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-import java.util.Comparator;
-import java.util.Map;
-
-@RequiredArgsConstructor
-public class BrickIdNumberComparator implements Comparator<BrickId> {
-
-    private final Map<BrickId, NodeBrickInformation> nodeBricksInfo;
-
-    @Override
-    public int compare(BrickId o1, BrickId o2) {
-        NodeBrickInformation info1 = nodeBricksInfo.get(o1);
-        NodeBrickInformation info2 = nodeBricksInfo.get(o2);
-        if (info1 == null) {
-            return 1;
-        }
-        if (info2 == null) {
-            return -1;
-        }
-        return info1.compareTo (info2);
-    }
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+public class NodeVolumeInformation extends AbstractVolumeInformation {
 
 }

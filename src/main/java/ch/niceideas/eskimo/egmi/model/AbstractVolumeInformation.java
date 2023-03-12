@@ -34,27 +34,51 @@
 
 package ch.niceideas.eskimo.egmi.model;
 
-import lombok.RequiredArgsConstructor;
+import ch.niceideas.common.utils.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Comparator;
-import java.util.Map;
+@Data
+@NoArgsConstructor
+public abstract class AbstractVolumeInformation {
 
-@RequiredArgsConstructor
-public class BrickIdNumberComparator implements Comparator<BrickId> {
+    private String status;
+    private String type;
+    private String owner;
 
-    private final Map<BrickId, NodeBrickInformation> nodeBricksInfo;
+    private String nbShards;
+    private String nbReplicas;
+    private String nbArbiters;
+    private String nbBricks;
 
-    @Override
-    public int compare(BrickId o1, BrickId o2) {
-        NodeBrickInformation info1 = nodeBricksInfo.get(o1);
-        NodeBrickInformation info2 = nodeBricksInfo.get(o2);
-        if (info1 == null) {
-            return 1;
+    public void set(String key, Object value) {
+        switch (key) {
+            case "status":
+                setStatus((String)value);
+                break;
+            case "type":
+                setType((String)value);
+                break;
+            case "owner":
+                setOwner((String)value);
+                break;
+            case "nb_shards":
+                setNbShards((String)value);
+                break;
+            case "nb_replicas":
+                setNbReplicas((String)value);
+                break;
+            case "nb_arbiters":
+                setNbArbiters((String)value);
+                break;
+            case "nb_bricks":
+                setNbBricks((String)value);
+                break;
         }
-        if (info2 == null) {
-            return -1;
-        }
-        return info1.compareTo (info2);
     }
 
+    public boolean isReplicated() {
+        return StringUtils.isNotBlank(type) && type.toLowerCase().contains("replicate");
+    }
 }

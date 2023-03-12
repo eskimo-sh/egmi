@@ -34,51 +34,27 @@
 
 package ch.niceideas.eskimo.egmi.model;
 
-import ch.niceideas.common.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class VolumeInformation {
+public class NodeBrickInformation extends AbstractBrickInformation {
 
-    private String status;
-    private String type;
-    private String owner;
-    private String nbShards;
-    private String nbReplicas;
-    private String nbArbiters;
-    private String nbBricks;
+    private String fsType;
 
-    public void set(String key, String value) {
-        switch (key) {
-            case "status":
-                setStatus(value);
-                break;
-            case "type":
-                setType(value);
-                break;
-            case "owner":
-                setOwner(value);
-                break;
-            case "nb_shards":
-                setNbShards(value);
-                break;
-            case "nb_replicas":
-                setNbReplicas(value);
-                break;
-            case "nb_arbiters":
-                setNbArbiters(value);
-                break;
-            case "nb_bricks":
-                setNbBricks(value);
-                break;
+    @Override
+    public void set(String key, Object value) {
+
+        if ("fsType".equals(key)) {
+            setFsType((String) value);
+        } else {
+            super.set(key, value);
         }
-    }
-
-    public boolean isReplicated() {
-        return StringUtils.isNotBlank(type) && type.toLowerCase().contains("replicate");
     }
 }

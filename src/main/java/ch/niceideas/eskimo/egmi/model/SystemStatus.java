@@ -39,6 +39,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -126,4 +127,47 @@ public class SystemStatus extends JsonWrapper {
         JSONObject nodeInfo = Optional.ofNullable(getNodeInfo(host)).orElseThrow(IllegalStateException::new);
         nodeInfo.put("status", "PARTITIONED");
     }
+
+    public void addSystemInfo(SystemVolumeInformation systemVolumeInfo) {
+
+        JSONArray volumeArray = null;
+        if (!getJSONObject().has("volumes")) {
+            volumeArray = new JSONArray();
+            getJSONObject().put("volumes", volumeArray);
+        } else {
+            volumeArray = getJSONObject().getJSONArray("volumes");
+        }
+
+        JSONObject volumeObject = new JSONObject();
+        systemVolumeInfo.fillIn (volumeObject);
+        volumeArray.put(volumeObject);
+    }
+
+    /*
+    public SystemVolumeInformation getVolumeInformation(Volume volume) {
+
+        if (!getJSONObject().has("volumes")) {
+            return null;
+        }
+
+        JSONArray volumeArray = getJSONObject().getJSONArray("volumes");
+
+        SystemVolumeInformation retInfo = new SystemVolumeInformation();
+        retInfo.setVolume (volume);
+
+        volumeArray.toList().stream()
+                .filter(map -> {
+                    String name = (String) ((Map<?, ?>)map).get("name");
+                    return volume.matches (name);
+                })
+                .map(map -> ((Map<?, ?>)map).entrySet())
+                .forEach(
+                        entries -> entries.stream()
+                                .filter( entry -> !entry.getKey().equals("bricks") && !entry.getKey().equals("options"))
+                                .forEach(entry -> retInfo.set ((String)entry.getKey(), (String)entry.getValue()) )
+                );
+
+        return retInfo;
+    }
+    */
 }

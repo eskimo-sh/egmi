@@ -165,17 +165,17 @@ public class NodeDown extends AbstractProblem implements Problem {
 
                 context.info ("  + Handling Brick " + brickId);
 
-                VolumeInformation volumeInformation = nodesStatus.get(activeNodes.stream()
+                NodeVolumeInformation nodeVolumeInformation = nodesStatus.get(activeNodes.stream()
                             .findFirst()
                             .orElseThrow(IllegalStateException::new))
                         .getVolumeInformation(brickVolume);
 
                 // 3.1 if the volume is replicated, there should be a replica of this brick,
-                if (volumeInformation.isReplicated()) {
+                if (nodeVolumeInformation.isReplicated()) {
 
                     context.info ("    - Brick " + brickId + " is replicated. Can proceed further");
 
-                    Map<BrickId, BrickInformation> brickInformations =
+                    Map<BrickId, NodeBrickInformation> brickInformations =
                             nodesStatus.get(activeNodes.stream().
                                         findFirst().
                                         orElseThrow(IllegalStateException::new))
@@ -189,7 +189,7 @@ public class NodeDown extends AbstractProblem implements Problem {
                     Set<Node> candidateNodes = new HashSet<>(activeNodes);
                     candidateNodes.removeAll(brickNodes);
 
-                    Set<Node> replicaNodes = listBrickReplicaNodes(volume, brickId, volumeInformation, brickInformations, context);
+                    Set<Node> replicaNodes = listBrickReplicaNodes(volume, brickId, nodeVolumeInformation, brickInformations, context);
 
                     // gluster commands need to be run on a node running a brick
                     Node executionNode = findExecutionNode(brickId, brickInformations, replicaNodes, activeNodes);
@@ -240,8 +240,8 @@ public class NodeDown extends AbstractProblem implements Problem {
                         else {
 
                             // 3.1.3 If there is no way to add a new brick anywhere, reduce replication and remove all required bricks
-                            int currentNbReplicas = Integer.parseInt(StringUtils.isBlank(volumeInformation.getNbReplicas()) ? "1" : volumeInformation.getNbReplicas());
-                            int currentNbShards = Integer.parseInt(volumeInformation.getNbShards());
+                            int currentNbReplicas = Integer.parseInt(StringUtils.isBlank(nodeVolumeInformation.getNbReplicas()) ? "1" : nodeVolumeInformation.getNbReplicas());
+                            int currentNbShards = Integer.parseInt(nodeVolumeInformation.getNbShards());
 
                             List<BrickId> removedBrickIds = BrickAllocationHelper.buildReplicaUnallocation (brickInformations, host, currentNbReplicas, currentNbShards);
 
@@ -265,7 +265,7 @@ public class NodeDown extends AbstractProblem implements Problem {
         return true;
     }
 
-    private static Node findFreeTargetNode(Set<Node> activeNodes, Map<BrickId, BrickInformation> brickInformations) throws ResolutionSkipException {
+    private static Node findFreeTargetNode(Set<Node> activeNodes, Map<BrickId, NodeBrickInformation> brickInformations) throws ResolutionSkipException {
         Node targetNode = null;
         for (Node candidateNode : activeNodes) {
             boolean found = false;
@@ -286,7 +286,7 @@ public class NodeDown extends AbstractProblem implements Problem {
         return targetNode;
     }
 
-    public static Node findExecutionNode(BrickId brickId, Map<BrickId, BrickInformation> brickInformations, Set<Node> replicaNodes, Set<Node> activeNodes) throws ResolutionSkipException {
+    public static Node findExecutionNode(BrickId brickId, Map<BrickId, NodeBrickInformation> brickInformations, Set<Node> replicaNodes, Set<Node> activeNodes) throws ResolutionSkipException {
         Node executionNode = brickInformations.keySet().stream()
                 .map(BrickId::getNode)
                 .filter(replicaNodes::contains)
@@ -298,20 +298,20 @@ public class NodeDown extends AbstractProblem implements Problem {
         return executionNode;
     }
 
-    private static Set<Node> listBrickReplicaNodes (Volume volume, BrickId brickId, VolumeInformation volumeInformation, Map<BrickId, BrickInformation> brickInformations, CommandContext context)
+    private static Set<Node> listBrickReplicaNodes (Volume volume, BrickId brickId, NodeVolumeInformation nodeVolumeInformation, Map<BrickId, NodeBrickInformation> brickInformations, CommandContext context)
             throws ResolutionStopException, ResolutionSkipException{
-        if (StringUtils.isBlank(volumeInformation.getNbReplicas())) {
+        if (StringUtils.isBlank(nodeVolumeInformation.getNbReplicas())) {
             throw new ResolutionStopException("Cannot get volume " + volume + " number of replicas");
         }
-        int nbrReplicas = Integer.parseInt(volumeInformation.getNbReplicas())
-                + (StringUtils.isBlank(volumeInformation.getNbArbiters()) ? 0 : Integer.parseInt(volumeInformation.getNbArbiters()));
+        int nbrReplicas = Integer.parseInt(nodeVolumeInformation.getNbReplicas())
+                + (StringUtils.isBlank(nodeVolumeInformation.getNbArbiters()) ? 0 : Integer.parseInt(nodeVolumeInformation.getNbArbiters()));
 
         // 3.1.2.1 find where are the nodes with replicates (adjacent nodes)
-        BrickInformation brickInformation = brickInformations.get(brickId);
-        if (brickInformation.getNumber() == null) {
+        NodeBrickInformation nodeBrickInformation = brickInformations.get(brickId);
+        if (nodeBrickInformation.getNumber() == null) {
             throw new ResolutionStopException("Cannot get brick " + brickId + " number");
         }
-        int brickNbr = brickInformation.getNumber();
+        int brickNbr = nodeBrickInformation.getNumber();
         int replicaSetFirstBrickNbr = brickNbr - ((brickNbr % nbrReplicas) == 0 ? nbrReplicas : (brickNbr % nbrReplicas)) + 1;
         int replicaSetLastBrickNbr = replicaSetFirstBrickNbr + (nbrReplicas - 1);
 
@@ -319,11 +319,11 @@ public class NodeDown extends AbstractProblem implements Problem {
 
         Set<Node> replicaNodes = new HashSet<>();
         for (BrickId otherBrickId : brickInformations.keySet()) {
-            BrickInformation brickInformationOther = brickInformations.get(otherBrickId);
-            if (brickInformationOther.getNumber() == null) {
+            NodeBrickInformation nodeBrickInformationOther = brickInformations.get(otherBrickId);
+            if (nodeBrickInformationOther.getNumber() == null) {
                 throw new ResolutionSkipException("Couldn't get brick number of brick " + otherBrickId);
             }
-            int otherBrickNbr = brickInformationOther.getNumber();
+            int otherBrickNbr = nodeBrickInformationOther.getNumber();
             // is the brick part of the replica set ?
             if (otherBrickNbr >= replicaSetFirstBrickNbr && otherBrickNbr <= replicaSetLastBrickNbr) {
                 replicaNodes.add(otherBrickId.getNode());

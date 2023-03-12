@@ -42,44 +42,44 @@ import java.util.Map;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class BrickInformation implements Comparable<BrickInformation> {
+public abstract class AbstractBrickInformation implements Comparable<AbstractBrickInformation> {
 
     private Integer number;
     private String status;
-    private String fsType;
     private String device;
     private String free;
     private String total;
 
     public void setAll(Map<? extends String, ?> brickInformation) {
-
         for (String key : brickInformation.keySet()) {
-            switch (key) {
-                case "number":
-                    setNumber((Integer)brickInformation.get(key));
-                    break;
-                case "status":
-                    setStatus((String)brickInformation.get(key));
-                    break;
-                case "fsType":
-                    setFsType((String)brickInformation.get(key));
-                    break;
-                case "device":
-                    setDevice((String)brickInformation.get(key));
-                    break;
-                case "free":
-                    setFree((String)brickInformation.get(key));
-                    break;
-                case "total":
-                    setTotal((String)brickInformation.get(key));
-                    break;
-            }
+            set(key, brickInformation.get(key));
+        }
+    }
+
+    public void set(String key, Object value) {
+
+        switch (key) {
+            case "number":
+                setNumber((Integer)value);
+                break;
+            case "status":
+                setStatus((String)value);
+                break;
+            case "device":
+                setDevice((String)value);
+                break;
+            case "free":
+                setFree((String)value);
+                break;
+            case "total":
+            case "tot":
+                setTotal((String)value);
+                break;
         }
     }
 
     @Override
-    public int compareTo(BrickInformation info2) {
+    public int compareTo(AbstractBrickInformation info2) {
         if (getNumber() == null) {
             return 1;
         }

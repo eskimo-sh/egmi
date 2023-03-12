@@ -40,6 +40,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -53,24 +55,17 @@ public abstract class StringUtils {
 
     private static final int LARGEST_FIELD_LENGTH = 100;
 
-    private static final String[] SPACES = buildSpaceArray(LARGEST_FIELD_LENGTH);
-    
-    static final byte[] HEX_CHAR_TABLE = {
-        (byte)'0', (byte)'1', (byte)'2', (byte)'3',
-        (byte)'4', (byte)'5', (byte)'6', (byte)'7',
-        (byte)'8', (byte)'9', (byte)'a', (byte)'b',
-        (byte)'c', (byte)'d', (byte)'e', (byte)'f'
-      }; 
+    private static final Pattern INTEGER_VALUE = Pattern.compile(" *[\\-+]? *[0-9]+(\\.(0)*)?");
 
     private StringUtils() {}
 
-    private static String[] buildSpaceArray(int n) {
-        String[] result = new String[n + 1];
-        result[0] = "";
-        for (int i = 1; i < result.length; i++) {
-            result[i] = result[i - 1] + " ";
+    public static boolean isIntegerValue(Object value) {
+        if (value == null) {
+            return false;
         }
-        return result;
+
+        Matcher matcher = INTEGER_VALUE.matcher(value.toString());
+        return matcher.matches();
     }
 
     /**

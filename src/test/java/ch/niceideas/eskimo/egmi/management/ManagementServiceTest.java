@@ -76,6 +76,8 @@ public class ManagementServiceTest {
         node2 = new NodeStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/options/192.168.56.22.json")));
         node3 = new NodeStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/options/192.168.56.23.json")));
         node4 = new NodeStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/options/192.168.56.24.json")));
+
+        ms.setMessagingService(new MessagingService(100));
     }
 
     @Test
@@ -353,16 +355,20 @@ public class ManagementServiceTest {
 
         Set<Node> allNodes = ms.getRuntimeNodes(nodesStatus);
 
-        List<JSONObject> nodesInfo = ms.buildNodeInfo(nodesStatus, allNodes);
+        SystemStatus status = new SystemStatus("{}");
 
-        assertNotNull(nodesInfo);
-        assertEquals(5, nodesInfo.size());
+        ms.buildNodeInfo(nodesStatus, allNodes, status);
 
-        assertEquals("{\"host\":\"192.168.56.20\",\"status\":\"KO\"}", nodesInfo.get(0).toString());
-        assertEquals("{\"host\":\"192.168.56.21\",\"volumes\":\"flink_completed_jobs, flink_data, kafka_data, kubernetes_registry, kubernetes_shared, logstash_data, spark_data, spark_eventlog\",\"nbr_bricks\":8,\"status\":\"OK\"}", nodesInfo.get(1).toString());
-        assertEquals("{\"host\":\"192.168.56.22\",\"volumes\":\"flink_completed_jobs, flink_data, kubernetes_registry, kubernetes_shared, logstash_data, spark_data\",\"nbr_bricks\":6,\"status\":\"OK\"}", nodesInfo.get(2).toString());
-        assertEquals("{\"host\":\"192.168.56.23\",\"volumes\":\"flink_completed_jobs, flink_data, kafka_data, spark_data, spark_eventlog\",\"nbr_bricks\":5,\"status\":\"OK\"}", nodesInfo.get(3).toString());
-        assertEquals("{\"host\":\"192.168.56.24\",\"volumes\":\"kafka_data, kubernetes_registry, kubernetes_shared, logstash_data, spark_eventlog\",\"nbr_bricks\":5,\"status\":\"OK\"}", nodesInfo.get(4).toString());
+        assertEquals("{\"host\":\"192.168.56.20\",\"status\":\"KO\"}",
+                status.getNodeInfo(Node.from("192.168.56.20")).toString());
+        assertEquals("{\"host\":\"192.168.56.21\",\"volumes\":\"flink_completed_jobs, flink_data, kafka_data, kubernetes_registry, kubernetes_shared, logstash_data, spark_data, spark_eventlog\",\"nbr_bricks\":8,\"status\":\"OK\"}",
+                status.getNodeInfo(Node.from("192.168.56.21")).toString());
+        assertEquals("{\"host\":\"192.168.56.22\",\"volumes\":\"flink_completed_jobs, flink_data, kubernetes_registry, kubernetes_shared, logstash_data, spark_data\",\"nbr_bricks\":6,\"status\":\"OK\"}",
+                status.getNodeInfo(Node.from("192.168.56.22")).toString());
+        assertEquals("{\"host\":\"192.168.56.23\",\"volumes\":\"flink_completed_jobs, flink_data, kafka_data, spark_data, spark_eventlog\",\"nbr_bricks\":5,\"status\":\"OK\"}",
+                status.getNodeInfo(Node.from("192.168.56.23")).toString());
+        assertEquals("{\"host\":\"192.168.56.24\",\"volumes\":\"kafka_data, kubernetes_registry, kubernetes_shared, logstash_data, spark_eventlog\",\"nbr_bricks\":5,\"status\":\"OK\"}",
+                status.getNodeInfo(Node.from("192.168.56.24")).toString());
 
         FileUtils.delete(tmp);
     }

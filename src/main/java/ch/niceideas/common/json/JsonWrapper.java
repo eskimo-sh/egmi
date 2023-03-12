@@ -313,14 +313,20 @@ public class JsonWrapper implements Serializable {
                 throw new JSONException (path + PATH_NOT_INTEGER);
             }
 
-            current = ((JSONArray) current).get(index);
+            if (((JSONArray) current).length() <= index) {
+                return null;
+            }
+            return ((JSONArray) current).get(index);
 
         } else if (current instanceof JSONObject) {
 
             if (Character.isDigit(nextPath.charAt(0))) {
                 throw new JSONException (path + ELEMENT_NOT_ARRAY);
             } else {
-                current = ((JSONObject) current).get(nextPath);
+                if (!((JSONObject) current).has(nextPath)) {
+                    return null;
+                }
+                return ((JSONObject) current).get(nextPath);
             }
 
         }

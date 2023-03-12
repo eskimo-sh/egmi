@@ -117,7 +117,7 @@ public class BrickOffline extends AbstractProblem implements Problem {
                 NodeStatus nodeStatus = nodesStatus.get(node);
                 if (nodeStatus != null) {
 
-                    VolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
+                    NodeVolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
                     if (nodeVolumeInfo == null) {
                         context.info ("  + Couldn't find volume information for " + volume + " in node status for " + node);
                     } else {
@@ -128,8 +128,8 @@ public class BrickOffline extends AbstractProblem implements Problem {
 
                         } else {
 
-                            Map<BrickId, BrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
-                            BrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
+                            Map<BrickId, NodeBrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
+                            NodeBrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
 
 
                             String effStatus = nodeBrickInfo.getStatus();

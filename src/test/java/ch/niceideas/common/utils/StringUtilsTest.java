@@ -38,12 +38,27 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StringUtilsTest  {
 
     private static final String SOURCE = "abc erd ohd the ad lazy fox jumps over ad my beautiful self again and is'nt that just sad nope ?";
 
+    @Test
+    public void testIsIntegerValue() {
+
+        assertFalse(StringUtils.isIntegerValue("=1+2"));
+        assertFalse(StringUtils.isIntegerValue("abc"));
+        assertFalse(StringUtils.isIntegerValue("a b c"));
+        assertFalse(StringUtils.isIntegerValue("1 2 3"));
+        assertFalse(StringUtils.isIntegerValue(null));
+
+        assertTrue(StringUtils.isIntegerValue("1"));
+        assertTrue(StringUtils.isIntegerValue("123"));
+        assertTrue(StringUtils.isIntegerValue("+123"));
+        assertTrue(StringUtils.isIntegerValue("-123"));
+        assertTrue(StringUtils.isIntegerValue(" - 123"));
+    }
 
     @Test
     public void testFirstLetterLowerCase() {

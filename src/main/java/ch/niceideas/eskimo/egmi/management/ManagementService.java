@@ -1,10 +1,42 @@
+/*
+ * This file is part of the eskimo project referenced at www.eskimo.sh. The licensing information below apply just as
+ * well to this individual file than to the Eskimo Project as a whole.
+ *
+ *  Copyright 2019 - 2023 eskimo.sh / https://www.eskimo.sh - All rights reserved.
+ * Author : eskimo.sh / https://www.eskimo.sh
+ *
+ * Eskimo is available under a dual licensing model : commercial and GNU AGPL.
+ * If you did not acquire a commercial licence for Eskimo, you can still use it and consider it free software under the
+ * terms of the GNU Affero Public License. You can redistribute it and/or modify it under the terms of the GNU Affero
+ * Public License  as published by the Free Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
+ * Compliance to each and every aspect of the GNU Affero Public License is mandatory for users who did no acquire a
+ * commercial license.
+ *
+ * Eskimo is distributed as a free software under GNU AGPL in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Affero Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero Public License along with Eskimo. If not,
+ * see <https://www.gnu.org/licenses/> or write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA, 02110-1301 USA.
+ *
+ * You can be released from the requirements of the license by purchasing a commercial license. Buying such a
+ * commercial license is mandatory as soon as :
+ * - you develop activities involving Eskimo without disclosing the source code of your own product, software,
+ *   platform, use cases or scripts.
+ * - you deploy eskimo as part of a commercial product, platform or software.
+ * For more information, please contact eskimo.sh at https://www.eskimo.sh
+ *
+ * The above copyright notice and this licensing notice shall be included in all copies or substantial portions of the
+ * Software.
+ */
 
 package ch.niceideas.eskimo.egmi.management;
 
 import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.common.utils.FileException;
 import ch.niceideas.common.utils.FileUtils;
-import ch.niceideas.common.utils.Pair;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
 import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
@@ -13,8 +45,6 @@ import ch.niceideas.eskimo.egmi.problems.*;
 import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
 import lombok.Getter;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -293,13 +323,12 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
         SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + hostName + "\"}");
 
-        List<JSONObject> nodeInfos = buildNodeInfo(nodesStatus, allNodes);
-
         // 1. Build Node status
-        newStatus.getJSONObject().put("nodes", new JSONArray(nodeInfos));
+        buildNodeInfo(nodesStatus, allNodes, newStatus);
 
         // 2. Build Volume status
-        newStatus.getJSONObject().put("volumes", new JSONArray(buildVolumeInfo(nodesStatus, allNodes, allVolumes, nodeInfos)));
+        buildVolumeInfo(nodesStatus, allNodes, allVolumes, newStatus);
+
         return newStatus;
     }
 
@@ -352,33 +381,31 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
     }
 
-    private List<JSONObject> buildVolumeInfo(Map<Node, NodeStatus> nodesStatus,
-                                             Set<Node> allNodes, Set<Volume> allVolumes, List<JSONObject> nodeInfos)
+    private void buildVolumeInfo(Map<Node, NodeStatus> nodesStatus,
+                                             Set<Node> allNodes, Set<Volume> allVolumes, SystemStatus newStatus)
             throws NodeStatusException {
 
         int targetNbrBricks = getTargetNumberOfBricks();
         int targetNbrReplicas = getTargetNumberOfReplicas();
         int targetNbrShards = targetNbrBricks / targetNbrReplicas;
 
-        List<JSONObject> volumesInfo = new ArrayList<>();
-        for (Volume volume : allVolumes) {
-            JSONObject volumeSystemStatus = new JSONObject();
-            volumeSystemStatus.put("volume", volume.getName());
+        for (Volume volume : allVolumes.stream().sorted().collect(Collectors.toList())) {
+            SystemVolumeInformation systemVolumeInfo = new SystemVolumeInformation();
+            systemVolumeInfo.setVolume(volume);
 
             Set<String> errors = new HashSet<>();
 
             // get volume information from all nodes
-
             Map<String, String> options = new HashMap<>();
 
-            List<Pair<BrickId, JSONObject>> bricksInfo = new ArrayList<>();
+            Map<BrickId, SystemBrickInformation> bricksInfo = new HashMap<>();
 
             for (Node node : allNodes) {
 
                 NodeStatus nodeStatus = nodesStatus.get(node);
                 if (nodeStatus != null) {
 
-                    VolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
+                    NodeVolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
 
                     String type = nodeVolumeInfo != null ? nodeVolumeInfo.getType() : null;
                     String owner = nodeVolumeInfo != null ? nodeVolumeInfo.getOwner() : null;
@@ -395,23 +422,15 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                     String nbShards = StringUtils.isBlank(effNbShards) ? null : (effNbShards + " / " + targetNbrShards);
                     String nbBricks = StringUtils.isBlank(effNbBricks) ? null : (effNbBricks + " / " + targetNbrBricks);
 
-                    String prevType = volumeSystemStatus.has("type") ? volumeSystemStatus.getString("type") : null;
-                    String prevOwner = volumeSystemStatus.has("owner") ? volumeSystemStatus.getString("owner") : null;
+                    setInVolumeStatus(systemVolumeInfo, "type", type, systemVolumeInfo.getType(), true, errors, "TYPES");
 
-                    String prevNbShards = volumeSystemStatus.has("nb_shards") ? volumeSystemStatus.getString("nb_shards") : null;
-                    String prevNbReplicas = volumeSystemStatus.has("nb_replicas") ? volumeSystemStatus.getString("nb_replicas") : null;
-                    String prevNbBricks = volumeSystemStatus.has("nb_bricks") ? volumeSystemStatus.getString("nb_bricks") : null;
+                    setInVolumeStatus(systemVolumeInfo, "owner", owner, systemVolumeInfo.getOwner(), true, errors, "OWNER");
 
-                    //private void setInVolumeStatus(JSONObject volumeSystemStatus, String attribute, String value, String previous, boolean append, Set<String> errors, String errorTag) {
-                    setInVolumeStatus(volumeSystemStatus, "type", type, prevType, true, errors, "TYPES");
+                    setInVolumeStatus(systemVolumeInfo, "nb_shards", nbShards, systemVolumeInfo.getNbShards(), false, errors, "NB. SHARDS");
 
-                    setInVolumeStatus(volumeSystemStatus, "owner", owner, prevOwner, true, errors, "OWNER");
+                    setInVolumeStatus(systemVolumeInfo, "nb_replicas", nbReplicas, systemVolumeInfo.getNbReplicas(), false, errors, "NB. REPL.");
 
-                    setInVolumeStatus(volumeSystemStatus, "nb_shards", nbShards, prevNbShards, false, errors, "NB. SHARDS");
-
-                    setInVolumeStatus(volumeSystemStatus, "nb_replicas", nbReplicas, prevNbReplicas, false, errors, "NB. REPL.");
-
-                    setInVolumeStatus(volumeSystemStatus, "nb_bricks", nbBricks, prevNbBricks, false, errors, "NB. BRICKS");
+                    setInVolumeStatus(systemVolumeInfo, "nb_bricks", nbBricks, systemVolumeInfo.getNbBricks(), false, errors, "NB. BRICKS");
 
                     // volume options management
                     Map<String, String> nodeOptions = nodeStatus.getReconfiguredOptions(volume);
@@ -428,49 +447,28 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                     }
 
                     // volume brick management
-                    Map<BrickId, BrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
+                    Map<BrickId, NodeBrickInformation> nodeBricksInfo = nodeStatus.getVolumeBricksInformation(volume);
                     List<BrickId> brickIdList = new ArrayList<>(nodeBricksInfo.keySet());
                     brickIdList.sort(new BrickIdNumberComparator (nodeBricksInfo));
 
                     for (BrickId brickId : brickIdList) {
 
-                        BrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
+                        NodeBrickInformation nodeBrickInfo = nodeBricksInfo.get(brickId);
 
-                        JSONObject brickInfo = null;
-                        for (Pair<BrickId, JSONObject> brickInfoWrapper : bricksInfo) {
-                            if (brickInfoWrapper.getKey().equals(brickId)) {
-                                brickInfo = brickInfoWrapper.getValue();
-                                break;
-                            }
-                        }
-                        if (brickInfo == null) {
-                            brickInfo = new JSONObject();
-                            bricksInfo.add (new Pair<>(brickId, brickInfo));
-                        }
+                        SystemBrickInformation brickInfo = bricksInfo.computeIfAbsent(brickId, (newId) -> new SystemBrickInformation());
 
-                        String prevId = brickInfo.has("id") ? brickInfo.getString("id") : null;
-
-                        //private void setInBrickInfo(JSONObject brickInfo, String value, String previous, Set<String> errors, String errorTag) {
-                        setInBrickInfo(brickInfo, "id", brickId.toString(), prevId, errors, "ID");
+                        setInBrickInfo(brickInfo, "id", brickId.toString(), brickInfo.getId(), errors, "ID");
 
                         Integer effNumberInt = nodeBrickInfo != null ? nodeBrickInfo.getNumber() : null;
                         String effNumber = "?";
                         if (effNumberInt != null) {
                             effNumber = effNumberInt.toString();
                         }
-                        String prevNumber = brickInfo.has("number") ? brickInfo.getString("number") : null;
+                        setInBrickInfo(brickInfo, "number", effNumber, brickInfo.getNumberOverride(), errors, "NBR");
 
-                        setInBrickInfo(brickInfo, "number", effNumber, prevNumber, errors, "NBR");
+                        setInBrickInfo(brickInfo, "node", brickId.getNode(), brickInfo.getNode(), errors, "NODE");
 
-                        String effNode = brickId.getNode().getAddress();
-                        String prevNode = brickInfo.has("node") ? brickInfo.getString("node") : null;
-
-                        setInBrickInfo(brickInfo, "node", effNode, prevNode, errors, "NODE");
-
-                        String effPath = brickId.getPath();
-                        String prevPath = brickInfo.has("path") ? brickInfo.getString("path") : null;
-
-                        setInBrickInfo(brickInfo, "path", effPath, prevPath, errors, "PATH");
+                        setInBrickInfo(brickInfo, "path", brickId.getPath(), brickInfo.getPath(), errors, "PATH");
 
                         if (StringUtils.isNotBlank(volStatus) && volStatus.equals(GlusterVolumeStatusResult.VOL_NOT_STARTED_FLAG)) { // this is set global, no point in continuing
                             errors = new HashSet<>();
@@ -486,20 +484,14 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                                 errors.add ("BRICK OFFLINE");
                                 problemManager.addProblem (new BrickOffline(new Date(), volume, brickId));
                             }
-                            String prevStatus = brickInfo.has("status") ? brickInfo.getString("status") : null;
 
-                            setInBrickInfo(brickInfo, "status", effStatus, prevStatus, errors, "STATUS");
+                            setInBrickInfo(brickInfo, "status", effStatus, brickInfo.getStatus(), errors, "STATUS");
 
-                            String effDevice = nodeBrickInfo.getDevice();
-                            String prevDevice = brickInfo.has("device") ? brickInfo.getString("device") : null;
+                            setInBrickInfo(brickInfo, "device", nodeBrickInfo.getDevice(), brickInfo.getDevice(), errors, "DEV");
 
-                            setInBrickInfo(brickInfo, "device", effDevice, prevDevice, errors, "DEV");
+                            brickInfo.set("free", nodeBrickInfo.getFree());
 
-                            String effFree = nodeBrickInfo.getFree();
-                            brickInfo.put("free", effFree);
-
-                            String effTot = nodeBrickInfo.getTotal();
-                            brickInfo.put("tot", effTot);
+                            brickInfo.set("tot", nodeBrickInfo.getTotal());
                         }
                     }
                 }
@@ -508,7 +500,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             // Post status building consistency checks
 
             // If not type was found, the volume is likely not configured at all
-            if (!volumeSystemStatus.has("type")) {
+            if (StringUtils.isBlank(systemVolumeInfo.getType())) {
                 errors.add("NO VOLUME");
                 problemManager.addProblem (new NoVolume(new Date(), volume));
 
@@ -526,70 +518,61 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                         String optionValue = options.get(optionToTurnOff.replace(".", "__"));
                         if (StringUtils.isBlank(optionValue) || !optionValue.trim().equals("off")) {
 
-                            // FIXME create problem
                             problemManager.addProblem (new WrongOption(new Date(), volume, optionToTurnOff, optionValue, "off"));
                             errors.add(volume + " WRONG OPTION " + optionToTurnOff + "/" + optionValue);
-
                         }
                     }
                 }
             }
 
             // Check if a brick could not be build at all
-            for (Pair<BrickId, JSONObject> brickInfo : bricksInfo) {
-                JSONObject brickInfoObj = brickInfo.getValue();
-                String status = brickInfoObj.has("status") ? brickInfoObj.getString("status") : null;
+            for (BrickId brickId: bricksInfo.keySet()) {
+                SystemBrickInformation brickInfo = bricksInfo.get(brickId);
+                String status = brickInfo.getStatus();
                 if (StringUtils.isBlank(status)) {
-                    String nodeAddress = brickInfoObj.getString("node");
-                    if (StringUtils.isNotBlank(nodeAddress)) {
-                        Node node = Node.from(nodeAddress);
+                    Node node = brickInfo.getNode();
+                    if (node != null) {
                         // find nodeInfo
-                        for (JSONObject nodeInfo : nodeInfos) {
-                            String nodeInfoNode = nodeInfo.getString("host");
-                            if (node.matches(nodeInfoNode)) {
-                                String nodeStatus = nodeInfo.has ("status") ? nodeInfo.getString("status") : null;
-                                if (StringUtils.isBlank(nodeStatus) || nodeStatus.equals("KO")) {
-                                    errors.add(node + " DOWN");
-                                    problemManager.addProblem (new NodeDown(new Date(), volume, node));
-                                    problemManager.addProblem (new NodeDownRemoval(new Date(), node));
-                                }
-                            }
+                        String nodeStatus = newStatus.getNodeStatus(node);
+                        if (StringUtils.isBlank(nodeStatus) || nodeStatus.equals("KO")) {
+                            errors.add(node + " DOWN");
+                            problemManager.addProblem (new NodeDown(new Date(), volume, node));
+                            problemManager.addProblem (new NodeDownRemoval(new Date(), node));
                         }
                     }
                 }
             }
 
-            volumeSystemStatus.put("status", errors.size() == 0 ? "OK" : String.join(" / ", errors));
+            systemVolumeInfo.setStatus(errors.size() == 0 ? "OK" : String.join(" / ", errors));
 
-            volumeSystemStatus.put("bricks", new JSONArray(bricksInfo.stream().map(Pair::getValue).collect(Collectors.toList())));
+            systemVolumeInfo.setBricks(bricksInfo);
 
-            volumeSystemStatus.put("options", new JSONObject(options));
+            systemVolumeInfo.setOptions(options);
 
-            volumesInfo.add (volumeSystemStatus);
+            newStatus.addSystemInfo (systemVolumeInfo);
         }
-        return volumesInfo;
     }
 
-    private void setInBrickInfo(JSONObject brickInfo, String attribute, String value, String previous, Set<String> errors, String errorTag) {
-        if (StringUtils.isBlank(previous)) {
-            brickInfo.put(attribute, value);
+    private void setInBrickInfo(SystemBrickInformation brickInfo, String attribute, Object value, Object previous, Set<String> errors, String errorTag) {
+        if (previous == null || StringUtils.isBlank(""+previous)) {
+            brickInfo.set(attribute, value);
         } else if (!previous.equals(value)) {
             errors.add("DIFB. " + errorTag);
-            notifyInconsistency(" - got brickId " + value + " while previous node had " + previous);
+            notifyInconsistency(" - brickId " + brickInfo.getId() + " got " + value + " while value for previous node was " + previous);
         }
     }
 
-    private void setInVolumeStatus(JSONObject volumeSystemStatus, String attribute, String value, String previous, boolean append, Set<String> errors, String errorTag) {
+    private void setInVolumeStatus(SystemVolumeInformation systemVolumeInfo, String attribute, String value, String previous, boolean append, Set<String> errors, String errorTag) {
         if (StringUtils.isNotBlank(value)) {
             if (StringUtils.isBlank(previous)) {
-                volumeSystemStatus.put(attribute, value);
+                systemVolumeInfo.set(attribute, value);
             } else if (!previous.equals(value)) {
                 errors.add("DIF " + errorTag);
                 if (append) {
-                    volumeSystemStatus.put(attribute, previous + "," + value);
+                    systemVolumeInfo.set(attribute, previous + "," + value);
                 } else {
-                    notifyInconsistency(" - for volume " + volumeSystemStatus.get("volume")
-                            + " - got " + attribute + "  " + value + " while previous node had " + previous);
+                    notifyInconsistency(" - for volume " + systemVolumeInfo.getVolume()
+                            + " - got " + attribute + "  " + value + " while value for previous node was " + previous);
                 }
             }
         }
@@ -660,12 +643,10 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         messagingService.addLine(getMessageDate() + " - WARN: " + s);
     }
 
-    List<JSONObject> buildNodeInfo(Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes) throws NodeStatusException {
+    void buildNodeInfo(Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, SystemStatus systemStatus) throws NodeStatusException {
 
-        List<JSONObject> nodesInfo = new ArrayList<>();
+        int counter = 0;
         for (Node node : allNodes) {
-            JSONObject nodeSystemStatus = new JSONObject();
-            nodeSystemStatus.put("host", node.getAddress());
 
             String status = "KO";
             String volumes = null;
@@ -693,13 +674,13 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 }
             }
 
-            nodeSystemStatus.put("status", status);
-            nodeSystemStatus.put("volumes", volumes);
-            nodeSystemStatus.put("nbr_bricks", brickCount);
+            systemStatus.setValueForPath("nodes." + counter + ".host", node.getAddress());
+            systemStatus.setValueForPath("nodes." + counter + ".status", status);
+            systemStatus.setValueForPath("nodes." + counter + ".volumes", volumes);
+            systemStatus.setValueForPath("nodes." + counter + ".nbr_bricks", brickCount);
 
-            nodesInfo.add (nodeSystemStatus);
+            counter++;
         }
-        return nodesInfo;
     }
 
     public Set<Node> getAllNodes() throws ManagementException {

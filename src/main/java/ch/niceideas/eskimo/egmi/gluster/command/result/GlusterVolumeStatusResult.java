@@ -38,7 +38,7 @@ import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.model.BrickId;
-import ch.niceideas.eskimo.egmi.model.BrickInformation;
+import ch.niceideas.eskimo.egmi.model.NodeBrickInformation;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.Volume;
 import lombok.EqualsAndHashCode;
@@ -64,7 +64,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
     public static final String SKIP_TEMP_OP_FLAG = "SKIP_TEMP_OP";
     public static final String VOL_NOT_STARTED_FLAG = "VOL_NOT_STARTED";
 
-    private final Map<BrickId, BrickDetail> brickDetails = new HashMap<>();
+    private final Map<BrickId, NodeBrickDetail> brickDetails = new HashMap<>();
 
     private final GlusterVolumeInfoResult volumeInfo;
 
@@ -74,7 +74,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
 
     public void feedVolumeStatusInStatus(NodeStatus status, int volumeCounter, int brickCounter, BrickId brickId) {
 
-        BrickDetail brickDetail = brickDetails.get(brickId);
+        NodeBrickDetail brickDetail = brickDetails.get(brickId);
         if (brickDetail != null) {
             brickDetail.feedInStatus (status, volumeCounter, brickCounter);
         }
@@ -122,7 +122,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
                     }
                 }
 
-                BrickDetail brickDetail = brickDetails.computeIfAbsent(currentBrickId, (brick) -> new BrickDetail());
+                NodeBrickDetail brickDetail = brickDetails.computeIfAbsent(currentBrickId, (brick) -> new NodeBrickDetail());
 
                 String onlineStatus = getBrickInfo(line, ONLINE_PREFIX);
                 if (StringUtils.isNotBlank(onlineStatus)) {
@@ -166,7 +166,7 @@ public class GlusterVolumeStatusResult extends AbstractGlusterResult<GlusterVolu
 
     @EqualsAndHashCode(callSuper = true)
     @NoArgsConstructor
-    private static class BrickDetail extends BrickInformation {
+    private static class NodeBrickDetail extends NodeBrickInformation {
 
         public void feedInStatus(NodeStatus nodeStatus, int volumeCounter, int brickCounter) {
             nodeStatus.setValueForPath("volumes." + volumeCounter + ".bricks." + brickCounter + ".status", getStatus());

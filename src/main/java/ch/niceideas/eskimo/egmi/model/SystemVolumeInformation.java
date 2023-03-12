@@ -34,27 +34,69 @@
 
 package ch.niceideas.eskimo.egmi.model;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
-public class BrickIdNumberComparator implements Comparator<BrickId> {
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+public class SystemVolumeInformation extends AbstractVolumeInformation {
 
-    private final Map<BrickId, NodeBrickInformation> nodeBricksInfo;
+    private Map<String, String> options;
+    private Volume volume;
+    private Map<BrickId, SystemBrickInformation> bricks;
 
     @Override
-    public int compare(BrickId o1, BrickId o2) {
-        NodeBrickInformation info1 = nodeBricksInfo.get(o1);
-        NodeBrickInformation info2 = nodeBricksInfo.get(o2);
-        if (info1 == null) {
-            return 1;
+    public void set(String key, Object value) {
+        switch (key) {
+            case "options":
+                //noinspection unchecked
+                setOptions((Map<String, String>) value);
+                break;
+            case "volume":
+                setVolume(Volume.from((String) value));
+            case "bricks":
+                throw new UnsupportedOperationException();
+            default:
+                super.set(key, value);
+                break;
         }
-        if (info2 == null) {
-            return -1;
-        }
-        return info1.compareTo (info2);
     }
 
+    public void fillIn(JSONObject volumeObject) {
+        volumeObject.put("volume", volume.getName());
+        volumeObject.put("status", getStatus());
+        volumeObject.put("type", getType());
+        volumeObject.put("owner", getOwner());
+
+        volumeObject.put("nb_shards", getNbShards());
+        volumeObject.put("nb_replicas", getNbReplicas());
+        volumeObject.put("nb_bricks", getNbBricks());
+
+        volumeObject.put("options", new JSONObject(options));
+
+        JSONArray brickArray = null;
+        if (volumeObject.has("bricks")) {
+            brickArray = (JSONArray) volumeObject.get("bricks");
+        } else {
+            brickArray = new JSONArray();
+            volumeObject.put("bricks", brickArray);
+        }
+
+        if (bricks != null) {
+            for (SystemBrickInformation brickInfo : bricks.values().stream().sorted().collect(Collectors.toList())){
+                JSONObject brickObject = new JSONObject();
+                brickInfo.fillIn(brickObject);
+                brickArray.put(brickObject);
+            };
+        }
+    }
 }

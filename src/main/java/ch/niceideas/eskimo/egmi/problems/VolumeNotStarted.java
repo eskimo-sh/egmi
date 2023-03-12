@@ -100,7 +100,7 @@ public class VolumeNotStarted extends AbstractProblem implements Problem {
                 NodeStatus nodeStatus = nodesStatus.get(node);
                 if (nodeStatus != null) {
 
-                    VolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
+                    NodeVolumeInformation nodeVolumeInfo = nodeStatus.getVolumeInformation(volume);
                     String volStatus = nodeVolumeInfo.getStatus();
 
                     if (StringUtils.isNotBlank(volStatus) && volStatus.equals(GlusterVolumeStatusResult.VOL_NOT_STARTED_FLAG)) {

@@ -180,7 +180,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
 
                 for (Volume volume : nodeVolumes) {
 
-                    VolumeInformation volumeInfo = nodeStatus.getVolumeInformation(volume);
+                    NodeVolumeInformation volumeInfo = nodeStatus.getVolumeInformation(volume);
                     context.info ("    - Forcing removal of volume " + volume + " !");
 
                     Set<Node> volumeNodes = nodeStatus.getVolumeNodes(volume);

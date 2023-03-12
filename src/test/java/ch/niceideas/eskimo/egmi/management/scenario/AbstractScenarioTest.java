@@ -55,8 +55,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractScenarioTest {
 
@@ -139,8 +138,7 @@ public abstract class AbstractScenarioTest {
 
         expectedStatus.setValueForPath("hostname", InetAddress.getLocalHost().toString());
 
-        //assertTrue (ss.getFormattedValue(), expectedStatus.getJSONObject().similar(ss.getJSONObject()));
-
-        assertEquals (expectedStatus.getFormattedValue(), ss.getFormattedValue());
+        //assertEquals (expectedStatus.getFormattedValue(), ss.getFormattedValue());
+        assertTrue (expectedStatus.getJSONObject().similar(ss.getJSONObject()));
     }
 }
