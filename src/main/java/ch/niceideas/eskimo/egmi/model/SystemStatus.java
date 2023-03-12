@@ -35,12 +35,14 @@
 package ch.niceideas.eskimo.egmi.model;
 
 import ch.niceideas.common.json.JsonWrapper;
-import ch.niceideas.common.utils.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -128,21 +130,6 @@ public class SystemStatus extends JsonWrapper {
         nodeInfo.put("status", newStatus);
     }
 
-    public void addSystemInfo(SystemVolumeInformation systemVolumeInfo) {
-
-        JSONArray volumeArray;
-        if (!getJSONObject().has("volumes")) {
-            volumeArray = new JSONArray();
-            getJSONObject().put("volumes", volumeArray);
-        } else {
-            volumeArray = getJSONObject().getJSONArray("volumes");
-        }
-
-        JSONObject volumeObject = new JSONObject();
-        systemVolumeInfo.fillIn (volumeObject);
-        volumeArray.put(volumeObject);
-    }
-
     public String getBrickStatus(Volume volume, BrickId brickId) {
         JSONObject brickInfo = getBrickInfo(volume, brickId);
         if (brickInfo == null) {
@@ -187,5 +174,54 @@ public class SystemStatus extends JsonWrapper {
         }
 
         return volumeInfo.getString("status");
+    }
+
+    public void addNodeInfo(Node node, String status, NodeInformation nodeInfo) {
+
+        JSONArray nodeArray;
+        if (!getJSONObject().has("nodes")) {
+            nodeArray = new JSONArray();
+            getJSONObject().put("nodes", nodeArray);
+        } else {
+            nodeArray = getJSONObject().getJSONArray("nodes");
+        }
+
+        JSONObject volumeObject = new JSONObject();
+        nodeArray.put(volumeObject);
+
+        String volumes = null;
+        Serializable brickCount = null;
+
+        if (nodeInfo != null) {
+            Set<String> nodeVolumes = nodeInfo.getVolumes();
+            if (nodeVolumes != null) {
+                volumes = String.join(", ", nodeVolumes);
+            } else {
+                volumes = "?";
+            }
+
+            Integer nodeBrickCount =  nodeInfo.getBrickCount();
+            brickCount = Objects.requireNonNullElse(nodeBrickCount, "?");
+        }
+
+        volumeObject.put ("host", node.getAddress());
+        volumeObject.put ("status", status);
+        volumeObject.put ("volumes", volumes);
+        volumeObject.put ("nbr_bricks", brickCount);
+    }
+
+    public void addVolumeInfo(SystemVolumeInformation systemVolumeInfo) {
+
+        JSONArray volumeArray;
+        if (!getJSONObject().has("volumes")) {
+            volumeArray = new JSONArray();
+            getJSONObject().put("volumes", volumeArray);
+        } else {
+            volumeArray = getJSONObject().getJSONArray("volumes");
+        }
+
+        JSONObject volumeObject = new JSONObject();
+        systemVolumeInfo.fillIn (volumeObject);
+        volumeArray.put(volumeObject);
     }
 }

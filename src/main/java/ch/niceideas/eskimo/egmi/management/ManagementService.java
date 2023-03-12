@@ -54,7 +54,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import java.io.File;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -324,10 +323,10 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         SystemStatus newStatus = new SystemStatus("{\"hostname\" : \"" + hostName + "\"}");
 
         // 1. Build Node status
-        buildNodeInfo(nodesStatus, allNodes, newStatus);
+        feedInNodeInfo(nodesStatus, allNodes, newStatus);
 
         // 2. Build Volume status
-        buildVolumeInfo(nodesStatus, allNodes, allVolumes, newStatus);
+        feedIndVolumeInfo(nodesStatus, allNodes, allVolumes, newStatus);
 
         return newStatus;
     }
@@ -381,8 +380,8 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
     }
 
-    private void buildVolumeInfo(Map<Node, NodeStatus> nodesStatus,
-                                             Set<Node> allNodes, Set<Volume> allVolumes, SystemStatus newStatus)
+    private void feedIndVolumeInfo(Map<Node, NodeStatus> nodesStatus,
+                                   Set<Node> allNodes, Set<Volume> allVolumes, SystemStatus newStatus)
             throws NodeStatusException {
 
         int targetNbrBricks = getTargetNumberOfBricks();
@@ -549,7 +548,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
             systemVolumeInfo.setOptions(options);
 
-            newStatus.addSystemInfo (systemVolumeInfo);
+            newStatus.addVolumeInfo(systemVolumeInfo);
         }
     }
 
@@ -643,42 +642,24 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         messagingService.addLine(getMessageDate() + " - WARN: " + s);
     }
 
-    void buildNodeInfo(Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, SystemStatus systemStatus) throws NodeStatusException {
-
-        int counter = 0;
+    void feedInNodeInfo(Map<Node, NodeStatus> nodesStatus, Set<Node> allNodes, SystemStatus systemStatus) throws NodeStatusException {
         for (Node node : allNodes) {
-
             String status = "KO";
-            String volumes = null;
-            Serializable brickCount = null;
+            NodeInformation nodeInfo = null;
 
             NodeStatus nodeStatus = nodesStatus.get(node);
+
             if (nodeStatus != null) {
 
                 if (nodeStatus.isPoolStatusError()) {
                     status = "KO";
                 } else {
                     status = "OK";
-                    NodeInformation nodeInfo = nodeStatus.getNodeInformation(node);
-
-                    Set<String> nodeVolumes = nodeInfo.getVolumes();
-                    if (nodeVolumes != null) {
-                        volumes = String.join(", ", nodeVolumes);
-                    } else {
-                        volumes = "?";
-                    }
-
-                    Integer nodeBrickCount =  nodeInfo.getBrickCount();
-                    brickCount = Objects.requireNonNullElse(nodeBrickCount, "?");
+                    nodeInfo = nodeStatus.getNodeInformation(node);
                 }
             }
 
-            systemStatus.setValueForPath("nodes." + counter + ".host", node.getAddress());
-            systemStatus.setValueForPath("nodes." + counter + ".status", status);
-            systemStatus.setValueForPath("nodes." + counter + ".volumes", volumes);
-            systemStatus.setValueForPath("nodes." + counter + ".nbr_bricks", brickCount);
-
-            counter++;
+            systemStatus.addNodeInfo (node, status, nodeInfo);
         }
     }
 

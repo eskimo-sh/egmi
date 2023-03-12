@@ -357,7 +357,7 @@ public class ManagementServiceTest {
 
         SystemStatusForTest status = new SystemStatusForTest("{}");
 
-        ms.buildNodeInfo(nodesStatus, allNodes, status);
+        ms.feedInNodeInfo(nodesStatus, allNodes, status);
 
         assertEquals("{\"host\":\"192.168.56.20\",\"status\":\"KO\"}",
                 status.getNodeInfo(Node.from("192.168.56.20")).toString());
