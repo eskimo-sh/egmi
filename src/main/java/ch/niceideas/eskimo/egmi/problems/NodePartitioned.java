@@ -79,12 +79,7 @@ public class NodePartitioned extends AbstractProblem implements Problem {
 
     @Override
     public boolean recognize(SystemStatus newStatus) {
-        JSONObject nodeInfo = newStatus.getNodeInfo(host);
-        if (nodeInfo == null) {
-            return true;
-        }
-
-        String status = nodeInfo.getString("status");
+        String status = newStatus.getNodeStatus(host);
 
         return StringUtils.isBlank(status) || status.equals("PARTITIONED");
     }

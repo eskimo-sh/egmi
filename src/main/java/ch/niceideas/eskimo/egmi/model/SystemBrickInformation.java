@@ -35,20 +35,10 @@
 package ch.niceideas.eskimo.egmi.model;
 
 import ch.niceideas.common.utils.StringUtils;
-import ch.niceideas.eskimo.egmi.gluster.command.result.GlusterVolumeStatusResult;
-import ch.niceideas.eskimo.egmi.problems.BrickOffline;
-import ch.niceideas.eskimo.egmi.problems.VolumeNotStarted;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.json.JSONObject;
-import org.springframework.util.NumberUtils;
-
-import java.text.NumberFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

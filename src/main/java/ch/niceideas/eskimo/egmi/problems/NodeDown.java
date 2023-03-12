@@ -76,24 +76,12 @@ public class NodeDown extends AbstractProblem implements Problem {
 
     @Override
     public boolean recognize(SystemStatus newStatus) {
-        JSONObject nodeInfo = newStatus.getNodeInfo(host);
-        if (nodeInfo == null) {
-            return true;
-        }
-
-        String status = nodeInfo.getString("status");
+        String status = newStatus.getNodeStatus(host);
         if (StringUtils.isNotBlank(status) && !status.equals("KO")) {
             return false;
         }
 
-        JSONArray brickArray = newStatus.getBrickArray(volume);
-        if (brickArray == null) {
-            return false;
-        }
-
-        return IntStream.range(0, brickArray.length())
-                .mapToObj(brickArray::getJSONObject)
-                .anyMatch(brickInfo -> brickInfo.getString("id").contains(host.getAddress()));
+        return newStatus.hasBricksOnNode (volume, host);
     }
 
     @Override

@@ -74,10 +74,9 @@ public class BrickOffline extends AbstractProblem implements Problem {
 
     @Override
     public boolean recognize(SystemStatus newStatus) {
-        JSONObject brickInfo = newStatus.getBrickInfo(volume, brickId);
-        return brickInfo != null
-                && StringUtils.isNotBlank(brickInfo.getString("status"))
-                && brickInfo.getString("status").trim().equals("OFFLINE");
+        String brickStatus = newStatus.getBrickStatus(volume, brickId);
+        return StringUtils.isNotBlank(brickStatus)
+                && brickStatus.trim().equals("OFFLINE");
     }
 
     @Override

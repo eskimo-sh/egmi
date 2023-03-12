@@ -65,14 +65,14 @@ public class NodeStatus extends JsonWrapper {
                 .collect(Collectors.toSet());
     }
 
-    public Map<String, Object> getNodeInformation (Node node) throws NodeStatusException{
+    public NodeInformation getNodeInformation (Node node) throws NodeStatusException{
         if (isPoolStatusError()) {
             throw new NodeStatusException("Pool status fetching failed.");
         }
 
         JSONArray peerArray = getJSONObject().getJSONArray("peers");
 
-        Map<String, Object> retMap = new HashMap<>();
+        NodeInformation retInfo = new NodeInformation();
 
         peerArray.toList().stream()
                 .filter(map -> {
@@ -81,7 +81,7 @@ public class NodeStatus extends JsonWrapper {
                             (host.equals ("localhost") || node.matches(host));
                 })
                 .map(map -> (String) ((Map<?, ?>)map).get("state"))
-                .forEach(state -> retMap.put("state", state));
+                .forEach(retInfo::setState);
 
         // identify volume on nodes and count bricks
         Set<String> nodeVolumes = new TreeSet<>();
@@ -110,10 +110,10 @@ public class NodeStatus extends JsonWrapper {
             }
         }
 
-        retMap.put ("volumes", nodeVolumes);
-        retMap.put ("brick_count", brickCounter);
+        retInfo.setVolumes(nodeVolumes);
+        retInfo.setBrickCount(brickCounter);
 
-        return retMap;
+        return retInfo;
     }
 
     public boolean isVolumeStatusError() {
@@ -243,7 +243,7 @@ public class NodeStatus extends JsonWrapper {
                 .forEach(
                         entries -> entries.stream()
                                 .filter( entry -> !entry.getKey().equals("bricks") && !entry.getKey().equals("options"))
-                                .forEach(entry -> retInfo.set ((String)entry.getKey(), (String)entry.getValue()) )
+                                .forEach(entry -> retInfo.set ((String)entry.getKey(), entry.getValue()) )
                 );
 
         return retInfo;
@@ -347,7 +347,7 @@ public class NodeStatus extends JsonWrapper {
         setValueForPath("volumes." + volumeNumber + ".options." + optionKey, optionValue);
     }
 
-    public void setBrickInformaiton(int volumeNumber, Integer brickNumber, BrickId brickId) {
+    public void setBrickInformation(int volumeNumber, Integer brickNumber, BrickId brickId) {
         String brickPrefix = "volumes." + volumeNumber + ".bricks." + (brickNumber - 1);
         setValueForPath(brickPrefix + ".number", brickNumber);
         setValueForPath(brickPrefix + ".node", brickId.getNode().getAddress());

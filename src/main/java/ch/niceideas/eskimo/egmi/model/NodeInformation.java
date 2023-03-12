@@ -32,26 +32,19 @@
  * Software.
  */
 
+
 package ch.niceideas.eskimo.egmi.model;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = true)
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
-public class NodeBrickInformation extends AbstractBrickInformation {
+public class NodeInformation {
 
-    private String fsType;
-
-    @Override
-    public void set(String key, Object value) {
-
-        if ("fsType".equals(key)) {
-            setFsType((String) value);
-        } else {
-            super.set(key, value);
-        }
-    }
+    private String state;
+    private Set<String> volumes;
+    private Integer brickCount;
 }

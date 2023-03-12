@@ -355,7 +355,7 @@ public class ManagementServiceTest {
 
         Set<Node> allNodes = ms.getRuntimeNodes(nodesStatus);
 
-        SystemStatus status = new SystemStatus("{}");
+        SystemStatusForTest status = new SystemStatusForTest("{}");
 
         ms.buildNodeInfo(nodesStatus, allNodes, status);
 
@@ -405,4 +405,13 @@ public class ManagementServiceTest {
         assertTrue (expected.getJSONObject().similar(ss.getJSONObject()));
     }
 
+    private static class SystemStatusForTest extends SystemStatus {
+        public SystemStatusForTest(String jsonString) {
+            super(jsonString);
+        }
+
+        public JSONObject getNodeInfo(Node host) {
+            return super.getNodeInfo(host);
+        }
+    }
 }

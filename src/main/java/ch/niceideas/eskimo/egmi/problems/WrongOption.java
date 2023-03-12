@@ -44,7 +44,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Map;
@@ -76,18 +75,13 @@ public class WrongOption extends AbstractProblem implements Problem{
 
     @Override
     public boolean recognize(SystemStatus newStatus) {
-        JSONObject options = newStatus.getOptions(volume);
+        String optionValue = newStatus.getOptionValue (volume, optionKey);
 
-        if (!options.has(optionKey)) {
+        if (StringUtils.isBlank(optionValue)) {
             return true;
         }
 
-        String currentValue = options.getString(optionKey);
-        if (StringUtils.isBlank(currentValue)) {
-            return true;
-        }
-
-        return !currentValue.equals(expectedValue);
+        return !optionValue.equals(expectedValue);
     }
 
     @Override

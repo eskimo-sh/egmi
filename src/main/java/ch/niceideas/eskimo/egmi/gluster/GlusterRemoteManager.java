@@ -199,7 +199,7 @@ public class GlusterRemoteManager {
 
                         BrickId brickId = bricks.get(brickNumber);
 
-                        status.setBrickInformaiton (counter, brickNumber, brickId);
+                        status.setBrickInformation(counter, brickNumber, brickId);
 
                         volumeStatus.feedVolumeStatusInStatus (status, counter, (brickNumber - 1), brickId);
                     }

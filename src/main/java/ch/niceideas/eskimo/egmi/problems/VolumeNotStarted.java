@@ -70,13 +70,8 @@ public class VolumeNotStarted extends AbstractProblem implements Problem {
 
     @Override
     public boolean recognize(SystemStatus newStatus) {
-
-        JSONObject volumeInfo = newStatus.getVolumeInfo(volume);
-        if (volumeInfo == null) {
-            return false;
-        }
-        return StringUtils.isNotBlank(volumeInfo.getString("status"))
-                && volumeInfo.getString("status").trim().contains("NOT STARTED");
+        String status = newStatus.getVolumeStatus(volume);
+        return StringUtils.isNotBlank(status) && status.trim().contains("NOT STARTED");
     }
 
     @Override

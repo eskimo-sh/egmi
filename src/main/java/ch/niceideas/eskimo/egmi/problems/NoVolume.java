@@ -71,13 +71,7 @@ public class NoVolume extends AbstractProblem implements Problem {
 
     @Override
     public boolean recognize(SystemStatus newStatus) {
-
-        JSONObject volumeInfo = newStatus.getVolumeInfo(volume);
-        if (volumeInfo == null) {
-            return true;
-        }
-
-        String status = volumeInfo.getString("status");
+        String status = newStatus.getVolumeStatus(volume);
         return StringUtils.isNotBlank(status) && status.contains("NO VOLUME");
     }
 

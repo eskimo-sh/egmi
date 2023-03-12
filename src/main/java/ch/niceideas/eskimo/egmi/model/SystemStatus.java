@@ -35,11 +35,11 @@
 package ch.niceideas.eskimo.egmi.model;
 
 import ch.niceideas.common.json.JsonWrapper;
+import ch.niceideas.common.utils.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -67,7 +67,7 @@ public class SystemStatus extends JsonWrapper {
                 .collect(Collectors.toList());
     }
 
-    public JSONObject getVolumeInfo(Volume volume) {
+    protected JSONObject getVolumeInfo(Volume volume) {
         JSONArray volumeArray = getVolumes();
         return IntStream.range(0, volumeArray.length())
                 .mapToObj(volumeArray::getJSONObject)
@@ -75,7 +75,7 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
-    public JSONObject getNodeInfo(Node host) {
+    protected JSONObject getNodeInfo(Node host) {
         JSONArray nodeArray = getNodes();
         return IntStream.range(0, nodeArray.length())
                 .mapToObj(nodeArray::getJSONObject)
@@ -83,7 +83,7 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
-    public JSONArray getBrickArray (Volume volume) {
+    protected JSONArray getBrickArray (Volume volume) {
         JSONArray volumeArray = getVolumes();
         return IntStream.range(0, volumeArray.length())
                 .mapToObj(volumeArray::getJSONObject)
@@ -92,7 +92,7 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
-    public JSONObject getOptions(Volume volume) {
+    protected JSONObject getOptions(Volume volume) {
         JSONArray volumeArray = getVolumes();
         return IntStream.range(0, volumeArray.length())
                 .mapToObj(volumeArray::getJSONObject)
@@ -101,7 +101,7 @@ public class SystemStatus extends JsonWrapper {
                 .findAny().orElse(null);
     }
 
-    public JSONObject getBrickInfo (Volume volume, BrickId brickId) {
+    protected JSONObject getBrickInfo (Volume volume, BrickId brickId) {
         JSONArray brickArray = getBrickArray(volume);
 
         if (brickArray == null) {
@@ -123,14 +123,14 @@ public class SystemStatus extends JsonWrapper {
         }
     }
 
-    public void overrideNodeStatus(Node host, String partitioned) {
+    public void overrideNodeStatus(Node host, String newStatus) {
         JSONObject nodeInfo = Optional.ofNullable(getNodeInfo(host)).orElseThrow(IllegalStateException::new);
-        nodeInfo.put("status", "PARTITIONED");
+        nodeInfo.put("status", newStatus);
     }
 
     public void addSystemInfo(SystemVolumeInformation systemVolumeInfo) {
 
-        JSONArray volumeArray = null;
+        JSONArray volumeArray;
         if (!getJSONObject().has("volumes")) {
             volumeArray = new JSONArray();
             getJSONObject().put("volumes", volumeArray);
@@ -143,31 +143,49 @@ public class SystemStatus extends JsonWrapper {
         volumeArray.put(volumeObject);
     }
 
-    /*
-    public SystemVolumeInformation getVolumeInformation(Volume volume) {
+    public String getBrickStatus(Volume volume, BrickId brickId) {
+        JSONObject brickInfo = getBrickInfo(volume, brickId);
+        if (brickInfo == null) {
+            return null;
+        }
+        return brickInfo.getString("status");
+    }
 
-        if (!getJSONObject().has("volumes")) {
+    public String getOptionValue(Volume volume, String optionKey) {
+        JSONObject options = getOptions(volume);
+
+        if (!options.has(optionKey)) {
             return null;
         }
 
-        JSONArray volumeArray = getJSONObject().getJSONArray("volumes");
-
-        SystemVolumeInformation retInfo = new SystemVolumeInformation();
-        retInfo.setVolume (volume);
-
-        volumeArray.toList().stream()
-                .filter(map -> {
-                    String name = (String) ((Map<?, ?>)map).get("name");
-                    return volume.matches (name);
-                })
-                .map(map -> ((Map<?, ?>)map).entrySet())
-                .forEach(
-                        entries -> entries.stream()
-                                .filter( entry -> !entry.getKey().equals("bricks") && !entry.getKey().equals("options"))
-                                .forEach(entry -> retInfo.set ((String)entry.getKey(), (String)entry.getValue()) )
-                );
-
-        return retInfo;
+        return options.getString(optionKey);
     }
-    */
+
+    public Integer getNumberOfBricks(Volume volume) {
+        JSONArray brickArray = getBrickArray(volume);
+        if (brickArray == null) {
+            return null;
+        }
+        return brickArray.length();
+    }
+
+    public boolean hasBricksOnNode(Volume volume, Node host) {
+        JSONArray brickArray = getBrickArray(volume);
+        if (brickArray == null) {
+            return false;
+        }
+
+        return IntStream.range(0, brickArray.length())
+                .mapToObj(brickArray::getJSONObject)
+                .anyMatch(brickInfo -> brickInfo.getString("id").contains(host.getAddress()));
+    }
+
+    public String getVolumeStatus(Volume volume) {
+        JSONObject volumeInfo = getVolumeInfo(volume);
+        if (volumeInfo == null) {
+            return null;
+        }
+
+        return volumeInfo.getString("status");
+    }
 }

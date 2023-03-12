@@ -34,14 +34,12 @@
 
 package ch.niceideas.eskimo.egmi.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -83,7 +81,7 @@ public class SystemVolumeInformation extends AbstractVolumeInformation {
 
         volumeObject.put("options", new JSONObject(options));
 
-        JSONArray brickArray = null;
+        JSONArray brickArray;
         if (volumeObject.has("bricks")) {
             brickArray = (JSONArray) volumeObject.get("bricks");
         } else {
@@ -96,7 +94,7 @@ public class SystemVolumeInformation extends AbstractVolumeInformation {
                 JSONObject brickObject = new JSONObject();
                 brickInfo.fillIn(brickObject);
                 brickArray.put(brickObject);
-            };
+            }
         }
     }
 }

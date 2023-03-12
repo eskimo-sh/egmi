@@ -32,7 +32,7 @@ The above copyright notice and this licensing notice shall be included in all co
 Software.
 -->
 
-<a href="app.html">
+<a href="index.html">
     <div class="logo-container">
         <div class="logo">
             <img class="logo-image" src="img/egmi-icon.png" alt="EGMI Logo">
@@ -51,195 +51,200 @@ Software.
 
 <div class="container">
 
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="card">
 
-    <div class="col-xs-12 col-md-12">
-        <div class="card">
-
-            <div class="card-header">Gluster Volumes Status</div>
-            <div class="card-body" style="padding: 15px 5px 15px 5px;">
+                <div class="card-header">Gluster Volumes Status</div>
+                <div class="card-body">
 
 
-                <div class="col-xs-12 col-md-12 " id="status-volume-container-table"
-                     style="visibility: inherit; display: inherit;">
-                    <div class="status-table">
-                        <table id="status-volume-table" class="table-responsive table table-bordered table-hover">
-                            <thead id="status-volume-table-head">
-                            <tr id="header_1_volume" class="status-node-table-header">
-                                <td class="status-node-cell" rowspan="2">Volume</td>
-                                <td class="status-node-cell" rowspan="2">Type</td>
-                                <td class="status-node-cell" rowspan="2">Status</td>
-                                <td class="status-node-cell" colspan="3">Layout</td>
-                                <td class="status-node-cell" colspan="7">Bricks</td>
-                                <td class="status-node-cell" rowspan="2">Actions</td>
-                            </tr>
-                            <tr id="header_2_volume" class="status-node-table-header">
-
-                                <td class="status-node-cell">Shard</td>
-                                <td class="status-node-cell">Repl.</td>
-                                <td class="status-node-cell">Brick</td>
-
-                                <td class="status-node-cell">Nbr</td>
-                                <td class="status-node-cell">Host</td>
-                                <td class="status-node-cell">Path</td>
-                                <td class="status-node-cell">Status</td>
-                                <td class="status-node-cell">Device</td>
-                                <td class="status-node-cell">Free Space</td>
-                                <td class="status-node-cell">Total Space</td>
-                            </tr>
-
-                            </thead>
-                            <tbody id="status-volume-table-body">
-                                <tr id="empty-volumes">
-                                    <td class="status-node-cell" colspan="14">
-                                        (No Data to display)
-                                    </td>
+                    <div class="col-xs-12 col-md-12 " id="status-volume-container-table"
+                         style="visibility: inherit; display: inherit;">
+                        <div class="status-table">
+                            <table id="status-volume-table" class="table-responsive table table-bordered table-hover">
+                                <thead id="status-volume-table-head">
+                                <tr id="header_1_volume" class="status-node-table-header">
+                                    <td class="status-node-cell" rowspan="2">Volume</td>
+                                    <td class="status-node-cell" rowspan="2">Type</td>
+                                    <td class="status-node-cell" rowspan="2">Status</td>
+                                    <td class="status-node-cell" colspan="3">Layout</td>
+                                    <td class="status-node-cell" colspan="7">Bricks</td>
+                                    <td class="status-node-cell" rowspan="2">Actions</td>
                                 </tr>
-                            </tbody>
-                        </table>
+                                <tr id="header_2_volume" class="status-node-table-header">
+
+                                    <td class="status-node-cell">Shard</td>
+                                    <td class="status-node-cell">Repl.</td>
+                                    <td class="status-node-cell">Brick</td>
+
+                                    <td class="status-node-cell">Nbr</td>
+                                    <td class="status-node-cell">Host</td>
+                                    <td class="status-node-cell">Path</td>
+                                    <td class="status-node-cell">Status</td>
+                                    <td class="status-node-cell">Device</td>
+                                    <td class="status-node-cell">Free Space</td>
+                                    <td class="status-node-cell">Total Space</td>
+                                </tr>
+
+                                </thead>
+                                <tbody id="status-volume-table-body">
+                                    <tr id="empty-volumes">
+                                        <td class="status-node-cell" colspan="14">
+                                            (No Data to display)
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!--
+                        <div class="col-md-12 btn-toolbar">
+
+                            <div class="btn-group">
+                                <button id="show-all-nodes-btn" name="show-all-nodes-btn"
+                                        class="btn btn-secondary filter-btn">
+                                    Show all nodes
+                                </button>
+                            </div>
+                            <div class="btn-group">
+                                <button id="show-master-services-btn" name="show-master-services-btn"
+                                        class="btn btn-secondary filter-btn">
+                                    Show only master services
+                                </button>
+                            </div>
+                            <div class="btn-group">
+                                <button id="show-issues-btn" name="show-issues-btn" class="btn btn-secondary filter-btn">
+                                    Show only issues
+                                </button>
+                            </div>
+                        </div>
+                        -->
                     </div>
 
-                    <!--
                     <div class="col-md-12 btn-toolbar">
 
                         <div class="btn-group">
-                            <button id="show-all-nodes-btn" name="show-all-nodes-btn"
-                                    class="btn btn-secondary filter-btn">
-                                Show all nodes
+                            <button id="add-volume-btn" name="add-volume-btn" class="btn btn-secondary filter-btn">
+                                Add Volume
                             </button>
                         </div>
+                        <!--
                         <div class="btn-group">
-                            <button id="show-master-services-btn" name="show-master-services-btn"
-                                    class="btn btn-secondary filter-btn">
-                                Show only master services
+                            <button id="add-brick-btn" name="add-brick-btn" class="btn btn-secondary filter-btn">
+                                Add Brick
                             </button>
                         </div>
-                        <div class="btn-group">
-                            <button id="show-issues-btn" name="show-issues-btn" class="btn btn-secondary filter-btn">
-                                Show only issues
-                            </button>
-                        </div>
+                        -->
                     </div>
-                    -->
+
                 </div>
-
-                <div class="col-md-12 btn-toolbar">
-
-                    <div class="btn-group">
-                        <button id="add-volume-btn" name="add-volume-btn" class="btn btn-secondary filter-btn">
-                            Add Volume
-                        </button>
-                    </div>
-                    <!--
-                    <div class="btn-group">
-                        <button id="add-brick-btn" name="add-brick-btn" class="btn btn-secondary filter-btn">
-                            Add Brick
-                        </button>
-                    </div>
-                    -->
-                </div>
-
             </div>
-        </div>
 
+        </div>
     </div>
 
-    <div class="col-xs-12 col-md-12">
-        <div class="card">
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="card">
 
-            <div class="card-header">Gluster Nodes Status</div>
-            <div class="card-body" style="padding: 15px 5px 15px 5px;">
+                <div class="card-header">Gluster Nodes Status</div>
+                <div class="card-body">
 
 
-                <div class="col-xs-12 col-md-12 " id="status-node-container-table"
-                     style="visibility: inherit; display: inherit;">
-                    <div class="status-table">
-                        <table id="status-node-table" class="table-responsive table table-bordered table-hover">
-                            <thead id="status-node-table-head">
-                            <tr id="header_1" class="status-node-table-header">
-                                <td class="status-node-cell status-node-cell-host">Host</td>
-                                <td class="status-node-cell status-node-cell-status">Status</td>
-                                <td class="status-node-cell status-node-cell-volumes">Volumes</td>
-                                <td class="status-node-cell status-node-cell-bricks">Nbr Bricks</td>
-                            </tr>
-
-                            </thead>
-                            <tbody id="status-node-table-body">
-                                <tr id="empty-nodes">
-                                    <td class="status-node-cell" colspan="4">
-                                        (No Data to display)
-                                    </td>
+                    <div class="col-xs-12 col-md-12 " id="status-node-container-table"
+                         style="visibility: inherit; display: inherit;">
+                        <div class="status-table">
+                            <table id="status-node-table" class="table-responsive table table-bordered table-hover">
+                                <thead id="status-node-table-head">
+                                <tr id="header_1" class="status-node-table-header">
+                                    <td class="status-node-cell status-node-cell-host">Host</td>
+                                    <td class="status-node-cell status-node-cell-status">Status</td>
+                                    <td class="status-node-cell status-node-cell-volumes">Volumes</td>
+                                    <td class="status-node-cell status-node-cell-bricks">Nbr Bricks</td>
                                 </tr>
-                            </tbody>
-                        </table>
+
+                                </thead>
+                                <tbody id="status-node-table-body">
+                                    <tr id="empty-nodes">
+                                        <td class="status-node-cell" colspan="4">
+                                            (No Data to display)
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!--
+                        <div class="col-md-12 btn-toolbar">
+
+                            <div class="btn-group">
+                                <button id="show-all-nodes-btn" name="show-all-nodes-btn"
+                                        class="btn btn-secondary filter-btn">
+                                    Show all nodes
+                                </button>
+                            </div>
+                            <div class="btn-group">
+                                <button id="show-master-services-btn" name="show-master-services-btn"
+                                        class="btn btn-secondary filter-btn">
+                                    Show only master services
+                                </button>
+                            </div>
+                            <div class="btn-group">
+                                <button id="show-issues-btn" name="show-issues-btn" class="btn btn-secondary filter-btn">
+                                    Show only issues
+                                </button>
+                            </div>
+                        </div>
+                        -->
                     </div>
 
-                    <!--
                     <div class="col-md-12 btn-toolbar">
 
                         <div class="btn-group">
-                            <button id="show-all-nodes-btn" name="show-all-nodes-btn"
-                                    class="btn btn-secondary filter-btn">
-                                Show all nodes
-                            </button>
-                        </div>
-                        <div class="btn-group">
-                            <button id="show-master-services-btn" name="show-master-services-btn"
-                                    class="btn btn-secondary filter-btn">
-                                Show only master services
-                            </button>
-                        </div>
-                        <div class="btn-group">
-                            <button id="show-issues-btn" name="show-issues-btn" class="btn btn-secondary filter-btn">
-                                Show only issues
+                            <button id="add-node-btn" name="add-nodes-btn" class="btn btn-secondary filter-btn">
+                                Add Static Node
                             </button>
                         </div>
                     </div>
-                    -->
+
                 </div>
-
-                <div class="col-md-12 btn-toolbar">
-
-                    <div class="btn-group">
-                        <button id="add-node-btn" name="add-nodes-btn" class="btn btn-secondary filter-btn">
-                            Add Static Node
-                        </button>
-                    </div>
-                </div>
-
             </div>
-        </div>
 
+        </div>
     </div>
 
-    <div class="col-xs-12 col-md-12">
-        <div class="card">
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+            <div class="card">
 
-            <div class="card-header">Backend logs</div>
-            <div class="card-body" style="padding: 15px 5px 15px 5px;">
+                <div class="card-header">Backend logs</div>
+                <div class="card-body">
 
-                <div class="col-xs-12 col-md-12 " id="messages-container"
-                     style="visibility: inherit; display: inherit;">
+                    <div class="col-xs-12 col-md-12 " id="messages-container"
+                         style="visibility: inherit; display: inherit;">
 
-                    <div id="pending-message-panel" style="position: relative;">
+                        <div id="pending-message-panel" style="position: relative;">
 
-                        <div id="pending-message" style="max-height: 300px; overflow-y: auto;">
-                                <pre id="pending-message-content">(Here are displayed messages from EGMI backend)</pre>
+                            <div id="pending-message" style="max-height: 300px; overflow-y: auto;">
+                                    <pre id="pending-message-content">(Here are displayed messages from EGMI backend)</pre>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-md-12 btn-toolbar">
+                    <div class="col-md-12 btn-toolbar">
 
-                    <div class="btn-group">
-                        <button id="clear-messages" name="clear-messages" class="btn btn-secondary filter-btn">
-                            Clear
-                        </button>
+                        <div class="btn-group">
+                            <button id="clear-messages" name="clear-messages" class="btn btn-secondary filter-btn">
+                                Clear
+                            </button>
+                        </div>
                     </div>
+
                 </div>
-
             </div>
-        </div>
 
+        </div>
     </div>
 
     <div style="display: none; visibility: hidden" id="options-holder">

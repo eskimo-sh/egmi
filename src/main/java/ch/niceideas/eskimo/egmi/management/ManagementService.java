@@ -659,17 +659,16 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                     status = "KO";
                 } else {
                     status = "OK";
-                    Map<String, Object> nodeInfo = nodeStatus.getNodeInformation(node);
+                    NodeInformation nodeInfo = nodeStatus.getNodeInformation(node);
 
-                    @SuppressWarnings("unchecked")
-                    Set<String> nodeVolumes = (Set<String>) nodeInfo.get("volumes");
+                    Set<String> nodeVolumes = nodeInfo.getVolumes();
                     if (nodeVolumes != null) {
                         volumes = String.join(", ", nodeVolumes);
                     } else {
                         volumes = "?";
                     }
 
-                    Integer nodeBrickCount =  (Integer) nodeInfo.get("brick_count");
+                    Integer nodeBrickCount =  nodeInfo.getBrickCount();
                     brickCount = Objects.requireNonNullElse(nodeBrickCount, "?");
                 }
             }

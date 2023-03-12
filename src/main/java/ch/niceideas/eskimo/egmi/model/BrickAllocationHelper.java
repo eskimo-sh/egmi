@@ -173,9 +173,9 @@ public class BrickAllocationHelper {
 
             NodeStatus nodeStatus = nodesStatus.get(node);
 
-            Map<String, Object> nodeInfo = nodeStatus.getNodeInformation(node);
+            NodeInformation nodeInfo = nodeStatus.getNodeInformation(node);
 
-            Integer nodeBrickCount =  (Integer) nodeInfo.get("brick_count");
+            Integer nodeBrickCount =  nodeInfo.getBrickCount();
             nodesBrickCount.put(node, Objects.requireNonNullElse(nodeBrickCount, 0));
         }
         List<Node> sortedNodes = new ArrayList<>(activeNodes);
