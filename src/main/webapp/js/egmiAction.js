@@ -46,7 +46,7 @@ egmi.Action = function() {
         console.log ("Action - initialize");
 
         // Initialize HTML Div from Template
-        $("#action-modal-wrapper").load("html/egmiAction.html", function (responseTxt, statusTxt, jqXHR) {
+        $("#action-modal-wrapper").load("html/egmiAction.html", (responseTxt, statusTxt, jqXHR) => {
 
             if (statusTxt === "success") {
 
@@ -75,7 +75,7 @@ egmi.Action = function() {
 
         $('#action-overlay').css('display', 'block');
 
-        that.callback(function() {
+        that.callback(() => {
             $('#action-overlay').css('display', 'none');
             $('#modal-action').modal('hide');
         });

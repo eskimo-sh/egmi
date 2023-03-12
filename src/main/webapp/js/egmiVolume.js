@@ -44,27 +44,27 @@ egmi.Volume = function() {
         console.log ("Volume - initialize");
 
         // Initialize HTML Div from Template
-        $("#volume-modal-wrapper").load("html/egmiVolume.html", function (responseTxt, statusTxt, jqXHR) {
+        $("#volume-modal-wrapper").load("html/egmiVolume.html", (responseTxt, statusTxt, jqXHR) => {
 
             if (statusTxt === "success") {
 
                 // clear password on user model everytime it's shown
                 const $modalVolume = $("#modal-volume");
-                $modalVolume.on('show.bs.modal', function(){
+                $modalVolume.on('show.bs.modal', () => {
                     $('#volume').val("");
                     $('#button-create-volume').prop('disabled', true);
                 });
 
                 // put focus on user email on user edition modal when shown
-                $modalVolume.on('shown.bs.modal', function(){
+                $modalVolume.on('shown.bs.modal', () => {
                     $("#volume").focus();
                 });
 
                 const $volume = $('#volume');
-                $volume.keypress(function() {
+                $volume.keypress(() => {
                     $('#button-create-volume').prop('disabled', false);
                 });
-                $volume.change(function() {
+                $volume.change(() => {
                     $('#button-create-volume').prop('disabled', false);
                 });
 
@@ -100,7 +100,7 @@ egmi.Volume = function() {
             $.ajaxPost({
                 timeout: 1000 * 120,
                 url: "volume?volume=" + newVolume,
-                success: function (data, status, jqXHR) {
+                success: (data, status, jqXHR) => {
 
                     // OK
                     //console.log(data);
@@ -119,7 +119,7 @@ egmi.Volume = function() {
                     $('#volume-overlay').css('display', 'none');
                 },
 
-                error: function (jqXHR, status) {
+                error: (jqXHR, status) => {
                     errorHandler(jqXHR, status);
                     $('#button-create-volume').prop('disabled', false);
                     $('#volume-overlay').css('display', 'none');

@@ -44,28 +44,28 @@ egmi.Node = function() {
         console.log ("Node - initialize");
 
         // Initialize HTML Div from Template
-        $("#node-modal-wrapper").load("html/egmiNode.html", function (responseTxt, statusTxt, jqXHR) {
+        $("#node-modal-wrapper").load("html/egmiNode.html", (responseTxt, statusTxt, jqXHR) => {
 
             if (statusTxt === "success") {
 
                 // clear password on user model everytime it's shown
                 const $modalNode = $("#modal-node");
-                $modalNode.on('show.bs.modal', function(){
+                $modalNode.on('show.bs.modal', () => {
                     $('#node').val("");
                     $('#button-create-node').prop('disabled', true);
                 });
 
                 // put focus on user email on user edition modal when shown
-                $modalNode.on('shown.bs.modal', function(){
+                $modalNode.on('shown.bs.modal', () => {
                     $("#node").focus();
                 });
 
                 const $node = $('#node');
-                $node.keypress(function() {
+                $node.keypress(() => {
                     $('#button-create-node').prop('disabled', false);
                 });
 
-                $node.change(function() {
+                $node.change(() => {
                     $('#button-create-node').prop('disabled', false);
                 });
 
@@ -101,7 +101,7 @@ egmi.Node = function() {
             $.ajaxPost({
                 timeout: 1000 * 120,
                 url: "node?node=" + newNode,
-                success: function (data, status, jqXHR) {
+                success: (data, status, jqXHR) => {
 
                     // OK
                     //console.log(data);
@@ -120,7 +120,7 @@ egmi.Node = function() {
                     $('#node-overlay').css('display', 'none');
                 },
 
-                error: function (jqXHR, status) {
+                error: (jqXHR, status) => {
                     errorHandler(jqXHR, status);
                     $('#button-create-node').prop('disabled', false);
                     $('#node-overlay').css('display', 'none');

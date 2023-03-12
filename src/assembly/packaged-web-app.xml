@@ -24,7 +24,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${basedir}/src/main/python</directory>
+            <directory>${basedir}/src/main/shell</directory>
             <outputDirectory>utils</outputDirectory>
             <includes>
                 <include>**/*</include>

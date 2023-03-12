@@ -53,7 +53,7 @@ egmi.Messaging = function(constrObj) {
     this.initialize = function () {
         loadLastLine();
 
-        $("#clear-messages").click(function(e) {
+        $("#clear-messages").click(e => {
             $("#pending-message-content").html("");
 
             e.preventDefault();
@@ -74,7 +74,7 @@ egmi.Messaging = function(constrObj) {
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             url: "get-lastline-messaging",
-            success: function (data, status, jqXHR) {
+            success: (data, status, jqXHR) => {
                 if (data && data.status) {
                     lastLineMessaging = data.lastLine;
                 } else {
@@ -92,7 +92,7 @@ egmi.Messaging = function(constrObj) {
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             url: "fetch-messaging?last_line="+lastLineMessaging,
-            success: function (data, status, jqXHR) {
+            success: (data, status, jqXHR) => {
 
                 // OK
                 //console.log(data);
@@ -118,7 +118,7 @@ egmi.Messaging = function(constrObj) {
                         MESSAGING_POLLING_DELAY);
                 }
             },
-            error: function (jqXHR, status) {
+            error: (jqXHR, status) => {
 
                 if (callback != null && typeof callback === "function") {
                     callback();

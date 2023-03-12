@@ -46,7 +46,7 @@ egmi.ShowOptions = function() {
         console.log ("ShowOptions - initialize");
 
         // Initialize HTML Div from Template
-        $("#show-options-modal-wrapper").load("html/egmiShowOptions.html", function (responseTxt, statusTxt, jqXHR) {
+        $("#show-options-modal-wrapper").load("html/egmiShowOptions.html", (responseTxt, statusTxt, jqXHR) => {
 
             if (statusTxt === "success") {
 

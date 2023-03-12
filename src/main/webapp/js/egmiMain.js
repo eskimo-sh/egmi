@@ -255,7 +255,7 @@ egmi.Main = function() {
                 $.ajaxGet({
                     timeout: 1000 * 120,
                     url: actionType + "-volume?volume=" + volume,
-                    success: function (data, status, jqXHR) {
+                    success: (data, status, jqXHR) => {
 
                         // OK
                         //console.log(data);
@@ -271,7 +271,7 @@ egmi.Main = function() {
                         completer();
                     },
 
-                    error: function (jqXHR, status) {
+                    error: (jqXHR, status) => {
                         errorHandler(jqXHR, status);
                         completer();
                     }
@@ -339,7 +339,7 @@ egmi.Main = function() {
             type: "GET",
             dataType: "json",
             url: "get-status",
-            success: function (data, status, jqXHR) {
+            success: (data, status, jqXHR) => {
 
                 if (!data.clear) {
 
@@ -360,7 +360,7 @@ egmi.Main = function() {
                 inUpdateStatus = false;
             },
 
-            error: function (jqXHR, status) {
+            error: (jqXHR, status) => {
                 // error handler
                 console.log(jqXHR);
                 console.log(status);
@@ -385,7 +385,7 @@ egmi.Main = function() {
             type: "GET",
             dataType: "json",
             url: "get-master",
-            success: function (data, status, jqXHR) {
+            success: (data, status, jqXHR) => {
 
                 if (!data.clear) {
 
@@ -415,7 +415,7 @@ egmi.Main = function() {
                 masterQueryTimeoutHandler = setTimeout(queryMaster, QUERY_MASTER_INTERVAL);
             },
 
-            error: function (jqXHR, status) {
+            error: (jqXHR, status) => {
                 // error handler
                 console.log(jqXHR);
                 console.log(status);
