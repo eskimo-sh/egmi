@@ -360,7 +360,6 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         } catch (NodeStatusException e) {
             logger.error (e, e);
         }
-
     }
 
     private boolean flagNodeInconsistent(ProblemManager problemManager, SystemStatus newStatus, Node node, Node other) {
@@ -648,9 +647,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
 
             if (nodeStatus != null) {
 
-                if (nodeStatus.isPoolStatusError()) {
-                    status = "KO";
-                } else {
+                if (!nodeStatus.isPoolStatusError()) {
                     status = "OK";
                     nodeInfo = nodeStatus.getNodeInformation(node);
                 }

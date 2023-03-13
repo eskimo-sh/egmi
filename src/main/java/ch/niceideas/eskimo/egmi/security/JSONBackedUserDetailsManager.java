@@ -44,8 +44,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -70,8 +68,6 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
     private static final String DEFAULT_USER = "{ \"users\" : [ { \"username\" : \"admin\", \"password\" : \"$2a$10$W5pa6y.k95V27ABPd7eFqeqniTnpYqYOiGl75jJoXApG8SBEvERYO\", \"enabled\" : \"true\" } ] }";
 
     private final Map<String, MutableUser> users = new ConcurrentHashMap<>();
-
-    private AuthenticationManager authenticationManager;
 
     private final String jsonFilePath;
 
@@ -181,19 +177,6 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
 
         logger.debug("Changing password for user '" + username + "'");
 
-        // If an authentication manager has been set, re-authenticate the user with the
-        // supplied password.
-        if (authenticationManager != null) {
-            logger.debug("Reauthenticating user '" + username
-                    + "' for password change request.");
-
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    username, oldPassword));
-        }
-        else {
-            logger.debug("No authentication manager set. Password won't be re-checked.");
-        }
-
         MutableUser user = users.get(username);
 
         if (user == null) {
@@ -227,9 +210,5 @@ public class JSONBackedUserDetailsManager implements UserDetailsManager, UserDet
         return new User(user.getUsername(), user.getPassword(), user.isEnabled(),
                 user.isAccountNonExpired(), user.isCredentialsNonExpired(),
                 user.isAccountNonLocked(), user.getAuthorities());
-    }
-
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
     }
 }
