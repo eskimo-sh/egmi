@@ -45,12 +45,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @EqualsAndHashCode(callSuper = true)
 @Getter
@@ -136,7 +133,6 @@ public class NodeDown extends AbstractProblem implements Problem {
 
             return false;
 
-        //} catch (GlusterRemoteException | NodeStatusException e) {
         } catch (GlusterRemoteException | NodeStatusException e) {
             logger.error (e, e);
             return false;

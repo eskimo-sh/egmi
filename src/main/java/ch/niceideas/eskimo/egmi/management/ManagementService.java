@@ -96,7 +96,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
     @Value("${target.predefined-ip-addresses:#{null}}")
     protected String preConfiguredNodes = "";
 
-    @Value("${target.volumes}")
+    @Value("${target.volumes:#{null}}")
     private String configuredVolumes = "";
 
     @Value("${config-storage-path}")
@@ -572,6 +572,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
+    @Override
     public int getTargetNumberOfBricks() {
 
         // CAUTION : number of bricks must be a multiple of replica set
@@ -614,6 +615,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return theoreticalNbrBricks;
     }
 
+    @Override
     public int getTargetNumberOfReplicas() {
 
         int targetNumberOfBricks = getTheoreticalNumberOfBricks();
@@ -683,6 +685,23 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
+    @Override
+    public Set<Node> getPreConfiguredNodes() {
+        Set<Node> nodes = new HashSet<>();
+
+        // 1. Add all configured nodes
+        if (StringUtils.isNotBlank(preConfiguredNodes)) {
+            String[] confNodes = preConfiguredNodes.split(",");
+            Arrays.stream(confNodes, 0, confNodes.length)
+                    .filter(StringUtils::isNotBlank)
+                    .map(Node::from)
+                    .forEach(nodes::add);
+        }
+
+        return nodes;
+    }
+
+    @Override
     public Set<Node> getConfiguredNodes() {
         Set<Node> nodes = new HashSet<>();
 
@@ -696,12 +715,14 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return nodes;
     }
 
+    @Override
     public Set<Volume> getConfiguredVolumes() {
         Set<Volume> volumes = new HashSet<>();
 
         // 1. Add all configured volumes
         String[] confVolumes = configuredVolumes.split(",");
         Arrays.stream(confVolumes, 0, confVolumes.length)
+                .filter(StringUtils::isNotBlank)
                 .map(Volume::from)
                 .forEach(volumes::add);
 
@@ -784,16 +805,19 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return allVolumes;
     }
 
+    @Override
     public void info(String s) {
         logger.info (s);
         messagingService.addLine(getMessageDate() + " - INFO: " + s);
     }
 
+    @Override
     public void error(String s) {
         logger.error (s);
         messagingService.addLine(getMessageDate() + " - ERROR: " + s);
     }
 
+    @Override
     public void error(Exception e) {
         logger.error (e, e);
         messagingService.addLine(getMessageDate() + " - ERROR: " + e.getMessage());
@@ -804,6 +828,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         return format.format(new Date());
     }
 
+    @Override
     public String getEnvironmentProperty (String property) {
         return env.getProperty(property);
     }
@@ -837,6 +862,7 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
         }
     }
 
+    @Override
     public void updateSettingsAtomically (SettingsUpdater updater) throws ManagementException{
         runtimeConfigLock.lock();
         try {

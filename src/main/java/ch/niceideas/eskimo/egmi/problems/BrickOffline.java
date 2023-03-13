@@ -44,7 +44,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.Map;

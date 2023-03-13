@@ -91,6 +91,11 @@ public class CommandContext implements ResolutionLogger, RuntimeSettingsOwner, C
     }
 
     @Override
+    public Set<Node> getPreConfiguredNodes() {
+        return configOwner.getPreConfiguredNodes();
+    }
+
+    @Override
     public Set<Volume> getConfiguredVolumes() {
         return configOwner.getConfiguredVolumes();
     }

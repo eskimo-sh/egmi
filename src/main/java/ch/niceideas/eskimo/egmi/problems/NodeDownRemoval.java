@@ -48,7 +48,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -127,21 +126,20 @@ public class NodeDownRemoval extends AbstractProblem implements Problem {
                 context.info ("  + Force detaching " + host + " from " + other + " peer pool.");
                 executeSimpleOperation(new GlusterPeerDetach(context.getHttpClient(), host), context, other);
 
-                if (context.getConfiguredNodes().contains(host)) {
-                    context.info ("  + Node " + host + " doesn't contain any volume but is a managed node. skipping.");
-                    return false;
+                if (context.getPreConfiguredNodes().contains(host)) {
+                    context.info ("  + Node " + host + " doesn't contain any volume but is a pre-configured node. skipping.");
 
                 } else {
 
-                    context.info ("  + Node " + host + " doesn't contain any volume and is not a managed node. removing from tracked nodes.");
+                    context.info ("  + Node " + host + " doesn't contain any volume and is not a pre-configured node. removing from tracked nodes.");
                     removefromRuntimeNodes(context);
-                    return true;
                 }
+
+                return true;
             }
 
             return false;
 
-        //} catch (GlusterRemoteException | NodeStatusException e) {
         } catch (GlusterRemoteException | NodeStatusException e) {
             logger.error (e, e);
             return false;

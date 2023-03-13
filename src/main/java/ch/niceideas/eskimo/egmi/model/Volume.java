@@ -49,11 +49,11 @@ public class Volume implements Comparable<Volume> {
         this.name = name;
     }
 
-    public static Volume from (String address) {
-        if (StringUtils.isBlank(address)) {
-            throw new IllegalArgumentException("Given address is null");
+    public static Volume from (String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Given name is null");
         }
-        return new Volume(address);
+        return new Volume(name);
     }
 
     @Override

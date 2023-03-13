@@ -82,13 +82,6 @@ public class ZookeeperService {
                 + " - dataNode=" + dataNode
                 + " - preconfiguredNodes=" + preconfiguredNodes);
 
-        if (StringUtils.isNotBlank(forceMasterFlag)) {
-            boolean masterFlag = Boolean.parseBoolean(forceMasterFlag);
-            logger.warn ("Forcing master=" + masterFlag);
-            masterTracker.set("[UNKNOWN]");
-            master.set(masterFlag);
-        }
-
         if (StringUtils.isBlank(myId)) {
             try {
                 myId = InetAddress.getLocalHost().getHostName();
@@ -102,8 +95,21 @@ public class ZookeeperService {
 
         if (StringUtils.isBlank(zookeeperUrls)) {
             logger.warn ("Running in STANDALONE mode. Assuming master !");
-            masterTracker.set(effId);
-            master.set(true);
+
+
+            if (StringUtils.isNotBlank(forceMasterFlag)) {
+                boolean masterFlag = Boolean.parseBoolean(forceMasterFlag);
+                logger.warn ("Forcing master=" + masterFlag);
+                if (masterFlag) {
+                    masterTracker.set(effId);
+                } else {
+                    masterTracker.set("[UNKNOWN]");
+                }
+                master.set(masterFlag);
+            } else {
+                masterTracker.set(effId);
+                master.set(true);
+            }
 
             if (StringUtils.isBlank(preconfiguredNodes)
                 && (StringUtils.isBlank(forceMasterFlag) || Boolean.parseBoolean(forceMasterFlag))) {

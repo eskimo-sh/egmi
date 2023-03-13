@@ -43,6 +43,8 @@ public interface ConfigurationOwner {
 
     Set<Node> getConfiguredNodes();
 
+    Set<Node> getPreConfiguredNodes();
+
     Set<Volume> getConfiguredVolumes();
 
     String getEnvironmentProperty (String property);

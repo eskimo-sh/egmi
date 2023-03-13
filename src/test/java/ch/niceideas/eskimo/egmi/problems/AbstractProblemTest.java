@@ -114,7 +114,7 @@ public abstract class AbstractProblemTest {
             @Override
             public JsonWrapper loadRuntimeSettings() throws ManagementException {
                 try {
-                    return new JsonWrapper(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/" + getTestRoot() + "/runtime-config.json")));
+                    return new JsonWrapper(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("problems/" + getTestRoot() + "/runtime-config.json")));
                 } catch (IOException e) {
                     throw new ManagementException (e);
                 }
