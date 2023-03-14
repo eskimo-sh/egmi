@@ -339,7 +339,26 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                 }
             }
 
-            // 2. Find inconsistencies
+            // find individually consistent node, i.e. nodes that are themselves in all their peer peer list
+            Set<Node> individuallyConsistentNodes = new HashSet<>();
+            for (Node node : allNodes) {
+                boolean consistent = true;
+                Set<Node> nodePeers = nodesPeeers.get(node);
+                if (nodePeers != null) {
+                    for (Node other : nodePeers) {
+                        Set<Node> otherPeers = nodesPeeers.get(other);
+                        if (otherPeers == null || !otherPeers.contains(node)) {
+                            consistent = false;
+                            break;
+                        }
+                    }
+                }
+                if (consistent) {
+                    individuallyConsistentNodes.add(node);
+                }
+            }
+
+            // 3. Find inconsistencies
             for (Node node : allNodes) {
                 Set<Node> nodePeers = nodesPeeers.get(node);
                 if (nodePeers != null) {
@@ -348,8 +367,14 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
                         if (otherPeers != null) {
 
                             if (otherPeers.contains(node) && !nodePeers.contains(other)) {
-                                if (flagNodeInconsistent(problemManager, newStatus, node, other)) {
-                                    break;
+                                if (individuallyConsistentNodes.contains(node)) {
+                                    if (flagNodeCorrupted(problemManager, newStatus, other)) {
+                                        break;
+                                    }
+                                } else {
+                                    if (flagNodeInconsistent(problemManager, newStatus, node, other)) {
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -371,7 +396,17 @@ public class ManagementService implements ResolutionLogger, RuntimeSettingsOwner
             return true;
         }
         return false;
+    }
 
+    private boolean flagNodeCorrupted(ProblemManager problemManager, SystemStatus newStatus, Node node) {
+        // flag node inconsistent
+        String prevStatus =  newStatus.getNodeStatus(node);
+        if (StringUtils.isBlank(prevStatus) || !prevStatus.equals("KO")) { // don't overwrite KO node
+            newStatus.overrideNodeStatus (node, "CORRUPTED");
+            problemManager.addProblem(new NodeCorrupted(new Date(), node));
+            return true;
+        }
+        return false;
     }
 
     private void feedIndVolumeInfo(Map<Node, NodeStatus> nodesStatus,

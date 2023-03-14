@@ -43,26 +43,31 @@ Software.
 
 === Introduction
 
-EGMI stands for *Eskimo Gluster Management Interface*. EGMI is a daemon running on machines or containers along
+EGMI stands for *Eskimo Gluster Management Interface*. EGMI is a daemon running on machines or containers alongside
 https://www.gluster.org/[Gluster FS] and taking care of managing gluster volumes and peers automatically (for most
 common operations).
 
 The fundamental idea behind EGMI is that operators should not have to do so much manual operations to build and maintain
-a gluster cluster. +
-EGMI inspires from the way most widely used Big Data / NoSQL backends manage their shards and replicas transparently,
-balancing new replicas to new nodes automatically whenever a node goes down, etc. +
-EGMI aims at bringing the same level of automatic operation and reliability on top of Gluster FS and well at
-simplifying all aspects of gluster volumes management and repairing.
+a gluster cluster with its volume and peers. +
+EGMI inspires from the way most widely used Big Data / NoSQL backends manage their nodes, shards and replicas
+transparently, balancing new replicas to new nodes automatically whenever a node goes down, etc. without an
+administrator needing to really worry about it. +
+EGMI aims at bringing the same level of automation and reliability on top of Gluster FS and at simplifying most trivial
+aspects of gluster volumes management and repairing.
 
-EGMI also included a web interface for monitoring and to help administrators perform some simple manual operations and
+EGMI also includes a _web interface_ for monitoring and to help administrators perform some simple manual operations and
 configuration.
 
 image::egmi_platform.png[800, 800, align="center"]
 
 === EGMI Project Development  Status
 
+EGMI is currently in early stage but is considered _production ready_ (in terms of quality) on a limited set of use
+cases.  EGMI is used by Eskimo for Gluster cluster Management.
+
 *GitHub Action CI Integration Build Status* +
-image:https://github.com/eskimo-sh/egmi/actions/workflows/maven.yml/badge.svg["Build Status", link="https://github.com/eskimo-sh/egmi/actions/"]
+image:https://github.com/eskimo-sh/egmi/actions/workflows/maven.yml/badge.svg["Build Status",
+link="https://github.com/eskimo-sh/egmi/actions/"]
 
 
 
@@ -74,11 +79,12 @@ image:https://github.com/eskimo-sh/egmi/actions/workflows/maven.yml/badge.svg["B
 
 *Automatic nodes and volumes management*
 
-With EGMI, the administrators needs to define in egmi's configuration file:
+With EGMI, the administrators should define in EGMI's configuration file:
 
 * Either a *Zookeeper URL* when using Zookeeper for master election and node discovery.
 ** In this case, the managed nodes are discovered automatically through zookeeper
-** Also, one of the EGMI instance registering to zookeeper is elected master and takes care of global cluster management.
+** Also, one of the EGMI instance registering to zookeeper is elected as master and will take care of global cluster
+management.
 * Or, in case zookeeper is not used (or used only for master election), a list of *Managed nodes*:  the set of nodes
 where gluster is expected to be running. Additional nodes discovered in gluster peers are considered as well.
 * *The Managed Volumes*: the set of gluster volumes to be created and managed. Additional volumes discovered in gluster
@@ -90,32 +96,34 @@ create as many bricks as required to reach this number of shards (distribution) 
 
 *EGMI is deployed on every node running gluster*
 
-EGMI is designed to be deployed along Gluster FS on every node or container from the gluster cluster. This is a strict
-requirement since every EGMI instance will administer the co-located Gluster FS instance. +
-At every moment in time, only one of these EGMI process is considered master and is taking decisions for the whole
+EGMI is designed to be deployed alongside Gluster FS on every node or container from the gluster cluster. This is a
+strict requirement since every EGMI instance will take care of operating the co-located Gluster FS instance. +
+At every moment in time, only one of these EGMI process is acting as master and is taking decisions for the whole
 cluster.
 
 *Using Zookeeper for master election and Node discovery*
 
 EGMI uses Zookeeper for master election. Zookeeper is used solely to elect the master taking decisions for the whole
-cluster and not for state storage. +
-EGMI can also run on a single node deployment without Zookeeper. If no Zookeeper URL is configured, an EGMI instance
-assumes it is the master.
+cluster as well as discovering registered nodes and not for state storage. +
+EGMI stores it's state directly in Gluster's meta data.
 
-Also, by default, zookeeper is also used to discover EGMI nodes in the cluster. This can be disabled and the list of
-nodes can be configured in EGMI's configuration file.
+EGMI can also run without Zookeeper. In such case, the list of expected nodes has to be configured in a static way in
+EGMI's configuration file. +
+This static declaration of nodes is also required if Zookeeper is used solely for master election and node discovery
+is disabled.
 
 *Stateless*
 
-EGMI itself is stateless. EGMI uses Gluster FS to store state and always returns to querying Gluster instances to
+EGMI itself is stateless. EGMI uses Gluster FS's own meta-data to store state and always returns to querying Gluster to
 recover the Gluster cluster state.
-Optionally, when zookeper is used, cluster state (such as data nodes and master) are managed through zookeeper.
+Optionally, when zookeper is used, some configuration elements  (such as registered nodes) are retrieved through
+zookeeper.
 
 *UI Redirection to master node*
 
-Every EGMI instance running on evefy cluster nodes as a Web UI - Graphical User Interface - up, running and available
-on the configured port. However, onl the master node UI is answering. Slave nodes UI on slave nodes redirect the user
-to master node UI.
+Every EGMI instance running on every cluster nodes has a Web UI - _Graphical User Interface_ - up, running and available
+on the configured port. However, only the master node UI is answering. Slave nodes UI on slave nodes redirect the user
+to the master node UI.
 
 == Building EGMI
 
@@ -134,18 +142,22 @@ Simply type on the command line at the root of the project:
 
 `mvn clean install`
 
+It results in a set of `zip` and _tarball_ (`tar.gz`) files in the `target` sub-folder.
+
 == EGMI Deployment
 
-Again, EGMI has to be installed on every machine or container running _Gluster FS_.
-EGMI is started using the startup script `egmi.sh` or the provided SystemD unit file and setup script.
+Again, EGMI has to be installed on every machine or container running _Gluster FS_, installed alongside Gluster. +
+EGMI is started using the startup script `egmi.sh` or the provided SystemD unit file and setup script. +
+Java 11 (or above) binaries need to be available in the system path to run EGMI.
 
 === Installation
 
-Just extract the EGMI archive to the root folder where you want to install EGMI.
+One just needs to extract the EGMI archive to the root folder where one wants to install EGMI.
 
 === Configuration
 
-EGMI is configured in `egmi.properties` configuration file located under `conf` under the root EGMI installation folder.
+EGMI is configured in `egmi.properties` configuration file located under sub-folder `conf` under the root EGMI
+installation folder.
 
 The most essential configuration properties to be adapted *whenever egmi is to be used outside of eskimo* are as
 follows.
@@ -163,14 +175,17 @@ address of the node)
 port as above*. But in case the EGMI master orchestrates remote slaves running on different port, this can be usefull.
 * `target.ip-addresses` : coma-separated hostnames or IP addresses of the gluster cluster. EGMI will connect all these
 nodes together (add peers in pool) if some nodes are disconnected from the gluster. +
-This should be left blank to rely on zookeeper for data node discovery.
-zookeeper for data node discovery but can be configured here when not using zookeeper.
-* `master` : set to true or false for force master or slave on one EGMI instance regardless of zookeeper election
-process.
+This should be left blank to rely on zookeeper for data node discovery. EGMI is indeed able to discover the various
+nodes running EGMI / Gluster cluster from zookeeper. Whenever one doesn't want to rely on zookeeper to discover nodes,
+this configuration property can be used.
+* `master` : set to `true` or `false` to force that very instance to be master or slave on one EGMI instance regardless
+of zookeeper election process. (This should be used with caution since no checks are done on misconfiguration ending up
+with multiple masters.)
 
 ==== EGMI backend configuration
 
-* `data` : set to true to have the node registerd as a data node (managed gluster node) within zookeeper.
+* `data` : set to `true` to have the node registerd as a data node (managed gluster node) within zookeeper. Set to
+`false` to have that EGMI running as a standalone process (without a co-located gluster process to be managed).
 * `target.volumes`: coma-separated list of volumes to be managed. This has to be given and needs to be consistent
 across EGMI instances.
 * `config-storage-path`: where the EGMI runtime configuration (meta-data) has to be stored. EGMI is more or less
@@ -190,7 +205,8 @@ nodes)
 *Important note*
 This configuration needs to be aligned on every node. It is not a strict requirement and a configuration discrepency
 between nodes may be somewhat tolerated by EGMI. +
-However, it can lead to unexpected results and every node in the gluster cluster should have same EGMI configuration
+It could however lead to unexpected results and every node in the gluster cluster would be better off having same EGMI
+configuration.
 
 
 

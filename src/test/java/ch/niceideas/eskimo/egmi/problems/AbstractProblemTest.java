@@ -47,9 +47,11 @@ import ch.niceideas.eskimo.egmi.management.MessagingService;
 import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
+import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -167,6 +169,17 @@ public abstract class AbstractProblemTest {
 
         ms.setMessagingService(messagingService);
 
+        ms.setZoopeeerService(new ZookeeperService(null, null, 0, null, true, "dummy") {
+
+            @Override
+            public boolean isMaster() {
+                return true;
+            }
+
+        });
+
+        ms.setProblemManager(new ProblemManager());
+
         grm.setHttpClient(mockClient);
 
         ms.setGlusterRemoteManager(grm);
@@ -174,4 +187,9 @@ public abstract class AbstractProblemTest {
         systemStatus = new SystemStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("problems/" + getTestRoot() + "/systemStatus.json")));
     }
 
+    @Test
+    public void testRebuild() throws ManagementException {
+        ms.updateSystemStatus();
+        ms.getSystemStatus().getJSONObject().similar(systemStatus.getJSONObject());
+    }
 }

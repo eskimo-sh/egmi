@@ -108,6 +108,9 @@ body{
     margin-bottom: 30px;
     border: 1px solid #7777;
     /*height: 330px;*/
+
+    --ct-card-cap-padding-y: 5px;
+    --ct-card-cap-padding-x: 10px;
 }
 
 
