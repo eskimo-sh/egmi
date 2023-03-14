@@ -47,13 +47,14 @@ EGMI stands for *Eskimo Gluster Management Interface*. EGMI is a daemon running 
 https://www.gluster.org/[Gluster FS] and taking care of managing gluster volumes and peers automatically (for most
 common operations).
 
-The fundamental idea behind EGMI is that operators should not have to do so much manual operations to build and maintain
-a gluster cluster with its volume and peers. +
+The fundamental idea behind EGMI is that Big Data System administrators should not have to do so much manual operations
+to build and maintain a gluster cluster with its volumes and peers.
+
 EGMI inspires from the way most widely used Big Data / NoSQL backends manage their nodes, shards and replicas
 transparently, balancing new replicas to new nodes automatically whenever a node goes down, etc. without an
 administrator needing to really worry about it. +
-EGMI aims at bringing the same level of automation and reliability on top of Gluster FS and at simplifying most trivial
-aspects of gluster volumes management and repairing.
+EGMI aims eventually at bringing the same level of automation and reliability on top of Gluster FS and at simplifying
+most trivial aspects of gluster volumes management and repairing.
 
 EGMI also includes a _web interface_ for monitoring and to help administrators perform some simple manual operations and
 configuration.
@@ -62,8 +63,8 @@ image::egmi_platform.png[800, 800, align="center"]
 
 === EGMI Project Development  Status
 
-EGMI is currently in early stage but is considered _production ready_ (in terms of quality) on a limited set of use
-cases.  EGMI is used by Eskimo for Gluster cluster Management.
+EGMI is currently in early development stage but still considered _production ready_ (in terms of quality) on a limited
+set of use cases. EGMI is used by https://www.eskimo.sh/[Eskimo] for Gluster cluster Management.
 
 *GitHub Action CI Integration Build Status* +
 image:https://github.com/eskimo-sh/egmi/actions/workflows/maven.yml/badge.svg["Build Status",
@@ -116,12 +117,12 @@ is disabled.
 
 EGMI itself is stateless. EGMI uses Gluster FS's own meta-data to store state and always returns to querying Gluster to
 recover the Gluster cluster state.
-Optionally, when zookeper is used, some configuration elements  (such as registered nodes) are retrieved through
+Optionally, when zookeper is used, some configuration elements  (such as registered nodes) are retrieved from
 zookeeper.
 
 *UI Redirection to master node*
 
-Every EGMI instance running on every cluster nodes has a Web UI - _Graphical User Interface_ - up, running and available
+Every EGMI instance running on every cluster nodes has a Web UI - _Web User Interface_ - up, running and available
 on the configured port. However, only the master node UI is answering. Slave nodes UI on slave nodes redirect the user
 to the master node UI.
 
@@ -159,20 +160,20 @@ One just needs to extract the EGMI archive to the root folder where one wants to
 EGMI is configured in `egmi.properties` configuration file located under sub-folder `conf` under the root EGMI
 installation folder.
 
-The most essential configuration properties to be adapted *whenever egmi is to be used outside of eskimo* are as
+The most essential configuration properties to be adapted *whenever EGMI is to be used outside of Eskimo* are as
 follows.
 
 ==== Cluster and Server configuration
 
 * `zookeeper.urls` : the URL(s) (coma-separated list of IP:PORT where zookeeper is expected.) at which zookeeper
-server(s) is(are) expected. Whenever this is configured, EGMI will
-use zookeeper for master election. Leave it blank to force either master or slave on one EGMI instance without using
-zookeeper.
+server(s) is(are) expected. Whenever this is configured, EGMI will use zookeeper for master election. Leave it blank to
+force either master or slave on one EGMI instance without using zookeeper. (See `master=true|false` below)
 * `hostname` : the hostname this instance of EGMI is identified by on the gluster cluster (most of the time the IP
 address of the node)
 * `server.port`: the port EGMI listens to (both EGMI UI and EGMI command server)
-* `remote.egmi.port` : the port where the remote EGMI command server listens to. *This should in principe be the same
-port as above*. But in case the EGMI master orchestrates remote slaves running on different port, this can be usefull.
+* `remote.egmi.port` : the port where the remote EGMI command server listens to. *This should in principle be the same
+port as above*. But in case the EGMI master manages a set of remote slaves running on a different port, this can be
+useful.
 * `target.ip-addresses` : coma-separated hostnames or IP addresses of the gluster cluster. EGMI will connect all these
 nodes together (add peers in pool) if some nodes are disconnected from the gluster. +
 This should be left blank to rely on zookeeper for data node discovery. EGMI is indeed able to discover the various
@@ -196,16 +197,16 @@ deleted, it doesn't impact EGMI significantly)
 
 ==== Gluster Management configuration
 
-* `target.numberOfBricks` : the number of bricks to create and manage for volumes (either a fixed number or "ALL_NODES"
-to have every volume having a brick on every node or "LOG_DISPATCH" to have shared and replicas distributed on log(n)
+* `target.numberOfBricks` : the number of bricks to create and manage for volumes (either a fixed number or `ALL_NODES`
+to have every volume having a brick on every node or `LOG_DISPATCH` to have shares and replicas distributed on log(n)
 nodes)
 * `target.defaultNumberReplica` : the target number of replicas to try to respect for every node.
 
 
-*Important note*
+*Important note* +
 This configuration needs to be aligned on every node. It is not a strict requirement and a configuration discrepency
 between nodes may be somewhat tolerated by EGMI. +
-It could however lead to unexpected results and every node in the gluster cluster would be better off having same EGMI
+It could however lead to unexpected results and every node in the gluster cluster should really have the same EGMI
 configuration.
 
 
