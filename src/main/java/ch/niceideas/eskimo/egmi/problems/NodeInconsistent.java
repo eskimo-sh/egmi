@@ -121,24 +121,28 @@ public class NodeInconsistent extends AbstractProblem implements Problem {
             executeSimpleOperation(new GlusterPeerDetach(context.getHttpClient(), host), context, other);
 
             // 4. Add it again
-            context.info ("  + Re-adding " + host + " to " + other + " peer pool.");
-            executeSimpleOperation(new GlusterPeerProbe(context.getHttpClient(), host), context, other);
-
-            try {
-                // 7. Ensure it is properly available
-                checkHostInPeerPool(context, other, host);
-
-            } catch (HttpClientException | IOException e) {
-                logger.debug (e, e);
-                logger.error (e.getMessage());
-                throw new ResolutionStopException(e);
-            }
+            addNodeBackInPool(context, host, other);
 
             return true;
 
         } catch (GlusterRemoteException | NodeStatusException e) {
             logger.error (e, e);
             return false;
+        }
+    }
+
+    static void addNodeBackInPool(CommandContext context, Node host, Node other) throws ResolutionStopException {
+        context.info ("  + Re-adding " + host + " to " + other + " peer pool.");
+        executeSimpleOperation(new GlusterPeerProbe(context.getHttpClient(), host), context, other);
+
+        try {
+            // 7. Ensure it is properly available
+            checkHostInPeerPool(context, other, host);
+
+        } catch (HttpClientException | IOException e) {
+            logger.debug (e, e);
+            logger.error (e.getMessage());
+            throw new ResolutionStopException(e);
         }
     }
 

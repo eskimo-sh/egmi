@@ -225,14 +225,6 @@ public class HttpClient implements Closeable {
                 .setDefaultCookieStore(cookieStore)
                 .setUserAgent(this.userAgent)
                 .build();
-
-        
-        /* Uncomment for proxy settings
-        
-        HttpHost proxyHost = new HttpHost("proxy-internal", 8080, "http");
-
-        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxyHost);
-        */
     }
     
     /**
@@ -370,23 +362,23 @@ public class HttpClient implements Closeable {
         context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
 
         // 5. Send request
-        ClassicHttpResponse response;
+        HttpClientResponse response;
         try {
             response = httpClient.execute( //
                     new HttpHost(StringUtils.isBlank(schemeString) ? "http" : schemeString,
                             serverString,
                             StringUtils.isBlank(portString) ? -1 : Integer.parseInt(portString)), //
                     request,
-                    context);
+                    context,
+                    // 6. Process response.
+                    httpResponse -> processResponse(httpResponse, (HttpHost) context.getAttribute("http.target_host")));
 
         } catch (NumberFormatException | IOException e) {
             logger.debug(e, e);
-
             throw new HttpClientException (e.getMessage(), e);
         }
         
-        // 6. Process response.
-        return processResponse(response, (HttpHost) context.getAttribute("http.target_host"));
+        return response;
     }
 
     public static String ensureEscaping(String s) {

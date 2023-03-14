@@ -34,22 +34,19 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
-import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteException;
 import ch.niceideas.eskimo.egmi.gluster.GlusterRemoteManager;
-import ch.niceideas.eskimo.egmi.gluster.command.ForceRemoveVolumeBricks;
 import ch.niceideas.eskimo.egmi.gluster.command.ForceResetHost;
-import ch.niceideas.eskimo.egmi.gluster.command.GlusterPeerDetach;
-import ch.niceideas.eskimo.egmi.gluster.command.GlusterPeerProbe;
-import ch.niceideas.eskimo.egmi.model.*;
+import ch.niceideas.eskimo.egmi.model.Node;
+import ch.niceideas.eskimo.egmi.model.NodeStatus;
+import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -108,37 +105,17 @@ public class NodeCorrupted extends AbstractProblem implements Problem {
             // removing inconsistent host
             activeNodes.remove(host);
 
-            // 2. Remove all node bricks
-            Node activeNode = activeNodes.stream().findFirst().orElseThrow(IllegalStateException::new);
-            Map<BrickId, Volume> nodeBricks = nodesStatus.get(activeNode).getNodeBricksAndVolumes(host);
-            for (Volume volume : nodeBricks.values()) {
-                if (!NodeDown.handleNodeDownBricks(volume, host, context, nodesStatus, activeNodes, nodeBricks)) {
-                    return false;
-                }
-            }
-
             // 3. Force remove host from peer reporting it
             context.info ("  + Force resetting host " + host);
             executeSimpleOperation(new ForceResetHost(context.getHttpClient()), context, host);
 
             // 4. Add it again
             Node other = getFirstNode(activeNodes).orElseThrow(IllegalStateException::new);
-            context.info ("  + Re-adding " + host + " to " + other + " peer pool.");
-            executeSimpleOperation(new GlusterPeerProbe(context.getHttpClient(), host), context, other);
-
-            try {
-                // 7. Ensure it is properly available
-                checkHostInPeerPool(context, other, host);
-
-            } catch (HttpClientException | IOException e) {
-                logger.debug (e, e);
-                logger.error (e.getMessage());
-                throw new ResolutionStopException(e);
-            }
+            NodeInconsistent.addNodeBackInPool(context, host, other);
 
             return true;
 
-        } catch (GlusterRemoteException | NodeStatusException e) {
+        } catch (GlusterRemoteException e) {
             logger.error (e, e);
             return false;
         }
