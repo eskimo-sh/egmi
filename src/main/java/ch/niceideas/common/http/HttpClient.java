@@ -34,6 +34,7 @@
 
 package ch.niceideas.common.http;
 
+import ch.niceideas.common.exceptions.CommonRTException;
 import ch.niceideas.common.utils.StringUtils;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.config.ConnectionConfig;
@@ -371,8 +372,16 @@ public class HttpClient implements Closeable {
                     request,
                     context,
                     // 6. Process response.
-                    httpResponse -> processResponse(httpResponse, (HttpHost) context.getAttribute("http.target_host")));
+                    httpResponse -> {
+                        try {
+                            return processResponse(httpResponse, (HttpHost) context.getAttribute("http.target_host"));
+                        } catch (HttpClientException e) {
+                            throw new CommonRTException(e);
+                        }
+                    });
 
+        } catch (CommonRTException e) {
+            throw new HttpClientException(e);
         } catch (NumberFormatException | IOException e) {
             logger.debug(e, e);
             throw new HttpClientException (e.getMessage(), e);
@@ -400,7 +409,7 @@ public class HttpClient implements Closeable {
                 ;
     }
 
-    private HttpClientResponse processResponse(ClassicHttpResponse response, HttpHost targetHost) {
+    private HttpClientResponse processResponse(ClassicHttpResponse response, HttpHost targetHost) throws HttpClientException {
         return new HttpClientResponse(response, targetHost != null ? targetHost.toString() : null);
     }
 

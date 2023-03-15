@@ -34,7 +34,9 @@
 
 package ch.niceideas.eskimo.egmi.testinfrastructure.common.testsImpl;
 
+import ch.niceideas.common.exceptions.CommonRTException;
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
@@ -68,6 +70,10 @@ public class HttpClientTestImpl extends HttpClient {
             }
         };
 
-        return new HttpClientResponse(bhr, "dummy");
+        try {
+            return new HttpClientResponse(bhr, "dummy");
+        } catch (HttpClientException e) {
+            throw new CommonRTException(e);
+        }
     }
 }

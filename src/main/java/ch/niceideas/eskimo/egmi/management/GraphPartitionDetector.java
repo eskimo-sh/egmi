@@ -75,6 +75,9 @@ public class GraphPartitionDetector {
                 })
                 .max(Comparator.naturalOrder())
                 .orElse(1);
+        if (totalVolumesCounter == 0) { // hack for when there
+            totalVolumesCounter = 1;
+        }
 
         // 1. For every node, count number of nodes reachable on the connection graph from the node
         Map<Node, Integer> counters = buildPeerTimesVolumeCounters(allNodes, nodes, nodesStatus);

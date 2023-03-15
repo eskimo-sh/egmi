@@ -44,9 +44,8 @@ import org.apache.log4j.Logger;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,18 +61,42 @@ import java.util.Map;
 public class HttpClientResponse implements Closeable {
 
     private static final Logger logger = Logger.getLogger(HttpClientResponse.class);
-    
-    private final ClassicHttpResponse response;
+
     private final HttpEntity responseEntity;
     private final String targetHost;
 
+    private final Map<String, String> headerMap = new HashMap<>();
+
+    private final int responseCode;
+    private final String reasonPhrase;
+
     private byte[] respBytes;
 
-    public HttpClientResponse(ClassicHttpResponse response, String targetHost) {
+    public HttpClientResponse(ClassicHttpResponse response, String targetHost) throws HttpClientException {
         super();
-        this.response = response;
         this.responseEntity = response.getEntity();
         this.targetHost = targetHost;
+
+        this.responseCode = response.getCode();
+        this.reasonPhrase = response.getReasonPhrase();
+
+        for (Header header : response.getHeaders()) {
+            String key = header.getName();
+            String value = header.getValue();
+            if (key.equalsIgnoreCase("Transfer-Encoding") && StringUtils.isNotBlank(value)) {
+                if (responseEntity != null && responseEntity.isChunked()) {
+                    headerMap.put("Content-Length", "" + responseEntity.getContentLength());
+                } else {
+                    throw new IllegalStateException(
+                            "'Transfer-Encoding' header is present but no no chunked entity is available in response.");
+                }
+            } else {
+                headerMap.put(header.getName(), header.getValue());
+            }
+
+        }
+
+        this.resolveContent();
     }
 
     /**
@@ -87,7 +110,7 @@ public class HttpClientResponse implements Closeable {
      * @return the HTPP status code of the response
      */
     public int getStatusCode() {
-        return response.getCode();
+        return responseCode;
     }
     
     public HttpResponseStatus getStatus() {
@@ -102,43 +125,16 @@ public class HttpClientResponse implements Closeable {
      * @return a <String, String> map containing the header attributes.
      */
     public Map<String, String> getHeaderMap() {
-
-        Map<String, String> headers = new HashMap<>();
-        for (Header header : this.response.getHeaders()) {
-            String key = header.getName();
-            String value = header.getValue();
-            if (key.equalsIgnoreCase("Transfer-Encoding") && StringUtils.isNotBlank(value)) {
-                if (responseEntity != null && responseEntity.isChunked()) {
-                    headers.put("Content-Length", "" + responseEntity.getContentLength());
-                } else {
-                    throw new IllegalStateException(
-                            "'Transfer-Encoding' header is present but no no chunked entity is available in response.");
-                }
-            } else {
-                headers.put(header.getName(), header.getValue());
-            }
-
-        }
-        return headers;
+        return Collections.unmodifiableMap(headerMap);
     }
 
-    /**
-     * @return the response as a string
-     * @throws HttpClientException if anything goes wrong
-     */
-    public String asString() throws HttpClientException {
-        return this.asString(StandardCharsets.UTF_8);
-    }
-    
     /**
      * @param encoding the encoding to be used 
      * @return the response as a string
      * @throws HttpClientException if anything goes wrong
      */
     public String asString(Charset encoding) throws HttpClientException {
-        if (respBytes == null) {
-            this.resolveContent();
-        }
+
         if (respBytes == null) {
             StringBuilder responseInformation = buildResponseInformation();
             responseInformation.append("No response has been provided by target server.");
@@ -154,33 +150,12 @@ public class HttpClientResponse implements Closeable {
     private StringBuilder buildResponseInformation() {
         StringBuilder messageBuilder = new StringBuilder();
         messageBuilder.append("Response status code = ");
-        messageBuilder.append(response.getCode());
+        messageBuilder.append(responseCode);
         messageBuilder.append("\n");
         messageBuilder.append("Response status reason = ");
-        messageBuilder.append(response.getReasonPhrase());
+        messageBuilder.append(reasonPhrase);
         messageBuilder.append("\n");
         return messageBuilder;
-    }
-
-    /**
-     * @return the response as an input stream
-     * @throws HttpClientException if anything goes wrong
-     */
-    public InputStream asInputStream() throws HttpClientException {
-        if (responseEntity == null) {
-            StringBuilder responseInformation = buildResponseInformation();
-            responseInformation.append("No response has been provided by target server.");
-            String errorMessage = responseInformation.toString();
-            logger.error(errorMessage);
-            //throw ExceptionFactory.getException(HttpClientException.class, errorMessage);
-            return null;
-        }
-        try {
-            return responseEntity.getContent();
-        } catch (IOException e) {
-            logger.error(e, e);
-            throw new HttpClientException(e.getMessage(), e);
-        }
     }
 
     public void resolveContent() throws HttpClientException {

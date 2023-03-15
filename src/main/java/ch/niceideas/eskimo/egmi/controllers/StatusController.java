@@ -35,6 +35,7 @@
 package ch.niceideas.eskimo.egmi.controllers;
 
 import ch.niceideas.common.json.JsonWrapper;
+import ch.niceideas.common.utils.StringUtils;
 import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.utils.ReturnStatusHelper;
@@ -75,6 +76,9 @@ public class StatusController {
     @Value("${master.redirect.URLPattern:#{null}}")
     private String redirectURLPattern;
 
+    @Value("${zookeeper.urls:#{null}}")
+    private String zookeeperUrls;
+
     @GetMapping("/get-status")
     @ResponseBody
     public String getStatus() {
@@ -96,7 +100,11 @@ public class StatusController {
     public String getMaster() {
         return ReturnStatusHelper.createOKStatus(map -> map.putAll(new HashMap<>(){{
             put ("master", zookeeperService.isMaster());
-            put ("master_url", resolveMasterUrl (redirectURLPattern, zookeeperService.getMasterHostname()));
+            if (StringUtils.isNotBlank(zookeeperUrls)) {
+                put("master_url", resolveMasterUrl(redirectURLPattern, zookeeperService.getMasterHostname()));
+            } else {
+                put("master_url", "UNKNOWN");
+            }
         }})).getFormattedValue();
     }
 

@@ -46,6 +46,6 @@ done
 
 rm -Rf /var/lib/glusterd/*
 
-kill "$(pgrep glusterd)"
+bash -c "sleep 2 && kill \"$(pgrep glusterd)\"" &
 
-# Then let systemD restart glustee
+# Then let systemD restart gluster

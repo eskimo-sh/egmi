@@ -34,15 +34,19 @@
 
 package ch.niceideas.eskimo.egmi.gluster.command;
 
+import ch.niceideas.common.exceptions.CommonRTException;
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.problems.CommandContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractCommandTest {
@@ -62,13 +66,12 @@ public abstract class AbstractCommandTest {
             switch (method.getName()) {
                 case "getEntity":
                     return new StringEntity(response.get());
-
                 case "getCode":
                     return 200;
-
                 case "getReasonPhrase":
                     return "Ok";
-
+                case "getHeaders":
+                    return new Header[0];
                 default:
                     throw new UnsupportedOperationException(method.getName());
             }
@@ -79,7 +82,11 @@ public abstract class AbstractCommandTest {
             @Override
             public HttpClientResponse sendRequest(String url) {
                 AbstractCommandTest.this.url.set(url);
-                return new HttpClientResponse(respProxy, "127.0.0.1");
+                try {
+                    return new HttpClientResponse(respProxy, "127.0.0.1");
+                } catch (HttpClientException e) {
+                    throw new CommonRTException(e);
+                }
             }
         };
 

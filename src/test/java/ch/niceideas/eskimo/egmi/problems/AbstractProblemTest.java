@@ -34,7 +34,9 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
+import ch.niceideas.common.exceptions.CommonRTException;
 import ch.niceideas.common.http.HttpClient;
+import ch.niceideas.common.http.HttpClientException;
 import ch.niceideas.common.http.HttpClientResponse;
 import ch.niceideas.common.json.JsonWrapper;
 import ch.niceideas.common.utils.ResourceUtils;
@@ -49,6 +51,7 @@ import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,13 +87,12 @@ public abstract class AbstractProblemTest {
             switch (method.getName()) {
                 case "getEntity":
                     return new StringEntity(response.get());
-
                 case "getCode":
                     return 200;
-
                 case "getReasonPhrase":
                     return "Ok";
-
+                case "getHeaders":
+                    return new Header[0];
                 default:
                     throw new UnsupportedOperationException(method.getName());
             }
@@ -102,7 +104,11 @@ public abstract class AbstractProblemTest {
             public HttpClientResponse sendRequest(String url) {
                 urls.add(url);
                 response.set("success");
-                return new HttpClientResponse(respProxy, "127.0.0.1");
+                try {
+                    return new HttpClientResponse(respProxy, "127.0.0.1");
+                } catch (HttpClientException e) {
+                    throw new CommonRTException(e);
+                }
             }
         };
 

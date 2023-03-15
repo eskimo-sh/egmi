@@ -35,6 +35,7 @@
 package ch.niceideas.common.http;
 
 import ch.niceideas.common.exceptions.CommonBusinessException;
+import ch.niceideas.common.exceptions.CommonRTException;
 
 /**
  * Exception of the class HttpClient. Indicates an error occured during usage of the HttpClient.
@@ -60,5 +61,9 @@ public class HttpClientException extends CommonBusinessException {
      */
     public HttpClientException(String code, Throwable cause) {
         super(code, cause);
+    }
+
+    public HttpClientException(Exception e) {
+        super (e);
     }
 }

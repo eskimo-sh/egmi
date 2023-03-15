@@ -44,12 +44,14 @@ import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.model.Node;
 import ch.niceideas.eskimo.egmi.model.NodeStatus;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 
@@ -92,13 +94,12 @@ public class GlusterRemoteManagerTest {
             switch (method.getName()) {
                 case "getEntity":
                     return new StringEntity(response.get());
-
                 case "getCode":
                     return 200;
-
                 case "getReasonPhrase":
                     return "Ok";
-
+                case "getHeaders":
+                    return new Header[0];
                 default:
                     throw new UnsupportedOperationException(method.getName());
             }
