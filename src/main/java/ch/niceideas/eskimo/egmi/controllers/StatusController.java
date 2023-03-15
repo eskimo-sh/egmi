@@ -76,9 +76,6 @@ public class StatusController {
     @Value("${master.redirect.URLPattern:#{null}}")
     private String redirectURLPattern;
 
-    @Value("${zookeeper.urls:#{null}}")
-    private String zookeeperUrls;
-
     @GetMapping("/get-status")
     @ResponseBody
     public String getStatus() {
@@ -100,7 +97,7 @@ public class StatusController {
     public String getMaster() {
         return ReturnStatusHelper.createOKStatus(map -> map.putAll(new HashMap<>(){{
             put ("master", zookeeperService.isMaster());
-            if (StringUtils.isNotBlank(zookeeperUrls)) {
+            if (StringUtils.isNotBlank(zookeeperService.getMasterHostname())) {
                 put("master_url", resolveMasterUrl(redirectURLPattern, zookeeperService.getMasterHostname()));
             } else {
                 put("master_url", "UNKNOWN");

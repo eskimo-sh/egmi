@@ -35,15 +35,12 @@
 
 package ch.niceideas.eskimo.egmi.controllers;
 
-import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.management.ManagementService;
 import ch.niceideas.eskimo.egmi.model.SystemStatus;
 import ch.niceideas.eskimo.egmi.zookeeper.ZookeeperService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class StatusControllerTest {
 
