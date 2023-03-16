@@ -110,7 +110,7 @@ public class GraphPartitionDetector {
                 }
             }
 
-            // otherwise flag all those different than smallest as PARTITIONED
+            // otherwise flag all those different than highest as PARTITIONED
             else {
                 for (Node host : allNodes) {
                     int counter = counters.get(host);
