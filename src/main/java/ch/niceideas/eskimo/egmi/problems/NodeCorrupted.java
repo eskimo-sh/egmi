@@ -109,9 +109,8 @@ public class NodeCorrupted extends AbstractProblem implements Problem {
             context.info ("  + Force resetting host " + host);
             executeSimpleOperation(new ForceResetHost(context.getHttpClient()), context, host);
 
-            // 4. Add it again
-            Node other = getFirstNode(activeNodes).orElseThrow(IllegalStateException::new);
-            NodeInconsistent.addNodeBackInPool(context, host, other);
+            // We would want to add te node back right awy, but that's impossible.
+            // We need to leave time to SystemD to restart gluster since the command above will kill it.
 
             return true;
 

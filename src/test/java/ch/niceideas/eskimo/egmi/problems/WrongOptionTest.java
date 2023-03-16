@@ -43,20 +43,13 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WrongOptionTest extends AbstractProblemTest {
-
-    private WrongOption problem;
+public class WrongOptionTest extends AbstractProblemTest<WrongOption> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         problem = new WrongOption(new Date(), Volume.from("test1"), "performance.open-behind", null, "off");
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

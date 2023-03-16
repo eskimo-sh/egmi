@@ -42,20 +42,13 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MissingBrickReplicaTest extends AbstractProblemTest {
-
-    private MissingBrick problem;
+public class MissingBrickReplicaTest extends AbstractProblemTest<MissingBrick> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         problem = new MissingBrick(new Date(), Volume.from("test2"), 4, 2);
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

@@ -44,9 +44,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BrickOfflineTest  extends AbstractProblemTest {
-
-    private BrickOffline problem;
+public class BrickOfflineTest  extends AbstractProblemTest<BrickOffline> {
 
     @Override
     @BeforeEach
@@ -56,11 +54,6 @@ public class BrickOfflineTest  extends AbstractProblemTest {
                 new Date(),
                 Volume.from("test2"),
                 BrickId.fromNodeAndPath(Node.from ("192.168.10.71"), "/var/lib/gluster/volume_bricks/test2_bis_1"));
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

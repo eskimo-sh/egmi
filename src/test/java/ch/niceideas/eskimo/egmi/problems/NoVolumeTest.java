@@ -42,20 +42,13 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NoVolumeTest extends AbstractProblemTest {
-
-    private NoVolume problem;
+public class NoVolumeTest extends AbstractProblemTest<NoVolume> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         problem = new NoVolume(new Date(), Volume.from("flink_data"));
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

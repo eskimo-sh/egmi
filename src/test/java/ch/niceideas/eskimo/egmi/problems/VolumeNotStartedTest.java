@@ -42,20 +42,13 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class VolumeNotStartedTest extends AbstractProblemTest {
-
-    private VolumeNotStarted problem;
+public class VolumeNotStartedTest extends AbstractProblemTest<VolumeNotStarted> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         problem = new VolumeNotStarted(new Date(), Volume.from("test1"));
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

@@ -65,7 +65,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class AbstractProblemTest {
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public abstract class AbstractProblemTest<T extends Problem> {
+
+    protected T problem;
 
     protected GlusterRemoteManager grm;
     protected final AtomicReference<String> response = new AtomicReference<>();
@@ -197,5 +201,10 @@ public abstract class AbstractProblemTest {
     public void testRebuild() throws ManagementException {
         ms.updateSystemStatus();
         ms.getSystemStatus().getJSONObject().similar(systemStatus.getJSONObject());
+    }
+
+    @Test
+    public void testRecognize() {
+        assertTrue (problem.recognize(systemStatus));
     }
 }

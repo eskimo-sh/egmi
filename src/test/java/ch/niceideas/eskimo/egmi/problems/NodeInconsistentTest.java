@@ -42,20 +42,13 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NodeInconsistentTest extends AbstractProblemTest {
-
-    private NodeInconsistent problem;
+public class NodeInconsistentTest extends AbstractProblemTest<NodeInconsistent> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         problem = new NodeInconsistent(new Date(), Node.from ("192.168.10.72"), Node.from ("192.168.10.71"));
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

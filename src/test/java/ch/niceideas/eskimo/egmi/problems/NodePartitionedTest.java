@@ -42,20 +42,13 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NodePartitionedTest extends AbstractProblemTest {
-
-    private NodePartitioned problem;
+public class NodePartitionedTest extends AbstractProblemTest<NodePartitioned> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         problem = new NodePartitioned(new Date(), Node.from ("192.168.10.73"));
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

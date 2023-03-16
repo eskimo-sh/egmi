@@ -43,20 +43,13 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class NodeDownRemovalTest extends AbstractProblemTest {
-
-    private NodeDownRemoval problem;
+public class NodeDownRemovalTest extends AbstractProblemTest<NodeDownRemoval> {
 
     @Override
     @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         problem = new NodeDownRemoval(new Date(), Node.from ("192.168.10.72"));
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

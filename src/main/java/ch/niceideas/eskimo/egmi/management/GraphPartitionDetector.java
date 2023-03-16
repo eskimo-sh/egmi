@@ -45,7 +45,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,7 +74,7 @@ public class GraphPartitionDetector {
                 })
                 .max(Comparator.naturalOrder())
                 .orElse(1);
-        if (totalVolumesCounter == 0) { // hack for when there
+        if (totalVolumesCounter == 0) { // hack for when there are no volumes whatsoever
             totalVolumesCounter = 1;
         }
 
@@ -100,12 +99,8 @@ public class GraphPartitionDetector {
             int smallest = Integer.MAX_VALUE, highest = Integer.MIN_VALUE;
             for (Node host : allNodes) {
                 int counter = counters.get(host);
-                if (counter < smallest) {
-                    smallest = counter;
-                }
-                if (counter > highest) {
-                    highest = counter;
-                }
+                smallest = Math.min (counter, smallest);
+                highest = Math.max (counter, highest);
             }
 
             // if highest == smallest, then flag all nodes as PARTITIONED
@@ -113,7 +108,6 @@ public class GraphPartitionDetector {
                 for (Node host : allNodes) {
                     flagNodePartitioned(problemManager, newStatus, host);
                 }
-
             }
 
             // otherwise flag all those different than smallest as PARTITIONED

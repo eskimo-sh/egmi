@@ -3,7 +3,7 @@ This file is part of the eskimo project referenced at www.eskimo.sh. The licensi
 well to this individual file than to the Eskimo Project as a whole.
 
 Copyright 2019 www.eskimo.sh - All rights reserved.
-Author : http://www.eskimo.sh
+Author : https://www.eskimo.sh
 
 Eskimo is available under a dual licensing model : commercial and GNU AGPL.
 If you did not acquire a commercial licence for Eskimo, you can still use it and consider it free software under the
@@ -221,7 +221,7 @@ configuration.
 EGMI is part of the Eskimo software platform.
 
 Eskimo is Copyright 2019 - 2023 eskimo.sh - All rights reserved. +
-Author : http://www.eskimo.sh
+Author : https://www.eskimo.sh
 
 Eskimo is available under a dual licensing model : commercial and GNU AGPL. +
 If you did not acquire a commercial licence for Eskimo, you can still use it and consider it free software under the

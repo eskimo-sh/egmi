@@ -34,7 +34,6 @@
 
 package ch.niceideas.eskimo.egmi.problems;
 
-import ch.niceideas.eskimo.egmi.management.ManagementException;
 import ch.niceideas.eskimo.egmi.model.Node;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,9 +42,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NodeCorruptedTest extends AbstractProblemTest {
-
-    private NodeCorrupted problem;
+public class NodeCorruptedTest extends AbstractProblemTest<NodeCorrupted> {
 
     @Override
     @BeforeEach
@@ -55,25 +52,11 @@ public class NodeCorruptedTest extends AbstractProblemTest {
     }
 
     @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
-    }
+    public void testSolve() throws Exception {
 
-    @Test
-    public void testSolve() {
-
-        ResolutionStopException exp = assertThrows(ResolutionStopException.class,
-                () -> problem.solve(grm, new CommandContext(mockClient, 1234, ms)));
-
-        assertEquals("! Failed to confirm peer addition in 5 attempts.", exp.getMessage());
+        problem.solve(grm, new CommandContext(mockClient, 1234, ms));
 
         assertEquals("" +
-                "192.168.10.72:1234/command?command=force-reset-host&subcommand=&options=\n" +
-                "192.168.10.71:1234/command?command=peer&subcommand=probe&options=192.168.10.72\n" +
-                "192.168.10.72:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.72:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.72:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.72:1234/command?command=pool&subcommand=list&options=\n" +
-                "192.168.10.72:1234/command?command=pool&subcommand=list&options=", String.join("\n", urls));
+                "192.168.10.72:1234/command?command=force-reset-host&subcommand=&options=", String.join("\n", urls));
     }
 }

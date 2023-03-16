@@ -42,9 +42,7 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MissingBrickShardTest extends AbstractProblemTest {
-
-    private MissingBrick problem;
+public class MissingBrickShardTest extends AbstractProblemTest<MissingBrick> {
 
     @Override
     @BeforeEach
@@ -53,11 +51,6 @@ public class MissingBrickShardTest extends AbstractProblemTest {
         ms.setTargetNumberBricksString("ALL_NODES");
         ms.setDefaultNumberReplica(1);
         problem = new MissingBrick(new Date(), Volume.from("test2"), 4, 2);
-    }
-
-    @Test
-    public void testRecognize() {
-        assertTrue (problem.recognize(systemStatus));
     }
 
     @Test

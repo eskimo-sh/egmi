@@ -135,6 +135,11 @@ public class ManagementServiceTest {
         ms.setTestConfig(String.join (",", "a ".repeat(100).trim().split (" ")), null);
         assertEquals (6, ms.getTargetNumberOfBricks());
         assertEquals (3, ms.getTargetNumberOfReplicas());
+
+        // Testing 1000 nodes
+        ms.setTestConfig(String.join (",", "a ".repeat(1000).trim().split (" ")), null);
+        assertEquals (9, ms.getTargetNumberOfBricks());
+        assertEquals (3, ms.getTargetNumberOfReplicas());
     }
 
     @Test
@@ -398,7 +403,6 @@ public class ManagementServiceTest {
         SystemStatus ss = ms.getSystemStatus("testhost", nodesStatus, allNodes, allVolumes);
 
         //System.err.println (ss.getFormattedValue());
-
         SystemStatus expected = new SystemStatus(StreamUtils.getAsString(ResourceUtils.getResourceAsStream("ManagementServiceTest/options/resultSystemStatus.json")));
 
         //assertEquals (expected.getFormattedValue(), ss.getFormattedValue());
