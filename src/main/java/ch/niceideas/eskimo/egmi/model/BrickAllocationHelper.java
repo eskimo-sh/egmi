@@ -161,7 +161,9 @@ public class BrickAllocationHelper {
         return brickIds;
     }
 
-    public static List<BrickId> buildNewVolumeBrickAllocation(Volume volume, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, RuntimeLayout rl) throws NodeStatusException {
+    public static List<BrickId> buildNewVolumeBrickAllocation(
+            Volume volume, CommandContext context, Map<Node, NodeStatus> nodesStatus, Set<Node> activeNodes, RuntimeLayout rl)
+            throws NodeStatusException {
 
         int targetNbrBricks = rl.getTargetNbrBricks();
         int targetNbrReplicas = rl.getTargetNbrReplicas();
