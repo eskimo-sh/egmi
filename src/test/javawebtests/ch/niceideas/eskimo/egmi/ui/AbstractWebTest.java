@@ -93,6 +93,7 @@ public abstract class AbstractWebTest {
         co.addArguments("--window-position=0,0");
         co.addArguments("--window-size=1900,1024");
         co.addArguments("--headless");
+        co.addArguments("--remote-allow-origins=*");
         co.addArguments("--disable-gpu");
 
         File resolutionCachePath = new File("/tmp/eskimo-selenium-resolution-cache");
