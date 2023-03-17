@@ -36,8 +36,11 @@ package ch.niceideas.eskimo.egmi.ui;
 
 import ch.niceideas.common.utils.ResourceUtils;
 import ch.niceideas.common.utils.StreamUtils;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
 
 public class EgmiMainTest extends AbstractWebTest {
 
@@ -48,6 +51,8 @@ public class EgmiMainTest extends AbstractWebTest {
         loadScript("utils.js");
 
         loadScript("egmiMain.js");
+
+        Awaitility.waitAtMost(Duration.ofSeconds(5)).until(() -> js("return window.egmi") != null);
 
         js("egmi.Messaging = function() {" +
                 "this.initialize = function() {}" +

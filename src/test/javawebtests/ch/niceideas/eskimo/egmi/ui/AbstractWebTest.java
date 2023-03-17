@@ -293,7 +293,7 @@ public abstract class AbstractWebTest {
         js("loadScript('http://localhost:" + TestResourcesServer.LOCAL_TEST_SERVER_PORT + "/src/main/webapp/js/"+script+"')");
         try {
             waitForElementInDOM(By.cssSelector("script[src=\"http://localhost:" + TestResourcesServer.LOCAL_TEST_SERVER_PORT + "/src/main/webapp/js/" + script + "\"]"));
-            Thread.sleep(20); // give it some more time to actually load script elements
+            Thread.sleep(50); // give it some more time to actually load script elements
         } catch (InterruptedException e) {
             logger.debug(e, e);
         }
