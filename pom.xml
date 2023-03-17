@@ -171,6 +171,22 @@ Software.
                     <groupId>org.seleniumhq.selenium</groupId>
                     <artifactId>selenium-support</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-edge-driver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-firefox-driver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-ie-driver</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-safari-driver</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -213,6 +229,19 @@ Software.
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-remote-driver</artifactId>
+            <version>4.7.2</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <!-- unfortunately this one is an old one being referenced so I need to force it underneath -->
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>selenium-http</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-http</artifactId>
             <version>4.7.2</version>
             <scope>test</scope>
         </dependency>
