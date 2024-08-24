@@ -125,7 +125,7 @@ function errorHandler (jqXHR, status) {
     console.log (status);
 
     if (jqXHR.status == "401") {
-        window.location = "app.html";
+        window.location = "index.html";
     }
 
     if (jqXHR && jqXHR.responseJSON  && jqXHR.responseJSON.message) {
